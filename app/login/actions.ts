@@ -14,8 +14,14 @@ export async function login(formData: FormData) {
   })
 
   if (error) {
-    return redirect(`/?message=${encodeURIComponent(error.message)}`)
+    return redirect(`/login?message=${encodeURIComponent(error.message)}`)
   }
 
-  return redirect('/qna') // 로그인 성공 시 Q&A 페이지로 이동
+  return redirect('/') // 로그인 성공 시 메인화면으로 이동
+}
+
+export async function logout() {
+  const supabase = await createClient()
+  await supabase.auth.signOut()
+  return redirect('/')
 }

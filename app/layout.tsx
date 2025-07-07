@@ -3,6 +3,8 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import Link from "next/link";
 import Image from "next/image";
+import { createClient } from '@/lib/supabase/server';
+import { logout } from './login/actions';
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -19,11 +21,14 @@ export const metadata: Metadata = {
   description: "취업 준비생들을 위한 Q&A, 면접 리뷰, 채용 정보 커뮤니티",
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+
   return (
     <html lang="ko">
       <body
@@ -33,54 +38,54 @@ export default function RootLayout({
           <div className="container flex h-16 items-center justify-between">
             <Link href="/" className="flex items-center space-x-2">
               <div className="h-10 w-10 flex items-center justify-center">
-                <Image src="/logo.svg" alt="로고" width={32} height={32} className="h-8 w-8" />
+                <span className="text-2xl font-bold">🦁</span>
               </div>
-              <span className="font-bold text-xl text-slate-900 dark:text-slate-100">
-                백수의 왕
-              </span>
+              <span className="font-bold text-xl text-slate-900 dark:text-slate-100">백수의 왕</span>
             </Link>
+            
             <nav className="flex items-center space-x-6">
-              <Link 
-                href="/qna" 
-                className="text-sm font-medium text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-100 transition-colors"
-              >
+              <Link href="/qna" className="text-sm font-medium text-slate-700 hover:text-slate-900 dark:text-slate-300 dark:hover:text-slate-100 transition-colors">
                 Q&A
               </Link>
-              <Link 
-                href="/interview" 
-                className="text-sm font-medium text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-100 transition-colors"
-              >
-                면접 리뷰
+              <Link href="/interview" className="text-sm font-medium text-slate-700 hover:text-slate-900 dark:text-slate-300 dark:hover:text-slate-100 transition-colors">
+                면접
               </Link>
-              <Link 
-                href="/jobs" 
-                className="text-sm font-medium text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-100 transition-colors"
-              >
-                채용 정보
+              <Link href="/jobs" className="text-sm font-medium text-slate-700 hover:text-slate-900 dark:text-slate-300 dark:hover:text-slate-100 transition-colors">
+                채용정보
               </Link>
-              <Link 
-                href="/login" 
-                className="text-sm font-medium text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 transition-colors"
-              >
-                로그인/회원가입
-              </Link>
-              <Link 
-                href="/mypage" 
-                className="text-sm font-medium text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-100 transition-colors"
-              >
-                마이페이지
-              </Link>
+              
+              {user ? (
+                <>
+                  <Link href="/mypage" className="text-sm font-medium text-slate-700 hover:text-slate-900 dark:text-slate-300 dark:hover:text-slate-100 transition-colors">
+                    마이페이지
+                  </Link>
+                  <form action={logout} className="inline">
+                    <button type="submit" className="text-sm font-medium text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300 transition-colors cursor-pointer">
+                      로그아웃
+                    </button>
+                  </form>
+                </>
+              ) : (
+                <>
+                  <Link href="/login" className="text-sm font-medium text-slate-700 hover:text-slate-900 dark:text-slate-300 dark:hover:text-slate-100 transition-colors">
+                    로그인
+                  </Link>
+                  <Link href="/signup" className="text-sm font-medium text-slate-700 hover:text-slate-900 dark:text-slate-300 dark:hover:text-slate-100 transition-colors">
+                    회원가입
+                  </Link>
+                </>
+              )}
             </nav>
           </div>
         </header>
+        
         <main className="flex-1">
           {children}
         </main>
-        <footer className="border-t border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-900">
-          <div className="container py-8">
-            <p className="text-center text-sm text-slate-600 dark:text-slate-400">
-              © 2024 백수의 왕. 취업 준비생들을 위한 커뮤니티.
-            </p>
+        
+        <footer className="border-t border-slate-200 dark:border-slate-700 py-8">
+          <div className="container text-center text-sm text-slate-600 dark:text-slate-400">
+            © 2024 백수의 왕. All rights reserved.
           </div>
         </footer>
       </body>
