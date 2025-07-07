@@ -13,7 +13,7 @@ export default async function ForumDetailPage({ params }: { params: { id: string
   return (
     <div className="container py-8">
       <div className="mb-4">
-        <Link href="/qna" className="text-blue-600 hover:underline flex items-center">
+        <Link href="/forums" className="text-blue-600 hover:underline flex items-center">
           <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
           </svg>
@@ -31,7 +31,7 @@ export default async function ForumDetailPage({ params }: { params: { id: string
           </p>
         </div>
         <Link 
-          href={`/qna/${params.id}/new`}
+          href={`/forums/${params.id}/new`}
           className="btn btn-primary"
         >
           새 게시물 작성
@@ -41,7 +41,7 @@ export default async function ForumDetailPage({ params }: { params: { id: string
       <div className="space-y-4">
         {posts && posts.length > 0 ? (
           posts.map((post) => (
-            <Link key={post.id} href={`/qna/${params.id}/${post.id}`} className="block">
+            <Link key={post.id} href={`/forums/${params.id}/${post.id}`} className="block">
               <div className="card p-6 hover:shadow-md transition-shadow">
                 <div className="flex items-start">
                   <div className="flex flex-col items-center mr-4">
@@ -92,7 +92,7 @@ export default async function ForumDetailPage({ params }: { params: { id: string
               첫 번째 게시물을 작성해보세요!
             </p>
             <Link 
-              href={`/qna/${params.id}/new`}
+              href={`/forums/${params.id}/new`}
               className="btn btn-primary"
             >
               새 게시물 작성

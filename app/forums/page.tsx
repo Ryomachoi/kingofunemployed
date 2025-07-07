@@ -2,7 +2,7 @@ import { createClient } from '@/lib/supabase/server'
 import Link from 'next/link'
 import { searchForums } from './actions'
 
-export default async function QnaPage({
+export default async function ForumsPage({
   searchParams,
 }: {
   searchParams: { query?: string }
@@ -22,7 +22,7 @@ export default async function QnaPage({
           </p>
         </div>
         <Link 
-          href="/qna/new-forum"
+          href="/forums/new"
           className="btn btn-primary"
         >
           새 게시판 만들기
@@ -47,7 +47,7 @@ export default async function QnaPage({
       <div className="space-y-4">
         {forums && forums.length > 0 ? (
           forums.map((forum) => (
-            <Link key={forum.id} href={`/qna/${forum.id}`} className="block">
+            <Link key={forum.id} href={`/forums/${forum.id}`} className="block">
               <div className="card p-6 hover:shadow-md transition-shadow">
                 <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100 mb-2">
                   {forum.name}
@@ -76,7 +76,7 @@ export default async function QnaPage({
               '{query}'에 대한 게시판을 찾을 수 없습니다.
             </p>
             <Link 
-              href="/qna/new-forum"
+              href="/forums/new"
               className="btn btn-primary"
             >
               새 게시판 만들기
@@ -96,7 +96,7 @@ export default async function QnaPage({
               첫 번째 게시판을 만들어보세요!
             </p>
             <Link 
-              href="/qna/new-forum"
+              href="/forums/new"
               className="btn btn-primary"
             >
               새 게시판 만들기
