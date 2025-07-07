@@ -3,6 +3,7 @@ import Link from 'next/link'
 
 export default async function InterviewPage() {
   const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
   const { data: interviews } = await supabase.from('interviews').select('*').order('created_at', { ascending: false })
 
   return (
@@ -16,12 +17,21 @@ export default async function InterviewPage() {
             면접 경험을 공유하고 AI 피드백을 받아보세요
           </p>
         </div>
-        <Link 
-          href="/interview/new"
-          className="btn btn-primary"
-        >
-          면접 복기 작성
-        </Link>
+        {user ? (
+          <Link 
+            href="/interview/new"
+            className="btn btn-primary"
+          >
+            면접 복기 작성
+          </Link>
+        ) : (
+          <Link 
+            href="/login"
+            className="btn btn-outline"
+          >
+            로그인 후 작성
+          </Link>
+        )}
       </div>
       
       <div className="space-y-4">
@@ -94,12 +104,21 @@ export default async function InterviewPage() {
             <p className="text-slate-600 dark:text-slate-400 mb-4">
               첫 번째 면접 경험을 공유해보세요!
             </p>
-            <Link 
-              href="/interview/new"
-              className="btn btn-primary"
-            >
-              면접 복기 작성
-            </Link>
+            {user ? (
+              <Link 
+                href="/interview/new"
+                className="btn btn-primary"
+              >
+                면접 복기 작성
+              </Link>
+            ) : (
+              <Link 
+                href="/login"
+                className="btn btn-outline"
+              >
+                로그인 후 작성
+              </Link>
+            )}
           </div>
         )}
       </div>
