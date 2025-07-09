@@ -18,7 +18,7 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "백수의 왕 - 취업 커뮤니티",
-  description: "취업 준비생들을 위한 Q&A, 면접 리뷰, 채용 정보 커뮤니티",
+  description: "취업 준비생들을 위한 면접 리뷰, 채용 정보 커뮤니티",
 };
 
 export default async function RootLayout({
@@ -44,9 +44,6 @@ export default async function RootLayout({
             </Link>
             
             <nav className="flex items-center space-x-6">
-              <Link href="/qna" className="text-sm font-medium text-slate-700 hover:text-slate-900 dark:text-slate-300 dark:hover:text-slate-100 transition-colors">
-                Q&A
-              </Link>
               <Link href="/interview" className="text-sm font-medium text-slate-700 hover:text-slate-900 dark:text-slate-300 dark:hover:text-slate-100 transition-colors">
                 면접
               </Link>

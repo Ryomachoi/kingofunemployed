@@ -12,7 +12,6 @@ export default function HomePage() {
           취업 준비생을 위한 커뮤니티, 정보 공유와 성장의 공간입니다.
         </p>
         <div className="flex flex-col gap-4 mt-8">
-          <Link href="/qna" className="btn btn-outline w-full">Q&A</Link>
           <Link href="/interview" className="btn btn-outline w-full">면접 복기</Link>
           <Link href="/jobs" className="btn btn-outline w-full">채용정보</Link>
         </div>
