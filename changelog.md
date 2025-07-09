@@ -9,3 +9,5 @@ Changelog 버전 기록
            login 에러 수정 완료
 
 2025-07-09 board/feature02 브랜치 생성
+
+2025-07-10 board/feature02 게시판 생성, 게시물 작성 기능 추가 및 메인화면 디자인 수정
