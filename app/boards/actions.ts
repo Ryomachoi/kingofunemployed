@@ -249,3 +249,65 @@ export async function deletePost(postId: string) {
   
   return { success: true }
 }
+
+// 댓글 작성
+export async function createComment(formData: FormData) {
+  const supabase = await createClient()
+
+  // 사용자 인증 확인
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) {
+    return redirect(`/login?message=${encodeURIComponent('로그인이 필요합니다.')}`)
+  }
+
+  const postId = formData.get('postId') as string
+  const content = formData.get('content') as string
+
+  // 입력값 검증
+  if (!postId) {
+    return { error: '게시글 정보가 없습니다.' }
+  }
+
+  if (!content || content.trim().length === 0) {
+    return { error: '댓글 내용을 입력해주세요.' }
+  }
+
+  if (content.trim().length > 1000) {
+    return { error: '댓글은 1,000자 이하로 입력해주세요.' }
+  }
+
+  // 게시글 존재 확인
+  const { data: post } = await supabase
+    .from('posts')
+    .select('id, board_id')
+    .eq('id', postId)
+    .eq('is_deleted', false)
+    .single()
+
+  if (!post) {
+    return { error: '존재하지 않는 게시글입니다.' }
+  }
+
+  // 댓글 생성
+  const { data, error } = await supabase
+    .from('comments')
+    .insert({
+      post_id: postId,
+      content: content.trim(),
+      author_id: user.id
+    })
+    .select()
+    .single()
+
+  if (error) {
+    console.error('댓글 생성 오류:', error)
+    return { error: '댓글 작성 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.' }
+  }
+
+  // 캐시 무효화
+  revalidatePath(`/boards/${post.board_id}/posts/${postId}`)
+  
+  return { success: true, comment: data?.[0] }
+}
+
+// 게시글 추천

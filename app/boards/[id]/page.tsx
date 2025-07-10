@@ -24,15 +24,19 @@ export default async function BoardDetailPage({ params }: BoardDetailPageProps) 
     notFound()
   }
 
-  // 게시글 목록 조회
+  // 게시글 목록 조회 (댓글 개수 포함)
   const { data: posts, error: postsError } = await supabase
     .from('posts')
-    .select('*')
+    .select(`
+      *,
+      comments!left(count)
+    `)
     .eq('board_id', resolvedParams.id)
     .eq('is_deleted', false)
+    .eq('comments.is_deleted', false)
     .order('created_at', { ascending: false })
 
-  // 게시글 작성자 정보 조회
+  // 게시글 작성자 정보 조회 및 댓글 개수 계산
   let postsWithAuthors = []
   if (posts && posts.length > 0) {
     const authorIds = [...new Set(posts.map(post => post.author_id).filter(Boolean))]
@@ -44,7 +48,8 @@ export default async function BoardDetailPage({ params }: BoardDetailPageProps) 
     const profileMap = new Map(profiles?.map(profile => [profile.id, profile]) || [])
     postsWithAuthors = posts.map(post => ({
       ...post,
-      profiles: post.author_id ? profileMap.get(post.author_id) : null
+      profiles: post.author_id ? profileMap.get(post.author_id) : null,
+      comment_count: post.comments?.length || 0
     }))
   }
 
@@ -90,7 +95,7 @@ export default async function BoardDetailPage({ params }: BoardDetailPageProps) 
         </div>
         
         <div className="flex items-center space-x-4 text-sm text-slate-500 dark:text-slate-400">
-          <span>게시글 {board.post_count}개</span>
+          <span>게시글 {postsWithAuthors.length}개</span>
           <span>•</span>
           <span>생성일 {new Date(board.created_at).toLocaleDateString('ko-KR')}</span>
         </div>
@@ -103,10 +108,11 @@ export default async function BoardDetailPage({ params }: BoardDetailPageProps) 
             {/* 테이블 헤더 */}
             <div className="bg-slate-50 dark:bg-slate-700 px-6 py-3 border-b border-slate-200 dark:border-slate-600">
               <div className="grid grid-cols-12 gap-4 text-sm font-medium text-slate-700 dark:text-slate-300">
-                <div className="col-span-6">제목</div>
+                <div className="col-span-5">제목</div>
                 <div className="col-span-2 text-center">작성자</div>
                 <div className="col-span-2 text-center">작성일</div>
                 <div className="col-span-1 text-center">조회</div>
+                <div className="col-span-1 text-center">댓글</div>
                 <div className="col-span-1 text-center">추천</div>
               </div>
             </div>
@@ -120,7 +126,7 @@ export default async function BoardDetailPage({ params }: BoardDetailPageProps) 
                   className="block px-6 py-4 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors"
                 >
                   <div className="grid grid-cols-12 gap-4 items-center">
-                    <div className="col-span-6">
+                    <div className="col-span-5">
                       <h3 className="font-medium text-slate-900 dark:text-slate-100 hover:text-blue-600 dark:hover:text-blue-400 transition-colors line-clamp-1">
                         {post.title}
                       </h3>
@@ -132,10 +138,13 @@ export default async function BoardDetailPage({ params }: BoardDetailPageProps) 
                       {new Date(post.created_at).toLocaleDateString('ko-KR')}
                     </div>
                     <div className="col-span-1 text-center text-sm text-slate-600 dark:text-slate-400">
-                      {post.view_count}
+                      {post.view_count || 0}
                     </div>
                     <div className="col-span-1 text-center text-sm text-slate-600 dark:text-slate-400">
-                      {post.like_count}
+                      {post.comment_count || 0}
+                    </div>
+                    <div className="col-span-1 text-center text-sm text-slate-600 dark:text-slate-400">
+                      {post.like_count || 0}
                     </div>
                   </div>
                 </Link>

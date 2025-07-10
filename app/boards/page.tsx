@@ -10,7 +10,24 @@ export default async function BoardsPage() {
     .from('boards')
     .select('*')
     .eq('is_active', true)
-    .order('post_count', { ascending: false })
+    .order('created_at', { ascending: false })
+
+  // 각 게시판의 실제 게시물 개수 조회
+  const boardsWithRealCount = []
+  if (boards && boards.length > 0) {
+    for (const board of boards) {
+      const { count } = await supabase
+        .from('posts')
+        .select('*', { count: 'exact', head: true })
+        .eq('board_id', board.id)
+        .eq('is_deleted', false)
+      
+      boardsWithRealCount.push({
+        ...board,
+        real_post_count: count || 0
+      })
+    }
+  }
 
   if (error) {
     console.error('게시판 조회 오류:', error)
@@ -42,8 +59,8 @@ export default async function BoardsPage() {
 
       {/* 게시판 목록 */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-        {boards && boards.length > 0 ? (
-          boards.map((board) => (
+        {boardsWithRealCount && boardsWithRealCount.length > 0 ? (
+          boardsWithRealCount.map((board) => (
             <Link
               key={board.id}
               href={`/boards/${board.id}`}
@@ -53,9 +70,6 @@ export default async function BoardsPage() {
                 <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
                   {board.name}
                 </h3>
-                <span className="text-sm text-slate-500 dark:text-slate-400 bg-slate-100 dark:bg-slate-700 px-2 py-1 rounded">
-                  {board.post_count}개
-                </span>
               </div>
               
               {board.description && (
@@ -107,13 +121,16 @@ export default async function BoardsPage() {
       </div>
 
       {/* 인기 게시판 섹션 */}
-      {boards && boards.length > 0 && (
+      {boardsWithRealCount && boardsWithRealCount.length > 0 && (
         <div className="mt-12">
           <h2 className="text-xl font-semibold text-slate-900 dark:text-slate-100 mb-4">
             인기 게시판 TOP 5
           </h2>
           <div className="bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 overflow-hidden">
-            {boards.slice(0, 5).map((board, index) => (
+            {boardsWithRealCount
+              .sort((a, b) => b.real_post_count - a.real_post_count)
+              .slice(0, 5)
+              .map((board, index) => (
               <Link
                 key={board.id}
                 href={`/boards/${board.id}`}
@@ -128,7 +145,7 @@ export default async function BoardsPage() {
                   </span>
                 </div>
                 <span className="text-sm text-slate-500 dark:text-slate-400">
-                  {board.post_count}개 게시글
+                  {board.real_post_count}개 게시글
                 </span>
               </Link>
             ))}

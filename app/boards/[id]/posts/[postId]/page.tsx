@@ -1,6 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
+import { createComment } from '@/app/boards/actions'
 
 interface PostDetailPageProps {
   params: {
@@ -147,13 +148,6 @@ export default async function PostDetailPage({ params }: PostDetailPageProps) {
         <div className="px-6 py-4 bg-slate-50 dark:bg-slate-700 border-t border-slate-200 dark:border-slate-600">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-4">
-              <button className="flex items-center space-x-2 px-3 py-1 text-sm text-slate-600 dark:text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
-                </svg>
-                <span>추천 {post.like_count}</span>
-              </button>
-              
               <button className="flex items-center space-x-2 px-3 py-1 text-sm text-slate-600 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 transition-colors">
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.367 2.684 3 3 0 00-5.367-2.684z" />
@@ -184,12 +178,14 @@ export default async function PostDetailPage({ params }: PostDetailPageProps) {
         {/* 댓글 작성 폼 */}
         {user ? (
           <div className="px-6 py-4 border-b border-slate-200 dark:border-slate-600">
-            <form className="space-y-4">
+            <form action={createComment} className="space-y-4">
+              <input type="hidden" name="postId" value={post.id} />
               <textarea
                 name="content"
                 rows={3}
                 placeholder="댓글을 작성해주세요..."
                 className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-slate-700 dark:text-slate-100 transition-colors resize-none"
+                required
               />
               <div className="flex justify-end">
                 <button
@@ -243,9 +239,6 @@ export default async function PostDetailPage({ params }: PostDetailPageProps) {
                     <div className="flex items-center space-x-4 mt-2">
                       <button className="text-xs text-slate-500 dark:text-slate-400 hover:text-blue-600 dark:hover:text-blue-400">
                         답글
-                      </button>
-                      <button className="text-xs text-slate-500 dark:text-slate-400 hover:text-blue-600 dark:hover:text-blue-400">
-                        추천 {comment.like_count}
                       </button>
                       {user?.id === comment.author_id && (
                         <>
