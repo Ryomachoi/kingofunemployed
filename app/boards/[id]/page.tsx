@@ -1,6 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
+import { recalculatePostCount } from '@/app/boards/actions'
 
 interface BoardDetailPageProps {
   params: {
@@ -31,6 +32,21 @@ export default async function BoardDetailPage({ params }: BoardDetailPageProps) 
     .eq('board_id', resolvedParams.id)
     .eq('is_deleted', false)
     .order('created_at', { ascending: false })
+
+  // post_count가 실제 게시물 수와 다르면 재계산
+  const actualPostCount = posts?.length || 0
+  if (board.post_count !== actualPostCount) {
+    await recalculatePostCount(resolvedParams.id)
+    // 업데이트된 게시판 정보 다시 조회
+    const { data: updatedBoard } = await supabase
+      .from('boards')
+      .select('*')
+      .eq('id', resolvedParams.id)
+      .single()
+    if (updatedBoard) {
+      board.post_count = updatedBoard.post_count
+    }
+  }
 
   // 게시글 작성자 정보 조회
   let postsWithAuthors = []

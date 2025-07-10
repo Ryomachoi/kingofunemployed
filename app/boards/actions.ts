@@ -125,6 +125,9 @@ export async function createPost(formData: FormData) {
   }
 
   // 게시글 생성
+  const { data, error } = await supabase
+    .from('posts')
+    .insert({
       board_id: boardId,
       title: title.trim(),
       content: content.trim(),
@@ -132,9 +135,20 @@ export async function createPost(formData: FormData) {
     })
     .select()
     .single()
-      author_id: null
+
+  if (error) {
     console.error('게시글 생성 오류:', error)
     return { error: '게시글 작성 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.' }
+  }
+
+  // 게시판의 post_count 수동 업데이트 (INSERT 트리거가 작동하지 않을 수 있음)
+  const { error: countError } = await supabase
+    .from('boards')
+    .update({ post_count: supabase.raw('post_count + 1') })
+    .eq('id', boardId)
+
+  if (countError) {
+    console.error('게시글 수 업데이트 오류:', countError)
   }
 
   // 캐시 무효화
@@ -176,16 +190,26 @@ export async function updatePost(formData: FormData) {
     .from('posts')
     .select('id, author_id, board_id')
     .eq('id', postId)
-  // 게시글 존재 및 권한 확인
+    .eq('author_id', user.id)
+    .single()
+
+  if (!post) {
     return { error: '게시글을 찾을 수 없거나 수정 권한이 없습니다.' }
   }
-    .select('id, author_id, board_id')
+
   // 게시글 수정
-    .eq('author_id', user.id)
   const { data, error } = await supabase
     .from('posts')
     .update({
-    return { error: '게시글을 찾을 수 없거나 수정 권한이 없습니다.' }
+      title: title.trim(),
+      content: content.trim(),
+      updated_at: new Date().toISOString()
+    })
+    .eq('id', postId)
+    .select()
+    .single()
+
+  if (error) {
     return { error: '게시글 수정 중 오류가 발생했습니다.' }
   }
 
@@ -222,14 +246,54 @@ export async function deletePost(postId: string) {
   const { error } = await supabase
     .from('posts')
     .update({ is_deleted: true })
-  // 게시글 존재 및 권한 확인
+    .eq('id', postId)
+
+  if (error) {
     return { error: '게시글 삭제 중 오류가 발생했습니다.' }
   }
-    .select('id, author_id, board_id')
+
+  // 게시판의 post_count 수동 업데이트 (소프트 삭제이므로 트리거가 작동하지 않음)
+  const { error: countError } = await supabase
+    .from('boards')
+    .update({ post_count: supabase.raw('post_count - 1') })
+    .eq('id', post.board_id)
+
+  if (countError) {
+    console.error('게시글 수 업데이트 오류:', countError)
+  }
+
   // 캐시 무효화
-    .eq('author_id', user.id)
   revalidatePath(`/boards/${post.board_id}`)
   
   return { success: true }
-}    .eq('author_id', user.id)
-    .eq('author_id', user.id)
+}
+
+// 게시판의 post_count 재계산 및 업데이트
+export async function recalculatePostCount(boardId: string) {
+  const supabase = await createClient()
+
+  // 실제 게시물 수 계산 (삭제되지 않은 게시물만)
+  const { count, error: countError } = await supabase
+    .from('posts')
+    .select('*', { count: 'exact', head: true })
+    .eq('board_id', boardId)
+    .eq('is_deleted', false)
+
+  if (countError) {
+    console.error('게시물 수 계산 오류:', countError)
+    return { error: '게시물 수 계산 중 오류가 발생했습니다.' }
+  }
+
+  // 게시판의 post_count 업데이트
+  const { error: updateError } = await supabase
+    .from('boards')
+    .update({ post_count: count || 0 })
+    .eq('id', boardId)
+
+  if (updateError) {
+    console.error('게시판 post_count 업데이트 오류:', updateError)
+    return { error: '게시판 정보 업데이트 중 오류가 발생했습니다.' }
+  }
+
+  return { success: true, count: count || 0 }
+}
