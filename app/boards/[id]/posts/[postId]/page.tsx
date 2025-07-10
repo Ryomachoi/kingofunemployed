@@ -4,7 +4,6 @@ import { notFound } from 'next/navigation'
 
 interface PostDetailPageProps {
   params: {
-    id: string
     postId: string
   }
 }
@@ -55,13 +54,9 @@ export default async function PostDetailPage({ params }: PostDetailPageProps) {
   const { data: { user } } = await supabase.auth.getUser()
   const isAuthor = user?.id === post.author_id
 
-  // 댓글 조회
+  // 사용자 인증 상태 확인
   const { data: comments, error: commentsError } = await supabase
-    .from('comments')
-    .select('*')
-    .eq('post_id', resolvedParams.postId)
-    .eq('is_deleted', false)
-    .order('created_at', { ascending: true })
+  const isAuthor = user?.id === post.author_id
 
   // 댓글 작성자 정보 조회
   let commentsWithAuthors = []
@@ -241,8 +236,7 @@ export default async function PostDetailPage({ params }: PostDetailPageProps) {
                       {comment.content}
                     </p>
                     <div className="flex items-center space-x-4 mt-2">
-                      <button className="text-xs text-slate-500 dark:text-slate-400 hover:text-blue-600 dark:hover:text-blue-400">
-                        답글
+                      isAuthor={user?.id === comment.author_id}
                       </button>
                       <button className="text-xs text-slate-500 dark:text-slate-400 hover:text-blue-600 dark:hover:text-blue-400">
                         추천 {comment.like_count}

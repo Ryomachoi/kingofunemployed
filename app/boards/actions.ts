@@ -3,7 +3,6 @@
 import { createClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
-
 // 게시판 생성
 export async function createBoard(formData: FormData) {
   const supabase = await createClient()
@@ -126,9 +125,6 @@ export async function createPost(formData: FormData) {
   }
 
   // 게시글 생성
-  const { data, error } = await supabase
-    .from('posts')
-    .insert({
       board_id: boardId,
       title: title.trim(),
       content: content.trim(),
@@ -136,8 +132,7 @@ export async function createPost(formData: FormData) {
     })
     .select()
     .single()
-
-  if (error) {
+      author_id: null
     console.error('게시글 생성 오류:', error)
     return { error: '게시글 작성 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.' }
   }
@@ -181,26 +176,16 @@ export async function updatePost(formData: FormData) {
     .from('posts')
     .select('id, author_id, board_id')
     .eq('id', postId)
-    .eq('author_id', user.id)
-    .single()
-
-  if (!post) {
+  // 게시글 존재 및 권한 확인
     return { error: '게시글을 찾을 수 없거나 수정 권한이 없습니다.' }
   }
-
+    .select('id, author_id, board_id')
   // 게시글 수정
+    .eq('author_id', user.id)
   const { data, error } = await supabase
     .from('posts')
     .update({
-      title: title.trim(),
-      content: content.trim()
-    })
-    .eq('id', postId)
-    .select()
-    .single()
-
-  if (error) {
-    console.error('게시글 수정 오류:', error)
+    return { error: '게시글을 찾을 수 없거나 수정 권한이 없습니다.' }
     return { error: '게시글 수정 중 오류가 발생했습니다.' }
   }
 
@@ -237,15 +222,14 @@ export async function deletePost(postId: string) {
   const { error } = await supabase
     .from('posts')
     .update({ is_deleted: true })
-    .eq('id', postId)
-
-  if (error) {
-    console.error('게시글 삭제 오류:', error)
+  // 게시글 존재 및 권한 확인
     return { error: '게시글 삭제 중 오류가 발생했습니다.' }
   }
-
+    .select('id, author_id, board_id')
   // 캐시 무효화
+    .eq('author_id', user.id)
   revalidatePath(`/boards/${post.board_id}`)
   
   return { success: true }
-}
+}    .eq('author_id', user.id)
+    .eq('author_id', user.id)
