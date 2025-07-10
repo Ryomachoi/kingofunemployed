@@ -2,6 +2,9 @@ import { createClient } from '@/lib/supabase/server'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { createComment } from '@/app/boards/actions'
+import DeleteButton from './components/DeleteButton'
+import CommentActions from './components/CommentActions'
+import { getCurrentSessionId } from '@/lib/session'
 
 interface PostDetailPageProps {
   params: {
@@ -52,9 +55,13 @@ export default async function PostDetailPage({ params }: PostDetailPageProps) {
     .update({ view_count: post.view_count + 1 })
     .eq('id', resolvedParams.postId)
 
-  // 사용자 인증 상태 확인
+  // 사용자 인증 상태 및 세션 확인
   const { data: { user } } = await supabase.auth.getUser()
-  const isAuthor = user?.id === post.author_id
+  const currentSessionId = await getCurrentSessionId()
+  
+  // 작성자 권한 확인 (로그인 사용자 또는 익명 세션)
+  const isAuthor = (user?.id === post.author_id) || 
+                   (post.author_id === null && post.session_id === currentSessionId)
 
   // 댓글 조회
   const { data: comments, error: commentsError } = await supabase
@@ -114,8 +121,6 @@ export default async function PostDetailPage({ params }: PostDetailPageProps) {
               <span>{new Date(post.created_at).toLocaleString('ko-KR')}</span>
               <span>•</span>
               <span>조회 {post.view_count + 1}</span>
-              <span>•</span>
-              <span>추천 {post.like_count}</span>
             </div>
             
             {isAuthor && (
@@ -127,9 +132,7 @@ export default async function PostDetailPage({ params }: PostDetailPageProps) {
                   수정
                 </Link>
                 <span className="text-slate-300 dark:text-slate-600">|</span>
-                <button className="text-sm text-red-600 dark:text-red-400 hover:text-red-800 dark:hover:text-red-300">
-                  삭제
-                </button>
+                <DeleteButton postId={post.id} boardId={board.id} />
               </div>
             )}
           </div>
@@ -233,24 +236,14 @@ export default async function PostDetailPage({ params }: PostDetailPageProps) {
                         {new Date(comment.created_at).toLocaleString('ko-KR')}
                       </span>
                     </div>
-                    <p className="text-sm text-slate-700 dark:text-slate-300 whitespace-pre-wrap">
-                      {comment.content}
-                    </p>
-                    <div className="flex items-center space-x-4 mt-2">
-                      <button className="text-xs text-slate-500 dark:text-slate-400 hover:text-blue-600 dark:hover:text-blue-400">
-                        답글
-                      </button>
-                      {user?.id === comment.author_id && (
-                        <>
-                          <button className="text-xs text-slate-500 dark:text-slate-400 hover:text-blue-600 dark:hover:text-blue-400">
-                            수정
-                          </button>
-                          <button className="text-xs text-red-500 dark:text-red-400 hover:text-red-600 dark:hover:text-red-300">
-                            삭제
-                          </button>
-                        </>
-                      )}
-                    </div>
+                    <CommentActions
+                      commentId={comment.id}
+                      postId={post.id}
+                      boardId={board.id}
+                      initialContent={comment.content}
+                      isAuthor={(user?.id === comment.author_id) || 
+                               (comment.author_id === null && comment.session_id === currentSessionId)}
+                    />
                   </div>
                 </div>
               </div>

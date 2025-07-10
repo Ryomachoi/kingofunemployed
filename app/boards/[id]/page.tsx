@@ -24,16 +24,12 @@ export default async function BoardDetailPage({ params }: BoardDetailPageProps) 
     notFound()
   }
 
-  // 게시글 목록 조회 (댓글 개수 포함)
+  // 게시글 목록 조회
   const { data: posts, error: postsError } = await supabase
     .from('posts')
-    .select(`
-      *,
-      comments!left(count)
-    `)
+    .select('*')
     .eq('board_id', resolvedParams.id)
     .eq('is_deleted', false)
-    .eq('comments.is_deleted', false)
     .order('created_at', { ascending: false })
 
   // 게시글 작성자 정보 조회 및 댓글 개수 계산
@@ -45,11 +41,26 @@ export default async function BoardDetailPage({ params }: BoardDetailPageProps) 
       .select('id, username')
       .in('id', authorIds)
     
+    // 각 게시글의 댓글 수 조회
+    const postIds = posts.map(post => post.id)
+    const { data: commentCounts } = await supabase
+      .from('comments')
+      .select('post_id')
+      .in('post_id', postIds)
+      .eq('is_deleted', false)
+    
+    // 게시글별 댓글 수 계산
+    const commentCountMap = new Map()
+    commentCounts?.forEach(comment => {
+      const count = commentCountMap.get(comment.post_id) || 0
+      commentCountMap.set(comment.post_id, count + 1)
+    })
+    
     const profileMap = new Map(profiles?.map(profile => [profile.id, profile]) || [])
     postsWithAuthors = posts.map(post => ({
       ...post,
       profiles: post.author_id ? profileMap.get(post.author_id) : null,
-      comment_count: post.comments?.length || 0
+      comment_count: commentCountMap.get(post.id) || 0
     }))
   }
 
@@ -107,13 +118,12 @@ export default async function BoardDetailPage({ params }: BoardDetailPageProps) 
           <>
             {/* 테이블 헤더 */}
             <div className="bg-slate-50 dark:bg-slate-700 px-6 py-3 border-b border-slate-200 dark:border-slate-600">
-              <div className="grid grid-cols-12 gap-4 text-sm font-medium text-slate-700 dark:text-slate-300">
+              <div className="grid grid-cols-11 gap-4 text-sm font-medium text-slate-700 dark:text-slate-300">
                 <div className="col-span-5">제목</div>
                 <div className="col-span-2 text-center">작성자</div>
                 <div className="col-span-2 text-center">작성일</div>
                 <div className="col-span-1 text-center">조회</div>
                 <div className="col-span-1 text-center">댓글</div>
-                <div className="col-span-1 text-center">추천</div>
               </div>
             </div>
             
@@ -125,7 +135,7 @@ export default async function BoardDetailPage({ params }: BoardDetailPageProps) 
                   href={`/boards/${board.id}/posts/${post.id}`}
                   className="block px-6 py-4 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors"
                 >
-                  <div className="grid grid-cols-12 gap-4 items-center">
+                  <div className="grid grid-cols-11 gap-4 items-center">
                     <div className="col-span-5">
                       <h3 className="font-medium text-slate-900 dark:text-slate-100 hover:text-blue-600 dark:hover:text-blue-400 transition-colors line-clamp-1">
                         {post.title}
@@ -142,9 +152,6 @@ export default async function BoardDetailPage({ params }: BoardDetailPageProps) 
                     </div>
                     <div className="col-span-1 text-center text-sm text-slate-600 dark:text-slate-400">
                       {post.comment_count || 0}
-                    </div>
-                    <div className="col-span-1 text-center text-sm text-slate-600 dark:text-slate-400">
-                      {post.like_count || 0}
                     </div>
                   </div>
                 </Link>

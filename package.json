@@ -4,6 +4,8 @@
   "private": true,
   "scripts": {
     "dev": "next dev --turbopack",
+    "dev:3009": "next dev --port 3009",
+    "restart": "powershell -ExecutionPolicy Bypass -File restart-server.ps1",
     "build": "next build",
     "start": "next start",
     "lint": "next lint"
@@ -11,9 +13,11 @@
   "dependencies": {
     "@supabase/ssr": "^0.6.1",
     "@supabase/supabase-js": "^2.50.1",
+    "@types/uuid": "^10.0.0",
     "next": "15.3.4",
     "react": "^19.0.0",
-    "react-dom": "^19.0.0"
+    "react-dom": "^19.0.0",
+    "uuid": "^11.1.0"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",
