@@ -13,7 +13,7 @@ export default function SignupPage({ searchParams }: { searchParams: { message: 
             회원가입
           </h2>
           <p className="mt-2 text-sm text-slate-600 dark:text-slate-400">
-            King of Unemployed 커뮤니티에 가입하세요
+            취업으로 가는 가장 빠른 길 '백수의 왕'
           </p>
         </div>
         
