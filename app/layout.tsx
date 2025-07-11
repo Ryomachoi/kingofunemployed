@@ -44,6 +44,9 @@ export default async function RootLayout({
             </Link>
             
             <nav className="flex items-center space-x-6">
+              <Link href="/boards" className="text-sm font-medium text-slate-700 hover:text-slate-900 dark:text-slate-300 dark:hover:text-slate-100 transition-colors">
+                게시판
+              </Link>
               <Link href="/interview" className="text-sm font-medium text-slate-700 hover:text-slate-900 dark:text-slate-300 dark:hover:text-slate-100 transition-colors">
                 면접
               </Link>
