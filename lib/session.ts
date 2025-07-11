@@ -8,6 +8,10 @@ export async function getOrCreateSessionId(): Promise<string> {
   
   if (!sessionId) {
     sessionId = uuidv4()
+  }
+  
+  // sessionId가 확실히 string인 경우에만 쿠키 설정
+  if (sessionId) {
     cookieStore.set('anonymous_session_id', sessionId, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
@@ -16,7 +20,7 @@ export async function getOrCreateSessionId(): Promise<string> {
     })
   }
   
-  return sessionId
+  return sessionId as string
 }
 
 // 현재 세션 ID 가져오기

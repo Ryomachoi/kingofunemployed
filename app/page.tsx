@@ -31,7 +31,7 @@ export default function HomePage() {
                 <span className="text-2xl">🏢</span>
               </div>
               <h3 className="text-xl font-bold text-slate-900 dark:text-slate-100 mb-6">기업별 게시판</h3>
-              <div className="text-blue-600 dark:text-blue-400 font-medium group-hover:translate-x-2 transition-transform duration-300">시작하기 →</div>
+              <div className="text-blue-600 dark:text-blue-400 font-medium group-hover:translate-x-2 transition-transform duration-300">게시판 보기 →</div>
             </div>
           </Link>
 

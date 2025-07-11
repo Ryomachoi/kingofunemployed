@@ -20,12 +20,12 @@ export default function NewInterviewPage() {
     setQaList([...qaList, { question: "", answer: "" }]);
   };
 
-  const removeQA = idx => {
+  const removeQA = (idx: number) => {
     if (qaList.length <= 2) return;
     setQaList(qaList.filter((_, i) => i !== idx));
   };
 
-  const handleChange = (idx, field, value) => {
+  const handleChange = (idx: number, field: string, value: string) => {
     setQaList(
       qaList.map((qa, i) =>
         i === idx ? { ...qa, [field]: value } : qa
@@ -33,7 +33,7 @@ export default function NewInterviewPage() {
     );
   };
 
-  const handleSubmit = async e => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setSubmitting(true);
     setError("");

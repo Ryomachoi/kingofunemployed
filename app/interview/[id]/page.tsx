@@ -1,7 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { notFound } from 'next/navigation'
 
-export default async function InterviewDetailPage({ params }) {
+export default async function InterviewDetailPage({ params }: { params: { id: string } }) {
   const supabase = await createClient()
   const { data: interview } = await supabase.from('interviews').select('*').eq('id', params.id).single()
   if (!interview) return notFound()

@@ -11,19 +11,6 @@ export default async function DebugPage() {
   let tablesError = null
   
   try {
-    // boards 테이블 확인
-    const { data: boardsData, error: boardsError } = await supabase
-      .from('boards')
-      .select('count')
-      .limit(1)
-    
-    tablesInfo.push({
-      table: 'boards',
-      exists: !boardsError,
-      error: boardsError?.message || null,
-      code: boardsError?.code || null
-    })
-    
     // profiles 테이블 확인
     const { data: profilesData, error: profilesError } = await supabase
       .from('profiles')
@@ -35,19 +22,6 @@ export default async function DebugPage() {
       exists: !profilesError,
       error: profilesError?.message || null,
       code: profilesError?.code || null
-    })
-    
-    // posts 테이블 확인
-    const { data: postsData, error: postsError } = await supabase
-      .from('posts')
-      .select('count')
-      .limit(1)
-    
-    tablesInfo.push({
-      table: 'posts',
-      exists: !postsError,
-      error: postsError?.message || null,
-      code: postsError?.code || null
     })
     
   } catch (err) {
@@ -83,11 +57,11 @@ export default async function DebugPage() {
         <h2 className="text-lg font-semibold mb-4">데이터베이스 테이블 상태</h2>
         {tablesError ? (
           <div className="text-red-600 dark:text-red-400">
-            <p>테이블 확인 중 오류: {tablesError.message}</p>
+            <p>테이블 확인 중 오류: {(tablesError as Error).message}</p>
           </div>
         ) : (
           <div className="space-y-3">
-            {tablesInfo.map((table) => (
+            {tablesInfo.map((table: any) => (
               <div key={table.table} className="flex items-center justify-between p-3 bg-slate-50 dark:bg-slate-700 rounded">
                 <span className="font-medium">{table.table} 테이블</span>
                 <div className="text-right">
@@ -125,9 +99,8 @@ export default async function DebugPage() {
         <h2 className="text-lg font-semibold text-yellow-800 dark:text-yellow-200 mb-4">해결 방법</h2>
         <div className="text-sm text-yellow-700 dark:text-yellow-300 space-y-2">
           <p>1. Supabase 대시보드에 로그인하세요</p>
-          <p>2. SQL Editor에서 create_boards_db.sql 파일의 내용을 실행하세요</p>
-          <p>3. 모든 테이블이 생성되었는지 확인하세요</p>
-          <p>4. RLS 정책이 올바르게 설정되었는지 확인하세요</p>
+          <p>2. profiles 테이블이 없다면 사용자 프로필 관련 SQL을 실행하세요</p>
+          <p>3. RLS 정책이 올바르게 설정되었는지 확인하세요</p>
         </div>
       </div>
     </div>
