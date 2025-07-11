@@ -24,16 +24,16 @@ export default function HomePage() {
       {/* Main Content Grid */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-20">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {/* 기업별 게시판 */}
-          <Link href="/boards" className="group">
-            <div className="bg-white dark:bg-slate-800 rounded-2xl p-8 shadow-sm hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2 border border-slate-200 dark:border-slate-700">
-              <div className="w-12 h-12 bg-blue-100 dark:bg-blue-900/30 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
+          {/* 기업별 게시판 - 준비 중 */}
+          <div className="group">
+            <div className="bg-white/50 dark:bg-slate-800/50 rounded-2xl p-8 shadow-sm border border-slate-200 dark:border-slate-700 opacity-75">
+              <div className="w-12 h-12 bg-blue-100 dark:bg-blue-900/30 rounded-xl flex items-center justify-center mb-6">
                 <span className="text-2xl">🏢</span>
               </div>
               <h3 className="text-xl font-bold text-slate-900 dark:text-slate-100 mb-6">기업별 게시판</h3>
-              <div className="text-blue-600 dark:text-blue-400 font-medium group-hover:translate-x-2 transition-transform duration-300">시작하기 →</div>
+              <div className="text-slate-400 dark:text-slate-500 font-medium">준비 중...</div>
             </div>
-          </Link>
+          </div>
 
           {/* 면접 복기 */}
           <Link href="/interview" className="group">
