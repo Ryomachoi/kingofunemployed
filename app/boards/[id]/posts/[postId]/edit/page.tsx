@@ -51,7 +51,7 @@ export default async function EditPostPage({ params }: EditPostPageProps) {
         <EditPostForm 
           post={post}
           boardId={resolvedParams.id}
-          boardName={post.boards?.name || '게시판'}
+          boardName="게시판"
         />
       </div>
     </div>

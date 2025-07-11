@@ -13,9 +13,6 @@ interface Comment {
   updated_at: string
   author_id: string
   is_deleted: boolean
-  profiles: {
-    email: string
-  } | null
 }
 
 interface CommentSectionProps {
@@ -51,18 +48,15 @@ export default function CommentSection({
     setIsSubmitting(true)
     
     try {
-      const result = await createComment({
-        postId,
-        content: newComment.trim()
-      })
+      const formData = new FormData()
+      formData.append('postId', postId)
+      formData.append('content', newComment.trim())
       
-      if (result.success && result.data) {
+      const result = await createComment(formData)
+      
+      if ('success' in result && result.success && 'data' in result && result.data) {
         // 새 댓글을 목록에 추가
-        const newCommentData = {
-          ...result.data,
-          profiles: { email: currentUser.email }
-        }
-        setComments(prev => [...prev, newCommentData])
+        setComments(prev => [...prev, result.data as Comment])
         setNewComment('')
         router.refresh()
       } else {
@@ -82,13 +76,17 @@ export default function CommentSection({
     setIsEditing(true)
     
     try {
-      const result = await updateComment(commentId, editContent.trim())
+      const formData = new FormData()
+      formData.append('commentId', commentId)
+      formData.append('content', editContent.trim())
       
-      if (result.success) {
+      const result = await updateComment(formData)
+      
+      if ('success' in result && result.success && 'data' in result && result.data) {
         // 댓글 목록 업데이트
         setComments(prev => prev.map(comment => 
           comment.id === commentId 
-            ? { ...comment, content: editContent.trim(), updated_at: new Date().toISOString() }
+            ? result.data as Comment
             : comment
         ))
         setEditingCommentId(null)
@@ -234,7 +232,7 @@ export default function CommentSection({
                     <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                     </svg>
-                    {comment.profiles?.email?.split('@')[0] || '알 수 없음'}
+                    댓글 작성자
                   </div>
                   <div className="flex items-center">
                     <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">

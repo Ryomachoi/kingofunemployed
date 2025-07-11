@@ -31,14 +31,15 @@ export default function NewPostPage({ params }: NewPostPageProps) {
 
     try {
       const resolvedParams = await params
-      const result = await createPost({
-        boardId: resolvedParams.id,
-        title: title.trim(),
-        content: content.trim()
-      })
+      const formData = new FormData()
+      formData.append('boardId', resolvedParams.id)
+      formData.append('title', title.trim())
+      formData.append('content', content.trim())
+      
+      const result = await createPost(formData)
 
-      if (result.success && result.data) {
-        router.push(`/boards/${resolvedParams.id}/posts/${result.data.id}`)
+      if ('success' in result && result.success && 'data' in result && result.data && (result.data as any).id) {
+        router.push(`/boards/${resolvedParams.id}/posts/${(result.data as any).id}`)
       } else {
         setError(result.error || '게시글 작성에 실패했습니다.')
       }

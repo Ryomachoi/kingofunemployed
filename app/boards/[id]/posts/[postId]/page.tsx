@@ -29,7 +29,7 @@ export default async function PostDetailPage({ params }: PostDetailPageProps) {
       author_id,
       board_id,
       is_deleted,
-      profiles!posts_author_id_fkey(email),
+      author_id,
       boards!posts_board_id_fkey(name)
     `)
     .eq('id', resolvedParams.postId)
@@ -51,7 +51,7 @@ export default async function PostDetailPage({ params }: PostDetailPageProps) {
       updated_at,
       author_id,
       is_deleted,
-      profiles!comments_author_id_fkey(email)
+      author_id
     `)
     .eq('post_id', resolvedParams.postId)
     .eq('is_deleted', false)
@@ -103,7 +103,7 @@ export default async function PostDetailPage({ params }: PostDetailPageProps) {
             <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
             </svg>
-            {post.boards?.name} 게시판으로 돌아가기
+            게시판으로 돌아가기
           </Link>
         </div>
 
@@ -120,7 +120,7 @@ export default async function PostDetailPage({ params }: PostDetailPageProps) {
                   <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                   </svg>
-                  {post.profiles?.email?.split('@')[0] || '알 수 없음'}
+                  작성자
                 </div>
                 <div className="flex items-center">
                   <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">

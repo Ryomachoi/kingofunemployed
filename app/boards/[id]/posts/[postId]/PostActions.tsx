@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { likePost, unlikePost, deletePost } from '@/app/boards/actions'
+import { togglePostLike, deletePost } from '@/app/boards/actions'
 
 interface PostActionsProps {
   postId: string
@@ -32,17 +32,14 @@ export default function PostActions({
     setIsLikeLoading(true)
     
     try {
-      if (currentIsLiked) {
-        const result = await unlikePost(postId)
-        if (result.success) {
-          setCurrentIsLiked(false)
-          setCurrentLikeCount(prev => Math.max(0, prev - 1))
-        }
-      } else {
-        const result = await likePost(postId)
-        if (result.success) {
+      const result = await togglePostLike(postId)
+      if (result.success) {
+        if (result.liked) {
           setCurrentIsLiked(true)
           setCurrentLikeCount(prev => prev + 1)
+        } else {
+          setCurrentIsLiked(false)
+          setCurrentLikeCount(prev => Math.max(0, prev - 1))
         }
       }
     } catch (error) {

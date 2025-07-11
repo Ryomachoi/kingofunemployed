@@ -44,10 +44,12 @@ export default function EditPostForm({ post, boardId, boardName }: EditPostFormP
     setError('')
 
     try {
-      const result = await updatePost(post.id, {
-        title: title.trim(),
-        content: content.trim()
-      })
+      const formData = new FormData()
+      formData.append('postId', post.id)
+      formData.append('title', title.trim())
+      formData.append('content', content.trim())
+      
+      const result = await updatePost(formData)
 
       if (result.success) {
         router.push(`/boards/${boardId}/posts/${post.id}`)

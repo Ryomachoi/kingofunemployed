@@ -57,11 +57,11 @@ export default async function DebugPage() {
         <h2 className="text-lg font-semibold mb-4">데이터베이스 테이블 상태</h2>
         {tablesError ? (
           <div className="text-red-600 dark:text-red-400">
-            <p>테이블 확인 중 오류: {tablesError.message}</p>
+            <p>테이블 확인 중 오류: {(tablesError as Error).message}</p>
           </div>
         ) : (
           <div className="space-y-3">
-            {tablesInfo.map((table) => (
+            {tablesInfo.map((table: any) => (
               <div key={table.table} className="flex items-center justify-between p-3 bg-slate-50 dark:bg-slate-700 rounded">
                 <span className="font-medium">{table.table} 테이블</span>
                 <div className="text-right">
