@@ -5,19 +5,40 @@ import { redirect } from 'next/navigation'
 export default async function BoardsPage() {
   const supabase = await createClient()
   
-  // 게시판 목록 조회
-  const { data: boards, error } = await supabase
+  // 게시판 목록 조회 (실제 게시글 수 집계)
+  const { data: boardsData, error } = await supabase
     .from('boards')
     .select(`
       id,
       name,
       description,
-      post_count,
       created_at,
       creator_id
     `)
     .eq('is_active', true)
-    .order('post_count', { ascending: false })
+    .order('created_at', { ascending: false })
+
+  // 각 게시판의 실제 게시글 수 집계
+  let boards = []
+  if (boardsData) {
+    boards = await Promise.all(
+      boardsData.map(async (board) => {
+        const { count } = await supabase
+          .from('posts')
+          .select('*', { count: 'exact', head: true })
+          .eq('board_id', board.id)
+          .eq('is_deleted', false)
+        
+        return {
+          ...board,
+          post_count: count || 0
+        }
+      })
+    )
+    
+    // 게시글 수로 정렬
+    boards.sort((a, b) => b.post_count - a.post_count)
+  }
 
   if (error) {
     console.error('게시판 조회 오류:', error)

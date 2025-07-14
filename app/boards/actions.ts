@@ -133,7 +133,7 @@ export async function createPost(formData: FormData) {
     }
 
     revalidatePath(`/boards/${boardId}`)
-    return redirect(`/boards/${boardId}/posts/${data.id}`)
+    return { success: true, data: { id: data.id } }
   } catch (error) {
     console.error('게시글 생성 중 오류:', error)
     return { error: '게시글 작성 중 오류가 발생했습니다.' }
@@ -233,14 +233,12 @@ export async function deletePost(postId: string) {
       return { error: '게시글을 찾을 수 없거나 삭제 권한이 없습니다.' }
     }
 
-    // 소프트 삭제
+    // 실제 삭제 (RLS 정책 문제 해결을 위해)
     const { error } = await supabase
       .from('posts')
-      .update({
-        is_deleted: true,
-        updated_at: new Date().toISOString()
-      })
+      .delete()
       .eq('id', postId)
+      .eq('author_id', user.id)
 
     if (error) {
       console.error('게시글 삭제 오류:', error)
@@ -295,21 +293,29 @@ export async function createComment(formData: FormData) {
     }
 
     // 댓글 생성
-    const { error } = await supabase
+    const { data, error } = await supabase
       .from('comments')
       .insert({
         post_id: postId,
         author_id: user.id,
         content: content.trim()
       })
+      .select()
 
     if (error) {
-      console.error('댓글 생성 오류:', error)
-      return { error: '댓글 작성에 실패했습니다.' }
+      console.error('댓글 생성 오류:', {
+        error,
+        postId,
+        userId: user.id,
+        content: content.trim()
+      })
+      return { error: `댓글 작성에 실패했습니다: ${error.message}` }
     }
 
+    console.log('댓글 생성 성공:', data)
+
     revalidatePath(`/boards/${post.board_id}/posts/${postId}`)
-    return { success: true }
+    return { success: true, data: data[0] }
   } catch (error) {
     console.error('댓글 생성 중 오류:', error)
     return { error: '댓글 작성 중 오류가 발생했습니다.' }
@@ -353,13 +359,15 @@ export async function updateComment(formData: FormData) {
     }
 
     // 댓글 수정
-    const { error } = await supabase
+    const { data: updatedComment, error } = await supabase
       .from('comments')
       .update({
         content: content.trim(),
         updated_at: new Date().toISOString()
       })
       .eq('id', commentId)
+      .select()
+      .single()
 
     if (error) {
       console.error('댓글 수정 오류:', error)
@@ -377,7 +385,7 @@ export async function updateComment(formData: FormData) {
       revalidatePath(`/boards/${post.board_id}/posts/${comment.post_id}`)
     }
     
-    return { success: true }
+    return { success: true, data: updatedComment }
   } catch (error) {
     console.error('댓글 수정 중 오류:', error)
     return { error: '댓글 수정 중 오류가 발생했습니다.' }
@@ -408,14 +416,12 @@ export async function deleteComment(commentId: string) {
       return { error: '댓글을 찾을 수 없거나 삭제 권한이 없습니다.' }
     }
 
-    // 소프트 삭제
+    // 실제 삭제 (RLS 정책 문제 해결을 위해)
     const { error } = await supabase
       .from('comments')
-      .update({
-        is_deleted: true,
-        updated_at: new Date().toISOString()
-      })
+      .delete()
       .eq('id', commentId)
+      .eq('author_id', user.id)
 
     if (error) {
       console.error('댓글 삭제 오류:', error)

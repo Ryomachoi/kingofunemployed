@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, use } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { createPost } from '@/app/boards/actions'
@@ -12,6 +12,7 @@ interface NewPostPageProps {
 }
 
 export default function NewPostPage({ params }: NewPostPageProps) {
+  const resolvedParams = use(params)
   const router = useRouter()
   const [title, setTitle] = useState('')
   const [content, setContent] = useState('')
@@ -30,7 +31,6 @@ export default function NewPostPage({ params }: NewPostPageProps) {
     setError('')
 
     try {
-      const resolvedParams = await params
       const formData = new FormData()
       formData.append('boardId', resolvedParams.id)
       formData.append('title', title.trim())
@@ -57,7 +57,7 @@ export default function NewPostPage({ params }: NewPostPageProps) {
         {/* 헤더 */}
         <div className="mb-8">
           <Link
-            href={`/boards/${params.id}`}
+            href={`/boards/${resolvedParams.id}`}
             className="inline-flex items-center text-sm text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-100 mb-4 transition-colors"
           >
             <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -145,7 +145,7 @@ export default function NewPostPage({ params }: NewPostPageProps) {
             {/* 버튼 */}
             <div className="flex items-center justify-end space-x-4 pt-4">
               <Link
-                href={`/boards/${params.id}`}
+                href={`/boards/${resolvedParams.id}`}
                 className="px-6 py-3 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 font-medium transition-colors"
               >
                 취소
