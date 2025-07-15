@@ -3,6 +3,7 @@ import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import PostActions from './PostActions'
 import CommentSection from './CommentSection'
+import { incrementPostViewCount } from '@/app/boards/actions'
 
 interface PostDetailPageProps {
   params: {
@@ -24,6 +25,7 @@ export default async function PostDetailPage({ params }: PostDetailPageProps) {
       content,
       like_count,
       comment_count,
+      view_count,
       created_at,
       updated_at,
       author_id,
@@ -38,6 +40,9 @@ export default async function PostDetailPage({ params }: PostDetailPageProps) {
   if (postError || !post || post.is_deleted) {
     notFound()
   }
+
+  // 조회수 증가 (비동기로 처리하여 페이지 로딩에 영향 없도록)
+  incrementPostViewCount(post.id).catch(console.error)
 
   // 댓글 목록 조회
   const { data: comments, error: commentsError } = await supabase
@@ -122,6 +127,13 @@ export default async function PostDetailPage({ params }: PostDetailPageProps) {
                 </div>
                 <div className="flex items-center">
                   <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                  </svg>
+                  조회수 {post.view_count || 0}
+                </div>
+                <div className="flex items-center">
+                  <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
                   {new Date(post.created_at).toLocaleDateString('ko-KR', {
@@ -132,6 +144,7 @@ export default async function PostDetailPage({ params }: PostDetailPageProps) {
                     minute: '2-digit'
                   })}
                 </div>
+
                 {post.updated_at !== post.created_at && (
                   <span className="text-orange-500 dark:text-orange-400">
                     (수정됨: {new Date(post.updated_at).toLocaleDateString('ko-KR', {
@@ -156,6 +169,7 @@ export default async function PostDetailPage({ params }: PostDetailPageProps) {
                     postId={post.id} 
                     boardId={post.board_id}
                     isAuthor={true}
+                    showOnlyDelete={true}
                   />
                 </div>
               )}
@@ -169,23 +183,16 @@ export default async function PostDetailPage({ params }: PostDetailPageProps) {
             </div>
           </div>
 
-          {/* 게시글 액션 */}
-          <div className="flex items-center justify-between pt-4 border-t border-slate-200 dark:border-slate-700">
-            <div className="flex items-center space-x-4">
-              <PostActions 
-                postId={post.id} 
-                boardId={post.board_id}
-                likeCount={post.like_count}
-                isLiked={!!userPostLike}
-                isAuthor={user?.id === post.author_id}
-              />
-              <div className="flex items-center text-sm text-slate-500 dark:text-slate-400">
-                <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
-                </svg>
-                댓글 {post.comment_count}개
-              </div>
-            </div>
+          {/* 게시글 추천 버튼 (중앙) */}
+          <div className="flex justify-center pt-4 border-t border-slate-200 dark:border-slate-700">
+            <PostActions 
+              postId={post.id} 
+              boardId={post.board_id}
+              likeCount={post.like_count}
+              isLiked={!!userPostLike}
+              isAuthor={user?.id === post.author_id}
+              showOnlyLike={true}
+            />
           </div>
         </article>
 

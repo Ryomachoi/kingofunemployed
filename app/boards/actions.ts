@@ -553,3 +553,40 @@ export async function toggleCommentLike(commentId: string) {
     return { error: '추천 처리 중 오류가 발생했습니다.' }
   }
 }
+
+// 게시글 조회수 증가
+export async function incrementPostViewCount(postId: string) {
+  const supabase = await createClient()
+
+  try {
+    // 현재 조회수 조회
+    const { data: post, error: fetchError } = await supabase
+      .from('posts')
+      .select('view_count')
+      .eq('id', postId)
+      .eq('is_deleted', false)
+      .single()
+
+    if (fetchError || !post) {
+      console.error('게시글 조회 오류:', fetchError)
+      return { error: '게시글을 찾을 수 없습니다.' }
+    }
+
+    // 조회수 1 증가
+    const { error: updateError } = await supabase
+      .from('posts')
+      .update({ view_count: (post.view_count || 0) + 1 })
+      .eq('id', postId)
+      .eq('is_deleted', false)
+
+    if (updateError) {
+      console.error('조회수 증가 오류:', updateError)
+      return { error: '조회수 증가에 실패했습니다.' }
+    }
+
+    return { success: true }
+  } catch (error) {
+    console.error('조회수 증가 중 오류:', error)
+    return { error: '조회수 증가 중 오류가 발생했습니다.' }
+  }
+}
