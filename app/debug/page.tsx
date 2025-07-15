@@ -1,5 +1,12 @@
 import { createClient } from '@/lib/supabase/server'
 
+interface TableInfo {
+  table: string
+  exists: boolean
+  error: string | null
+  code: string | null
+}
+
 export default async function DebugPage() {
   const supabase = await createClient()
   
@@ -7,7 +14,7 @@ export default async function DebugPage() {
   const { data: { user }, error: userError } = await supabase.auth.getUser()
   
   // 테이블 존재 여부 확인
-  let tablesInfo = []
+  let tablesInfo: TableInfo[] = []
   let tablesError = null
   
   try {
@@ -61,7 +68,7 @@ export default async function DebugPage() {
           </div>
         ) : (
           <div className="space-y-3">
-            {tablesInfo.map((table: any) => (
+            {tablesInfo.map((table: TableInfo) => (
               <div key={table.table} className="flex items-center justify-between p-3 bg-slate-50 dark:bg-slate-700 rounded">
                 <span className="font-medium">{table.table} 테이블</span>
                 <div className="text-right">
