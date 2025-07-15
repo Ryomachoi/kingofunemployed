@@ -1,9 +1,13 @@
 import { createClient } from '@/lib/supabase/server'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
+import PostActions from './PostActions'
+import CommentSection from './CommentSection'
+import { incrementPostViewCount } from '@/app/boards/actions'
 
 interface PostDetailPageProps {
   params: {
+    id: string
     postId: string
   }
 }
@@ -15,255 +19,191 @@ export default async function PostDetailPage({ params }: PostDetailPageProps) {
   // 게시글 정보 조회
   const { data: post, error: postError } = await supabase
     .from('posts')
-    .select('*')
+    .select(`
+      id,
+      title,
+      content,
+      like_count,
+      comment_count,
+      view_count,
+      created_at,
+      updated_at,
+      author_id,
+      board_id,
+      is_deleted,
+      boards!posts_board_id_fkey(name)
+    `)
     .eq('id', resolvedParams.postId)
     .eq('board_id', resolvedParams.id)
-    .eq('is_deleted', false)
     .single()
 
-  if (postError || !post) {
+  if (postError || !post || post.is_deleted) {
     notFound()
   }
 
-  // 게시판 정보 조회
-  const { data: board, error: boardError } = await supabase
-    .from('boards')
-    .select('id, name, is_active')
-    .eq('id', resolvedParams.id)
-    .eq('is_active', true)
-    .single()
+  // 조회수 증가 (비동기로 처리하여 페이지 로딩에 영향 없도록)
+  incrementPostViewCount(post.id).catch(console.error)
 
-  if (boardError || !board) {
-    notFound()
-  }
-
-  // 작성자 정보 조회
-  const { data: author } = await supabase
-    .from('profiles')
-    .select('username')
-    .eq('id', post.author_id)
-    .single()
-
-  // 조회수 증가
-  await supabase
-    .from('posts')
-    .update({ view_count: post.view_count + 1 })
-    .eq('id', resolvedParams.postId)
-
-  // 사용자 인증 상태 확인
-  const { data: { user } } = await supabase.auth.getUser()
-  const isAuthor = user?.id === post.author_id
-
-  // 사용자 인증 상태 확인
+  // 댓글 목록 조회
   const { data: comments, error: commentsError } = await supabase
-  const isAuthor = user?.id === post.author_id
-
-  // 댓글 작성자 정보 조회
-  let commentsWithAuthors = []
-  if (comments && comments.length > 0) {
-    const commentAuthorIds = [...new Set(comments.map(comment => comment.author_id).filter(Boolean))]
-    const { data: commentProfiles } = await supabase
-      .from('profiles')
-      .select('id, username')
-      .in('id', commentAuthorIds)
-    
-    const commentProfileMap = new Map(commentProfiles?.map(profile => [profile.id, profile]) || [])
-    commentsWithAuthors = comments.map(comment => ({
-      ...comment,
-      profiles: comment.author_id ? commentProfileMap.get(comment.author_id) : null
-    }))
-  }
+    .from('comments')
+    .select(`
+      id,
+      content,
+      like_count,
+      created_at,
+      updated_at,
+      author_id,
+      is_deleted
+    `)
+    .eq('post_id', resolvedParams.postId)
+    .eq('is_deleted', false)
+    .order('created_at', { ascending: true })
 
   if (commentsError) {
     console.error('댓글 조회 오류:', commentsError)
   }
 
+  // 사용자 인증 상태 확인
+  const { data: { user } } = await supabase.auth.getUser()
+
+  // 사용자의 좋아요 상태 확인
+  let userPostLike = null
+  let userCommentLikes: string[] = []
+  
+  if (user) {
+    // 게시글 좋아요 상태
+    const { data: postLike } = await supabase
+      .from('post_likes')
+      .select('id')
+      .eq('post_id', resolvedParams.postId)
+      .eq('user_id', user.id)
+      .single()
+    
+    userPostLike = postLike
+
+    // 댓글 좋아요 상태
+    if (comments && comments.length > 0) {
+      const { data: commentLikes } = await supabase
+        .from('comment_likes')
+        .select('comment_id')
+        .eq('user_id', user.id)
+        .in('comment_id', comments.map(c => c.id))
+      
+      userCommentLikes = commentLikes?.map(cl => cl.comment_id) || []
+    }
+  }
+
   return (
     <div className="container py-8">
-      {/* 브레드크럼 */}
-      <div className="flex items-center space-x-2 text-sm text-slate-600 dark:text-slate-400 mb-6">
-        <Link href="/boards" className="hover:text-slate-900 dark:hover:text-slate-100">
-          게시판
-        </Link>
-        <span>›</span>
-        <Link href={`/boards/${board.id}`} className="hover:text-slate-900 dark:hover:text-slate-100">
-          {board.name}
-        </Link>
-        <span>›</span>
-        <span className="truncate max-w-xs">{post.title}</span>
-      </div>
-
-      {/* 게시글 내용 */}
-      <article className="bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 overflow-hidden mb-6">
-        {/* 게시글 헤더 */}
-        <div className="px-6 py-4 border-b border-slate-200 dark:border-slate-600">
-          <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100 mb-4">
-            {post.title}
-          </h1>
-          
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-4 text-sm text-slate-600 dark:text-slate-400">
-              <span className="font-medium">{author?.username || '익명'}</span>
-              <span>•</span>
-              <span>{new Date(post.created_at).toLocaleString('ko-KR')}</span>
-              <span>•</span>
-              <span>조회 {post.view_count + 1}</span>
-              <span>•</span>
-              <span>추천 {post.like_count}</span>
-            </div>
-            
-            {isAuthor && (
-              <div className="flex items-center space-x-2">
-                <Link
-                  href={`/boards/${board.id}/posts/${post.id}/edit`}
-                  className="text-sm text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300"
-                >
-                  수정
-                </Link>
-                <span className="text-slate-300 dark:text-slate-600">|</span>
-                <button className="text-sm text-red-600 dark:text-red-400 hover:text-red-800 dark:hover:text-red-300">
-                  삭제
-                </button>
-              </div>
-            )}
-          </div>
+      <div className="max-w-4xl mx-auto">
+        {/* 헤더 */}
+        <div className="mb-8">
+          <Link
+            href={`/boards/${resolvedParams.id}`}
+            className="inline-flex items-center text-sm text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-100 mb-4 transition-colors"
+          >
+            <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+            </svg>
+            게시판으로 돌아가기
+          </Link>
         </div>
 
-        {/* 게시글 본문 */}
-        <div className="px-6 py-6">
-          <div className="prose prose-slate dark:prose-invert max-w-none">
+        {/* 게시글 */}
+        <article className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 p-6 mb-8">
+          {/* 게시글 헤더 */}
+          <header className="mb-6">
+            <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100 mb-4">
+              {post.title}
+            </h1>
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-4 text-sm text-slate-500 dark:text-slate-400">
+                <div className="flex items-center">
+                  <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                  </svg>
+                  {post.author_id ? post.author_id.substring(0, 8) : '익명'}
+                </div>
+                <div className="flex items-center">
+                  <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                  </svg>
+                  조회수 {post.view_count || 0}
+                </div>
+                <div className="flex items-center">
+                  <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                  {new Date(post.created_at).toLocaleDateString('ko-KR', {
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                  })}
+                </div>
+
+                {post.updated_at !== post.created_at && (
+                  <span className="text-orange-500 dark:text-orange-400">
+                    (수정됨: {new Date(post.updated_at).toLocaleDateString('ko-KR', {
+                      month: 'short',
+                      day: 'numeric',
+                      hour: '2-digit',
+                      minute: '2-digit'
+                    })})
+                  </span>
+                )}
+              </div>
+              
+              {user && user.id === post.author_id && (
+                <div className="flex items-center space-x-2">
+                  <Link
+                    href={`/boards/${resolvedParams.id}/posts/${resolvedParams.postId}/edit`}
+                    className="px-3 py-1 text-sm text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 border border-blue-300 dark:border-blue-600 rounded hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors"
+                  >
+                    수정
+                  </Link>
+                  <PostActions 
+                    postId={post.id} 
+                    boardId={post.board_id}
+                    isAuthor={true}
+                    showOnlyDelete={true}
+                  />
+                </div>
+              )}
+            </div>
+          </header>
+
+          {/* 게시글 내용 */}
+          <div className="prose prose-slate dark:prose-invert max-w-none mb-6">
             <div className="whitespace-pre-wrap text-slate-700 dark:text-slate-300 leading-relaxed">
               {post.content}
             </div>
           </div>
-        </div>
 
-        {/* 게시글 액션 */}
-        <div className="px-6 py-4 bg-slate-50 dark:bg-slate-700 border-t border-slate-200 dark:border-slate-600">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-4">
-              <button className="flex items-center space-x-2 px-3 py-1 text-sm text-slate-600 dark:text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
-                </svg>
-                <span>추천 {post.like_count}</span>
-              </button>
-              
-              <button className="flex items-center space-x-2 px-3 py-1 text-sm text-slate-600 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 transition-colors">
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.367 2.684 3 3 0 00-5.367-2.684z" />
-                </svg>
-                <span>공유</span>
-              </button>
-            </div>
-            
-            <Link
-              href={`/boards/${board.id}`}
-              className="text-sm text-slate-600 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 transition-colors"
-            >
-              목록으로
-            </Link>
+          {/* 게시글 추천 버튼 (중앙) */}
+          <div className="flex justify-center pt-4 border-t border-slate-200 dark:border-slate-700">
+            <PostActions 
+              postId={post.id} 
+              boardId={post.board_id}
+              likeCount={post.like_count}
+              isLiked={!!userPostLike}
+              isAuthor={user?.id === post.author_id}
+              showOnlyLike={true}
+            />
           </div>
-        </div>
-      </article>
+        </article>
 
-      {/* 댓글 섹션 */}
-      <div className="bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 overflow-hidden">
-        {/* 댓글 헤더 */}
-        <div className="px-6 py-4 border-b border-slate-200 dark:border-slate-600">
-          <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-100">
-            댓글 {comments?.length || 0}개
-          </h2>
-        </div>
-
-        {/* 댓글 작성 폼 */}
-        {user ? (
-          <div className="px-6 py-4 border-b border-slate-200 dark:border-slate-600">
-            <form className="space-y-4">
-              <textarea
-                name="content"
-                rows={3}
-                placeholder="댓글을 작성해주세요..."
-                className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-slate-700 dark:text-slate-100 transition-colors resize-none"
-              />
-              <div className="flex justify-end">
-                <button
-                  type="submit"
-                  className="px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors"
-                >
-                  댓글 작성
-                </button>
-              </div>
-            </form>
-          </div>
-        ) : (
-          <div className="px-6 py-4 border-b border-slate-200 dark:border-slate-600 text-center">
-            <p className="text-slate-600 dark:text-slate-400 mb-3">
-              댓글을 작성하려면 로그인이 필요합니다.
-            </p>
-            <Link
-              href="/login"
-              className="inline-flex items-center px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors"
-            >
-              로그인
-            </Link>
-          </div>
-        )}
-
-        {/* 댓글 목록 */}
-        {commentsWithAuthors && commentsWithAuthors.length > 0 ? (
-          <div className="divide-y divide-slate-200 dark:divide-slate-600">
-            {commentsWithAuthors.map((comment) => (
-              <div key={comment.id} className="px-6 py-4">
-                <div className="flex items-start space-x-3">
-                  <div className="flex-shrink-0">
-                    <div className="w-8 h-8 bg-slate-200 dark:bg-slate-600 rounded-full flex items-center justify-center">
-                      <span className="text-xs font-medium text-slate-600 dark:text-slate-400">
-                        {comment.profiles?.username?.charAt(0) || '?'}
-                      </span>
-                    </div>
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center space-x-2 mb-1">
-                      <span className="text-sm font-medium text-slate-900 dark:text-slate-100">
-                        {comment.profiles?.username || '익명'}
-                      </span>
-                      <span className="text-xs text-slate-500 dark:text-slate-400">
-                        {new Date(comment.created_at).toLocaleString('ko-KR')}
-                      </span>
-                    </div>
-                    <p className="text-sm text-slate-700 dark:text-slate-300 whitespace-pre-wrap">
-                      {comment.content}
-                    </p>
-                    <div className="flex items-center space-x-4 mt-2">
-                      isAuthor={user?.id === comment.author_id}
-                      </button>
-                      <button className="text-xs text-slate-500 dark:text-slate-400 hover:text-blue-600 dark:hover:text-blue-400">
-                        추천 {comment.like_count}
-                      </button>
-                      {user?.id === comment.author_id && (
-                        <>
-                          <button className="text-xs text-slate-500 dark:text-slate-400 hover:text-blue-600 dark:hover:text-blue-400">
-                            수정
-                          </button>
-                          <button className="text-xs text-red-500 dark:text-red-400 hover:text-red-600 dark:hover:text-red-300">
-                            삭제
-                          </button>
-                        </>
-                      )}
-                    </div>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        ) : (
-          <div className="px-6 py-8 text-center">
-            <p className="text-slate-500 dark:text-slate-400">
-              아직 댓글이 없습니다. 첫 번째 댓글을 작성해보세요!
-            </p>
-          </div>
-        )}
+        {/* 댓글 섹션 */}
+        <CommentSection 
+          postId={post.id}
+          boardId={post.board_id}
+          comments={comments || []}
+          userCommentLikes={userCommentLikes}
+          currentUser={user}
+        />
       </div>
     </div>
   )
