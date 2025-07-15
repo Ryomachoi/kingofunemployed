@@ -1,0 +1,131 @@
+name: Discord 알림 전체 자동화 (Embed)
+
+on:
+  create:
+  push:
+  pull_request:
+    types: [opened, synchronize, closed]
+  issues:
+    types: [opened, closed]
+  issue_comment:
+    types: [created]
+  release:
+    types: [published]
+
+jobs:
+  notify-discord:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Send Discord Embed
+        run: |
+          EVENT="${{ github.event_name }}"
+          ACTION="${{ github.event.action }}"
+          TIMESTAMP=$(date -u +%Y-%m-%dT%H:%M:%SZ)
+
+          if [[ "$EVENT" == "create" && "${{ github.event.ref_type }}" == "branch" ]]; then
+            BRANCH="${{ github.event.ref }}"
+            USER="${{ github.actor }}"
+            COLOR=3447003
+            TITLE="🌿 새로운 브랜치 생성"
+            DESCRIPTION="**브랜치명:** \`$BRANCH\`\n**작성자:** $USER"
+
+          elif [[ "$EVENT" == "push" ]]; then
+            BRANCH="${{ github.ref_name }}"
+            USER="${{ github.actor }}"
+            MSG=$(echo "${{ github.event.head_commit.message }}" | sed ':a;N;$!ba;s/\n/\\n/g')
+            COLOR=15105570
+            TITLE="📦 커밋 푸시"
+            DESCRIPTION="**브랜치:** \`$BRANCH\`\n**작성자:** $USER\n**메시지:**\n$MSG"
+
+          elif [[ "$EVENT" == "pull_request" && "$ACTION" == "opened" ]]; then
+            TITLE_TEXT="${{ github.event.pull_request.title }}"
+            URL="${{ github.event.pull_request.html_url }}"
+            AUTHOR="${{ github.event.pull_request.user.login }}"
+            FROM="${{ github.event.pull_request.head.ref }}"
+            TO="${{ github.event.pull_request.base.ref }}"
+            COLOR=10181046
+            TITLE="📣 Pull Request 생성"
+            DESCRIPTION="**[$TITLE_TEXT]($URL)**\n**작성자:** $AUTHOR\n**브랜치:** \`$FROM → $TO\`"
+
+          elif [[ "$EVENT" == "pull_request" && "$ACTION" == "synchronize" ]]; then
+            TITLE_TEXT="${{ github.event.pull_request.title }}"
+            URL="${{ github.event.pull_request.html_url }}"
+            AUTHOR="${{ github.event.sender.login }}"
+            COLOR=15844367
+            TITLE="🔄 PR에 커밋 추가"
+            DESCRIPTION="**[$TITLE_TEXT]($URL)**\n**추가자:** $AUTHOR"
+
+          elif [[ "$EVENT" == "pull_request" && "$ACTION" == "closed" && "${{ github.event.pull_request.merged }}" == "true" ]]; then
+            TITLE_TEXT="${{ github.event.pull_request.title }}"
+            URL="${{ github.event.pull_request.html_url }}"
+            AUTHOR="${{ github.event.pull_request.user.login }}"
+            COLOR=3066993
+            TITLE="✅ PR 병합 완료"
+            DESCRIPTION="**[$TITLE_TEXT]($URL)**\n**병합자:** $AUTHOR"
+
+          elif [[ "$EVENT" == "pull_request" && "$ACTION" == "closed" && "${{ github.event.pull_request.merged }}" != "true" ]]; then
+            TITLE_TEXT="${{ github.event.pull_request.title }}"
+            URL="${{ github.event.pull_request.html_url }}"
+            AUTHOR="${{ github.event.pull_request.user.login }}"
+            COLOR=15548997
+            TITLE="❌ PR이 닫혔습니다"
+            DESCRIPTION="**[$TITLE_TEXT]($URL)**\n**닫은 사람:** $AUTHOR"
+
+          elif [[ "$EVENT" == "issues" && "$ACTION" == "opened" ]]; then
+            TITLE_TEXT="${{ github.event.issue.title }}"
+            URL="${{ github.event.issue.html_url }}"
+            AUTHOR="${{ github.event.issue.user.login }}"
+            COLOR=16776960
+            TITLE="📝 새로운 이슈"
+            DESCRIPTION="**[$TITLE_TEXT]($URL)**\n**작성자:** $AUTHOR"
+
+          elif [[ "$EVENT" == "issues" && "$ACTION" == "closed" ]]; then
+            TITLE_TEXT="${{ github.event.issue.title }}"
+            URL="${{ github.event.issue.html_url }}"
+            AUTHOR="${{ github.event.issue.user.login }}"
+            COLOR=15548997
+            TITLE="🛑 이슈가 닫혔습니다"
+            DESCRIPTION="**[$TITLE_TEXT]($URL)**\n**닫은 사람:** $AUTHOR"
+
+          elif [[ "$EVENT" == "issue_comment" && "$ACTION" == "created" ]]; then
+            AUTHOR="${{ github.event.comment.user.login }}"
+            URL="${{ github.event.comment.html_url }}"
+            COMMENT=$(echo "${{ github.event.comment.body }}" | sed ':a;N;$!ba;s/\n/\\n/g')
+            COLOR=7506394
+            TITLE="💬 새 댓글"
+            DESCRIPTION="**작성자:** $AUTHOR\n[댓글 보러가기]($URL)\n\n**내용:**\n$COMMENT"
+
+          elif [[ "$EVENT" == "release" && "$ACTION" == "published" ]]; then
+            NAME="${{ github.event.release.name }}"
+            TAG="${{ github.event.release.tag_name }}"
+            AUTHOR="${{ github.event.release.author.login }}"
+            URL="${{ github.event.release.html_url }}"
+            COLOR=5763719
+            TITLE="📦 릴리즈 게시됨"
+            DESCRIPTION="**이름:** $NAME\n**태그:** \`$TAG\`\n**작성자:** $AUTHOR\n[보러가기]($URL)"
+
+          else
+            COLOR=10038562
+            TITLE="❓ 감지되지 않은 이벤트"
+            DESCRIPTION="**이벤트:** $EVENT\n**액션:** $ACTION"
+          fi
+
+          JSON=$(jq -n \
+            --arg title "$TITLE" \
+            --arg description "$DESCRIPTION" \
+            --argjson color "$COLOR" \
+            --arg timestamp "$TIMESTAMP" \
+            '{
+              "embeds": [{
+                "title": $title,
+                "description": $description,
+                "color": $color,
+                "footer": { "text": "GitHub Actions 자동 알림" },
+                "timestamp": $timestamp
+              }]
+            }')
+
+          curl -H "Content-Type: application/json" \
+               -X POST \
+               -d "$JSON" \
+               "${{ secrets.DISCORD_WEBHOOK }}"
