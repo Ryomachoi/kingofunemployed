@@ -4,23 +4,19 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { createComment, updateComment, deleteComment, toggleCommentLike } from '@/app/boards/actions'
+import { CommentWithProfile } from '@/types/database'
 
-interface Comment {
+interface User {
   id: string
-  content: string
-  like_count: number
-  created_at: string
-  updated_at: string
-  author_id: string
-  is_deleted: boolean
+  email?: string
 }
 
 interface CommentSectionProps {
   postId: string
   boardId: string
-  comments: Comment[]
+  comments: CommentWithProfile[]
   userCommentLikes: string[]
-  currentUser: any
+  currentUser: User | null
 }
 
 export default function CommentSection({ 
@@ -31,7 +27,7 @@ export default function CommentSection({
   currentUser 
 }: CommentSectionProps) {
   const router = useRouter()
-  const [comments, setComments] = useState(initialComments)
+  const [comments, setComments] = useState<CommentWithProfile[]>(initialComments)
   const [userCommentLikes, setUserCommentLikes] = useState(initialUserCommentLikes)
   const [newComment, setNewComment] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -56,7 +52,7 @@ export default function CommentSection({
       
       if ('success' in result && result.success && 'data' in result && result.data) {
         // 새 댓글을 목록에 추가
-        setComments(prev => [...prev, result.data as Comment])
+        setComments(prev => [...prev, result.data as CommentWithProfile])
         setNewComment('')
         router.refresh()
       } else {
@@ -86,7 +82,7 @@ export default function CommentSection({
         // 댓글 목록 업데이트
         setComments(prev => prev.map(comment => 
           comment.id === commentId 
-            ? result.data as Comment
+            ? result.data as CommentWithProfile
             : comment
         ))
         setEditingCommentId(null)
@@ -154,7 +150,7 @@ export default function CommentSection({
     }
   }
 
-  const startEdit = (comment: Comment) => {
+  const startEdit = (comment: CommentWithProfile) => {
     setEditingCommentId(comment.id)
     setEditContent(comment.content)
   }
@@ -232,7 +228,11 @@ export default function CommentSection({
                         <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7-7h14a7 7 0 00-7-7z" />
                         </svg>
-                        {comment.author_id ? comment.author_id.substring(0, 8) : '익명'}
+                        {comment.author_id ? (
+                          comment.user_profiles?.nickname || 
+                          comment.user_profiles?.display_name || 
+                          comment.author_id.substring(0, 8)
+                        ) : '익명'}
                       </div>
                   <div className="flex items-center">
                     <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">

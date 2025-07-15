@@ -1,6 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 import Link from 'next/link'
 import { redirect } from 'next/navigation'
+import type { Board } from '@/types/database'
 
 export default async function BoardsPage() {
   const supabase = await createClient()
@@ -19,7 +20,7 @@ export default async function BoardsPage() {
     .order('created_at', { ascending: false })
 
   // 각 게시판의 실제 게시글 수 집계
-  let boards = []
+  let boards: Board[] = []
   if (boardsData) {
     boards = await Promise.all(
       boardsData.map(async (board) => {
@@ -107,12 +108,9 @@ export default async function BoardsPage() {
                   </p>
                 )}
                 
-                <div className="flex items-center justify-between text-xs text-slate-500 dark:text-slate-400">
+                <div className="flex items-center justify-end text-xs text-slate-500 dark:text-slate-400">
                   <span>
                     생성일: {new Date(board.created_at).toLocaleDateString('ko-KR')}
-                  </span>
-                  <span>
-                    게시글 {board.post_count}개
                   </span>
                 </div>
               </div>

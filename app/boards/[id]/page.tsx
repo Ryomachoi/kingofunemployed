@@ -1,6 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
+import type { PostWithProfile } from '@/types/database'
 
 interface BoardDetailPageProps {
   params: {
@@ -55,6 +56,25 @@ export default async function BoardDetailPage({ params }: BoardDetailPageProps) 
     .eq('is_deleted', false)
     .order('created_at', { ascending: false })
     .limit(20)
+
+  // 게시글 작성자들의 프로필 정보 조회
+  let postsWithProfiles: PostWithProfile[] = posts || []
+  if (posts && posts.length > 0) {
+    const authorIds = [...new Set(posts.map(post => post.author_id).filter(Boolean))]
+    
+    if (authorIds.length > 0) {
+      const { data: profiles } = await supabase
+        .from('user_profiles')
+        .select('id, nickname, display_name')
+        .in('id', authorIds)
+      
+      // 게시글에 프로필 정보 매핑
+      postsWithProfiles = posts.map(post => ({
+        ...post,
+        user_profiles: profiles?.find(profile => profile.id === post.author_id) || null
+      }))
+    }
+  }
 
   if (postsError) {
     console.error('게시글 조회 오류:', postsError)
@@ -127,8 +147,8 @@ export default async function BoardDetailPage({ params }: BoardDetailPageProps) 
 
       {/* 게시글 목록 */}
       <div className="space-y-4">
-        {posts && posts.length > 0 ? (
-          posts.map((post) => (
+        {postsWithProfiles && postsWithProfiles.length > 0 ? (
+          postsWithProfiles.map((post) => (
             <Link
               key={post.id}
               href={`/boards/${resolvedParams.id}/posts/${post.id}`}
@@ -149,7 +169,11 @@ export default async function BoardDetailPage({ params }: BoardDetailPageProps) 
                         <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                         </svg>
-                        {post.author_id ? post.author_id.substring(0, 8) : '익명'}
+                        {post.author_id ? (
+                          post.user_profiles?.nickname || 
+                          post.user_profiles?.display_name || 
+                          post.author_id.substring(0, 8)
+                        ) : '익명'}
                       </div>
                       <div className="flex items-center">
                         <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
