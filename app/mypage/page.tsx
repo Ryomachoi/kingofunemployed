@@ -1,6 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import ProfileEditor from './ProfileEditor'
+import { updateProfile } from './actions'
 import type { UserProfile } from '@/types/database'
 
 export default async function MyPage() {
@@ -70,6 +71,7 @@ export default async function MyPage() {
             userId={user.id}
             initialNickname={profile?.nickname || ''}
             initialDisplayName={profile?.display_name || user.id.substring(0, 8)}
+            onUpdateProfile={updateProfile}
           />
         </div>
       </section>
@@ -88,7 +90,7 @@ export default async function MyPage() {
                         {post.title}
                       </h3>
                       <p className="text-sm text-slate-500 dark:text-slate-400">
-                        {post.boards?.name} • {new Date(post.created_at).toLocaleDateString()}
+                        {(post.boards as any)?.name ?? '게시판'} • {new Date(post.created_at).toLocaleDateString()}
                       </p>
                     </div>
                     <div className="text-sm text-slate-500 dark:text-slate-400">
@@ -121,7 +123,7 @@ export default async function MyPage() {
                         }
                       </p>
                       <p className="text-sm text-slate-500 dark:text-slate-400">
-                        {comment.posts?.boards?.name} • {comment.posts?.title} • {new Date(comment.created_at).toLocaleDateString()}
+                        {(comment.posts as any)?.boards?.name ?? '게시판'} • {(comment.posts as any)?.title ?? '게시글'} • {new Date(comment.created_at).toLocaleDateString()}
                       </p>
                     </div>
                     <div className="text-sm text-slate-500 dark:text-slate-400">

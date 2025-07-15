@@ -33,12 +33,12 @@ export default async function BoardsPage() {
         return {
           ...board,
           post_count: count || 0
-        }
+        } as Board
       })
     )
     
     // 게시글 수로 정렬
-    boards.sort((a, b) => b.post_count - a.post_count)
+    boards.sort((a, b) => (b.post_count ?? 0) - (a.post_count ?? 0))
   }
 
   if (error) {

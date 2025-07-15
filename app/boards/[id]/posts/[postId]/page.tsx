@@ -32,15 +32,19 @@ export default async function PostDetailPage({ params }: PostDetailPageProps) {
       author_id,
       board_id,
       is_deleted,
-      boards!posts_board_id_fkey(name)
+      boards(name)
     `)
     .eq('id', resolvedParams.postId)
     .eq('board_id', resolvedParams.id)
     .single()
 
+  if (postError || !post || post.is_deleted) {
+    notFound()
+  }
+
   // 게시글 작성자 프로필 정보 조회
-  let postWithProfile: PostWithProfile = post as PostWithProfile
-  if (post && post.author_id) {
+  let postWithProfile: PostWithProfile
+  if (post.author_id) {
     const { data: profile } = await supabase
       .from('user_profiles')
       .select('nickname, display_name')
@@ -49,12 +53,15 @@ export default async function PostDetailPage({ params }: PostDetailPageProps) {
     
     postWithProfile = {
       ...post,
-      user_profiles: profile
-    }
-  }
-
-  if (postError || !post || post.is_deleted) {
-    notFound()
+      boards: (post.boards as any),
+      user_profiles: profile ?? null
+    } as PostWithProfile
+  } else {
+    postWithProfile = {
+      ...post,
+      boards: (post.boards as any),
+      user_profiles: null
+    } as PostWithProfile
   }
 
   // 조회수 증가 (비동기로 처리하여 페이지 로딩에 영향 없도록)
@@ -77,7 +84,7 @@ export default async function PostDetailPage({ params }: PostDetailPageProps) {
     .order('created_at', { ascending: true })
 
   // 댓글 작성자들의 프로필 정보 조회
-  let commentsWithProfiles: CommentWithProfile[] = comments || []
+  let commentsWithProfiles: CommentWithProfile[] = []
   if (comments && comments.length > 0) {
     const commentAuthorIds = [...new Set(comments.map(comment => comment.author_id).filter(Boolean))]
     
@@ -90,8 +97,14 @@ export default async function PostDetailPage({ params }: PostDetailPageProps) {
       // 댓글에 프로필 정보 매핑
       commentsWithProfiles = comments.map(comment => ({
         ...comment,
-        user_profiles: profiles?.find(profile => profile.id === comment.author_id) || null
-      }))
+        user_profiles: profiles?.find(profile => profile.id === comment.author_id) ?? null
+      })) as CommentWithProfile[]
+    } else {
+      // 프로필 정보가 없는 경우에도 CommentWithProfile 타입으로 변환
+      commentsWithProfiles = comments.map(comment => ({
+        ...comment,
+        user_profiles: null
+      })) as CommentWithProfile[]
     }
   }
 

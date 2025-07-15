@@ -22,8 +22,7 @@ export interface Post {
   is_deleted: boolean
   boards?: {
     name: string
-  }
-  user_profiles?: UserProfile | null
+  } | null
 }
 
 export interface Comment {
@@ -33,9 +32,8 @@ export interface Comment {
   created_at: string
   updated_at: string
   author_id: string
-  post_id: string
+  post_id?: string
   is_deleted: boolean
-  user_profiles?: UserProfile | null
 }
 
 export interface Board {

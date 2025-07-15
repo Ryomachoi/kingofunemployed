@@ -58,7 +58,7 @@ export default async function BoardDetailPage({ params }: BoardDetailPageProps) 
     .limit(20)
 
   // 게시글 작성자들의 프로필 정보 조회
-  let postsWithProfiles: PostWithProfile[] = posts || []
+  let postsWithProfiles: PostWithProfile[] = []
   if (posts && posts.length > 0) {
     const authorIds = [...new Set(posts.map(post => post.author_id).filter(Boolean))]
     
@@ -71,8 +71,14 @@ export default async function BoardDetailPage({ params }: BoardDetailPageProps) 
       // 게시글에 프로필 정보 매핑
       postsWithProfiles = posts.map(post => ({
         ...post,
-        user_profiles: profiles?.find(profile => profile.id === post.author_id) || null
-      }))
+        user_profiles: profiles?.find(profile => profile.id === post.author_id) ?? null
+      })) as PostWithProfile[]
+    } else {
+      // 프로필 정보가 없는 경우에도 PostWithProfile 타입으로 변환
+      postsWithProfiles = posts.map(post => ({
+        ...post,
+        user_profiles: null
+      })) as PostWithProfile[]
     }
   }
 

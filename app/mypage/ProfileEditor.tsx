@@ -1,15 +1,15 @@
 'use client'
 
 import { useState } from 'react'
-import { updateProfile } from './actions'
 
 interface ProfileEditorProps {
   userId: string
   initialNickname: string
   initialDisplayName: string
+  onUpdateProfile: (formData: FormData) => Promise<{ success: boolean; error?: string }>
 }
 
-export default function ProfileEditor({ userId, initialNickname, initialDisplayName }: ProfileEditorProps) {
+export default function ProfileEditor({ userId, initialNickname, initialDisplayName, onUpdateProfile }: ProfileEditorProps) {
   const [nickname, setNickname] = useState(initialNickname)
   const [isEditing, setIsEditing] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
@@ -24,7 +24,7 @@ export default function ProfileEditor({ userId, initialNickname, initialDisplayN
       const formData = new FormData()
       formData.append('nickname', nickname)
       
-      const result = await updateProfile(formData)
+      const result = await onUpdateProfile(formData)
       
       if (result.success) {
         setMessage('닉네임이 성공적으로 업데이트되었습니다.')
@@ -34,7 +34,8 @@ export default function ProfileEditor({ userId, initialNickname, initialDisplayN
       } else {
         setMessage(result.error || '업데이트 중 오류가 발생했습니다.')
       }
-    } catch (error) {
+    } catch (error: unknown) {
+      console.error('Profile update error:', error)
       setMessage('업데이트 중 오류가 발생했습니다.')
     } finally {
       setIsLoading(false)
