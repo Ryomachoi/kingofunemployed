@@ -35,6 +35,16 @@ export default function CommentSection({
   const [editContent, setEditContent] = useState('')
   const [isEditing, setIsEditing] = useState(false)
   const [deletingCommentId, setDeletingCommentId] = useState<string | null>(null)
+  const [replyingToCommentId, setReplyingToCommentId] = useState<string | null>(null)
+  const [replyContent, setReplyContent] = useState('')
+  const [isSubmittingReply, setIsSubmittingReply] = useState(false)
+
+  // 전체 댓글 수 계산 (대댓글 포함)
+  const getTotalCommentCount = () => {
+    return comments.reduce((total, comment) => {
+      return total + 1 + (comment.replies?.length || 0)
+    }, 0)
+  }
 
   const handleSubmitComment = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -51,8 +61,12 @@ export default function CommentSection({
       const result = await createComment(formData)
       
       if ('success' in result && result.success && 'data' in result && result.data) {
-        // 새 댓글을 목록에 추가
-        setComments(prev => [...prev, result.data as CommentWithProfile])
+        // 새 댓글을 목록에 추가 (replies 배열 초기화)
+        const newCommentWithReplies = {
+          ...result.data as CommentWithProfile,
+          replies: []
+        }
+        setComments(prev => [...prev, newCommentWithReplies])
         setNewComment('')
         router.refresh()
       } else {
@@ -63,6 +77,46 @@ export default function CommentSection({
       alert('댓글 작성 중 오류가 발생했습니다.')
     } finally {
       setIsSubmitting(false)
+    }
+  }
+
+  const handleSubmitReply = async (e: React.FormEvent, parentCommentId: string) => {
+    e.preventDefault()
+    
+    if (!replyContent.trim() || !currentUser) return
+    
+    setIsSubmittingReply(true)
+    
+    try {
+      const formData = new FormData()
+      formData.append('postId', postId)
+      formData.append('content', replyContent.trim())
+      formData.append('parentCommentId', parentCommentId)
+      
+      const result = await createComment(formData)
+      
+      if ('success' in result && result.success && 'data' in result && result.data) {
+        // 부모 댓글의 replies 배열에 새 대댓글 추가
+        setComments(prev => prev.map(comment => {
+          if (comment.id === parentCommentId) {
+            return {
+              ...comment,
+              replies: [...(comment.replies || []), result.data as CommentWithProfile]
+            }
+          }
+          return comment
+        }))
+        setReplyContent('')
+        setReplyingToCommentId(null)
+        router.refresh()
+      } else {
+        alert(result.error || '대댓글 작성에 실패했습니다.')
+      }
+    } catch (error) {
+      console.error('대댓글 작성 오류:', error)
+      alert('대댓글 작성 중 오류가 발생했습니다.')
+    } finally {
+      setIsSubmittingReply(false)
     }
   }
 
@@ -79,12 +133,28 @@ export default function CommentSection({
       const result = await updateComment(formData)
       
       if ('success' in result && result.success && 'data' in result && result.data) {
-        // 댓글 목록 업데이트
-        setComments(prev => prev.map(comment => 
-          comment.id === commentId 
-            ? result.data as CommentWithProfile
-            : comment
-        ))
+        // 댓글 목록 업데이트 (부모 댓글과 대댓글 모두 고려)
+        setComments(prev => prev.map(comment => {
+          if (comment.id === commentId) {
+            return {
+              ...result.data as CommentWithProfile,
+              replies: comment.replies || []
+            }
+          }
+          // 대댓글인 경우
+          if (comment.replies) {
+            const updatedReplies = comment.replies.map(reply => 
+              reply.id === commentId 
+                ? result.data as CommentWithProfile
+                : reply
+            )
+            return {
+              ...comment,
+              replies: updatedReplies
+            }
+          }
+          return comment
+        }))
         setEditingCommentId(null)
         setEditContent('')
       } else {
@@ -107,8 +177,22 @@ export default function CommentSection({
       const result = await deleteComment(commentId)
       
       if (result.success) {
-        // 댓글 목록에서 제거
-        setComments(prev => prev.filter(comment => comment.id !== commentId))
+        // 댓글 목록에서 제거 (부모 댓글과 대댓글 모두 고려)
+        setComments(prev => {
+          // 부모 댓글 삭제인 경우
+          const filteredComments = prev.filter(comment => comment.id !== commentId)
+          
+          // 대댓글 삭제인 경우
+          return filteredComments.map(comment => {
+            if (comment.replies) {
+              return {
+                ...comment,
+                replies: comment.replies.filter(reply => reply.id !== commentId)
+              }
+            }
+            return comment
+          })
+        })
         router.refresh()
       } else {
         alert(result.error || '댓글 삭제에 실패했습니다.')
@@ -131,18 +215,38 @@ export default function CommentSection({
       if (result.success) {
         if (isLiked) {
           setUserCommentLikes(prev => prev.filter(id => id !== commentId))
-          setComments(prev => prev.map(comment => 
-            comment.id === commentId 
-              ? { ...comment, like_count: Math.max(0, comment.like_count - 1) }
-              : comment
-          ))
+          setComments(prev => prev.map(comment => {
+            if (comment.id === commentId) {
+              return { ...comment, like_count: Math.max(0, comment.like_count - 1) }
+            }
+            // 대댓글인 경우
+            if (comment.replies) {
+              const updatedReplies = comment.replies.map(reply => 
+                reply.id === commentId 
+                  ? { ...reply, like_count: Math.max(0, reply.like_count - 1) }
+                  : reply
+              )
+              return { ...comment, replies: updatedReplies }
+            }
+            return comment
+          }))
         } else {
           setUserCommentLikes(prev => [...prev, commentId])
-          setComments(prev => prev.map(comment => 
-            comment.id === commentId 
-              ? { ...comment, like_count: comment.like_count + 1 }
-              : comment
-          ))
+          setComments(prev => prev.map(comment => {
+            if (comment.id === commentId) {
+              return { ...comment, like_count: comment.like_count + 1 }
+            }
+            // 대댓글인 경우
+            if (comment.replies) {
+              const updatedReplies = comment.replies.map(reply => 
+                reply.id === commentId 
+                  ? { ...reply, like_count: reply.like_count + 1 }
+                  : reply
+              )
+              return { ...comment, replies: updatedReplies }
+            }
+            return comment
+          }))
         }
       }
     } catch (error) {
@@ -163,7 +267,7 @@ export default function CommentSection({
   return (
     <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 p-6">
       <h2 className="text-xl font-semibold text-slate-900 dark:text-slate-100 mb-6">
-        댓글 {comments.length}개
+        댓글 {getTotalCommentCount()}개
       </h2>
 
       {/* 댓글 작성 폼 */}
@@ -222,6 +326,7 @@ export default function CommentSection({
         {comments.length > 0 ? (
           comments.map((comment) => (
             <div key={comment.id} className="border-b border-slate-200 dark:border-slate-700 pb-4 last:border-b-0">
+              {/* 부모 댓글 */}
               <div className="flex items-start justify-between mb-2">
                 <div className="flex items-center space-x-2 text-sm text-slate-500 dark:text-slate-400">
                   <div className="flex items-center">
@@ -332,8 +437,186 @@ export default function CommentSection({
                       </svg>
                       <span>{comment.like_count}</span>
                     </button>
+                    
+                    {/* 답글 버튼 */}
+                    {currentUser && (
+                      <button
+                        onClick={() => {
+                          setReplyingToCommentId(replyingToCommentId === comment.id ? null : comment.id)
+                          setReplyContent('')
+                        }}
+                        className="flex items-center space-x-1 px-2 py-1 rounded text-xs font-medium transition-colors bg-slate-100 text-slate-600 hover:bg-slate-200 dark:bg-slate-700 dark:text-slate-400 dark:hover:bg-slate-600"
+                      >
+                        <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6" />
+                        </svg>
+                        <span>답글</span>
+                      </button>
+                    )}
                   </div>
+                  
+                  {/* 답글 작성 폼 */}
+                  {replyingToCommentId === comment.id && currentUser && (
+                    <form onSubmit={(e) => handleSubmitReply(e, comment.id)} className="mt-3 ml-4">
+                      <div className="mb-2">
+                        <textarea
+                          value={replyContent}
+                          onChange={(e) => setReplyContent(e.target.value)}
+                          placeholder="답글을 작성해주세요..."
+                          rows={2}
+                          className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-slate-700 dark:text-slate-100 text-sm resize-vertical"
+                          maxLength={1000}
+                          disabled={isSubmittingReply}
+                        />
+                        <div className="mt-1 text-xs text-slate-500 dark:text-slate-400 text-right">
+                          {replyContent.length}/1000
+                        </div>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <button
+                          type="submit"
+                          disabled={isSubmittingReply || !replyContent.trim()}
+                          className="px-3 py-1 text-sm bg-blue-600 hover:bg-blue-700 disabled:bg-slate-400 text-white rounded transition-colors"
+                        >
+                          {isSubmittingReply ? '작성 중...' : '답글 작성'}
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setReplyingToCommentId(null)
+                            setReplyContent('')
+                          }}
+                          className="px-3 py-1 text-sm text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100"
+                        >
+                          취소
+                        </button>
+                      </div>
+                    </form>
+                  )}
                 </>
+              )}
+              
+              {/* 대댓글 목록 */}
+              {comment.replies && comment.replies.length > 0 && (
+                <div className="ml-6 mt-4 space-y-3">
+                  {comment.replies.map((reply) => (
+                    <div key={reply.id} className="border-l-2 border-slate-200 dark:border-slate-600 pl-4">
+                      <div className="flex items-start justify-between mb-2">
+                        <div className="flex items-center space-x-2 text-sm text-slate-500 dark:text-slate-400">
+                          <div className="flex items-center">
+                            <svg className="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7-7h14a7 7 0 00-7-7z" />
+                            </svg>
+                            {reply.author_id ? (
+                              reply.user_profiles?.nickname || 
+                              reply.user_profiles?.display_name || 
+                              reply.author_id.substring(0, 8)
+                            ) : '익명'}
+                          </div>
+                          <div className="flex items-center">
+                            <svg className="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                            {new Date(reply.created_at).toLocaleDateString('ko-KR', {
+                              month: 'short',
+                              day: 'numeric',
+                              hour: '2-digit',
+                              minute: '2-digit'
+                            })}
+                          </div>
+                          {reply.updated_at !== reply.created_at && (
+                            <span className="text-orange-500 dark:text-orange-400">
+                              (수정됨)
+                            </span>
+                          )}
+                        </div>
+                        
+                        {currentUser && currentUser.id === reply.author_id && (
+                          <div className="flex items-center space-x-2">
+                            <button
+                              onClick={() => startEdit(reply)}
+                              className="text-xs text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300"
+                            >
+                              수정
+                            </button>
+                            <button
+                              onClick={() => handleDeleteComment(reply.id)}
+                              disabled={deletingCommentId === reply.id}
+                              className="text-xs text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300"
+                            >
+                              {deletingCommentId === reply.id ? '삭제 중...' : '삭제'}
+                            </button>
+                          </div>
+                        )}
+                      </div>
+                      
+                      {editingCommentId === reply.id ? (
+                        <div className="mt-2">
+                          <textarea
+                            value={editContent}
+                            onChange={(e) => setEditContent(e.target.value)}
+                            rows={2}
+                            className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-slate-700 dark:text-slate-100 text-sm"
+                            maxLength={1000}
+                          />
+                          <div className="flex items-center justify-between mt-2">
+                            <div className="text-xs text-slate-500 dark:text-slate-400">
+                              {editContent.length}/1000
+                            </div>
+                            <div className="flex items-center space-x-2">
+                              <button
+                                onClick={cancelEdit}
+                                className="px-3 py-1 text-sm text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100"
+                              >
+                                취소
+                              </button>
+                              <button
+                                onClick={() => handleEditComment(reply.id)}
+                                disabled={isEditing || !editContent.trim()}
+                                className="px-3 py-1 text-sm bg-blue-600 hover:bg-blue-700 disabled:bg-slate-400 text-white rounded transition-colors"
+                              >
+                                {isEditing ? '수정 중...' : '수정'}
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                      ) : (
+                        <>
+                          <p className="text-slate-700 dark:text-slate-300 text-sm whitespace-pre-wrap mb-2">
+                            {reply.content}
+                          </p>
+                          
+                          <div className="flex items-center space-x-2">
+                            <button
+                              onClick={() => handleLikeComment(reply.id)}
+                              disabled={!currentUser}
+                              className={`flex items-center space-x-1 px-2 py-1 rounded text-xs font-medium transition-colors ${
+                                userCommentLikes.includes(reply.id)
+                                  ? 'bg-red-100 text-red-700 dark:bg-red-900/20 dark:text-red-400'
+                                  : 'bg-slate-100 text-slate-600 hover:bg-slate-200 dark:bg-slate-700 dark:text-slate-400 dark:hover:bg-slate-600'
+                              } ${!currentUser ? 'opacity-50 cursor-not-allowed' : ''}`}
+                            >
+                              <svg 
+                                className={`w-3 h-3 ${userCommentLikes.includes(reply.id) ? 'fill-current' : ''}`} 
+                                fill={userCommentLikes.includes(reply.id) ? 'currentColor' : 'none'} 
+                                stroke="currentColor" 
+                                viewBox="0 0 24 24"
+                              >
+                                <path 
+                                  strokeLinecap="round" 
+                                  strokeLinejoin="round" 
+                                  strokeWidth={2} 
+                                  d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" 
+                                />
+                              </svg>
+                              <span>{reply.like_count}</span>
+                            </button>
+                          </div>
+                        </>
+                      )}
+                    </div>
+                  ))}
+                </div>
               )}
             </div>
           ))

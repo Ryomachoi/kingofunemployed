@@ -67,7 +67,7 @@ export default async function PostDetailPage({ params }: PostDetailPageProps) {
   // 조회수 증가 (비동기로 처리하여 페이지 로딩에 영향 없도록)
   incrementPostViewCount(post.id).catch(console.error)
 
-  // 댓글 목록 조회
+  // 댓글 목록 조회 (대댓글 포함)
   const { data: comments, error: commentsError } = await supabase
     .from('comments')
     .select(`
@@ -77,6 +77,7 @@ export default async function PostDetailPage({ params }: PostDetailPageProps) {
       created_at,
       updated_at,
       author_id,
+      parent_comment_id,
       is_deleted
     `)
     .eq('post_id', resolvedParams.postId)
@@ -95,16 +96,39 @@ export default async function PostDetailPage({ params }: PostDetailPageProps) {
         .in('id', commentAuthorIds)
       
       // 댓글에 프로필 정보 매핑
-      commentsWithProfiles = comments.map(comment => ({
+      const commentsWithProfilesFlat = comments.map(comment => ({
         ...comment,
-        user_profiles: profiles?.find(profile => profile.id === comment.author_id) ?? null
+        user_profiles: profiles?.find(profile => profile.id === comment.author_id) ?? null,
+        replies: []
       })) as CommentWithProfile[]
+      
+      // 댓글을 계층적으로 구성 (부모 댓글과 대댓글 분리)
+      const parentComments = commentsWithProfilesFlat.filter(comment => !comment.parent_comment_id)
+      const replyComments = commentsWithProfilesFlat.filter(comment => comment.parent_comment_id)
+      
+      // 각 부모 댓글에 대댓글 연결
+      parentComments.forEach(parentComment => {
+        parentComment.replies = replyComments.filter(reply => reply.parent_comment_id === parentComment.id)
+      })
+      
+      commentsWithProfiles = parentComments
     } else {
       // 프로필 정보가 없는 경우에도 CommentWithProfile 타입으로 변환
-      commentsWithProfiles = comments.map(comment => ({
+      const commentsWithProfilesFlat = comments.map(comment => ({
         ...comment,
-        user_profiles: null
+        user_profiles: null,
+        replies: []
       })) as CommentWithProfile[]
+      
+      // 댓글을 계층적으로 구성
+      const parentComments = commentsWithProfilesFlat.filter(comment => !comment.parent_comment_id)
+      const replyComments = commentsWithProfilesFlat.filter(comment => comment.parent_comment_id)
+      
+      parentComments.forEach(parentComment => {
+        parentComment.replies = replyComments.filter(reply => reply.parent_comment_id === parentComment.id)
+      })
+      
+      commentsWithProfiles = parentComments
     }
   }
 
