@@ -33,6 +33,7 @@ export interface Comment {
   updated_at: string
   author_id: string
   post_id?: string
+  parent_comment_id?: string | null
   is_deleted: boolean
 }
 
@@ -53,4 +54,10 @@ export type PostWithProfile = Post & {
 
 export type CommentWithProfile = Comment & {
   user_profiles: UserProfile | null
+  replies?: CommentWithProfile[]
+}
+
+// 대댓글 관련 타입
+export type CommentWithReplies = CommentWithProfile & {
+  replies: CommentWithProfile[]
 }
