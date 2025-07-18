@@ -30,6 +30,8 @@ export async function createBoard(formData: FormData) {
     return { error: '설명은 500자 이하로 입력해주세요.' }
   }
 
+  let createdBoardId: string | null = null
+
   try {
     // 중복 게시판 확인
     const { data: existingBoard } = await supabase
@@ -59,12 +61,19 @@ export async function createBoard(formData: FormData) {
       return { error: '게시판 생성에 실패했습니다.' }
     }
 
+    createdBoardId = data.id
     revalidatePath('/boards')
-    return redirect(`/boards/${data.id}`)
   } catch (error) {
     console.error('게시판 생성 중 오류:', error)
     return { error: '게시판 생성 중 오류가 발생했습니다.' }
   }
+
+  // try-catch 밖에서 redirect 호출 (NEXT_REDIRECT 오류 방지)
+  if (createdBoardId) {
+    redirect(`/boards/${createdBoardId}`)
+  }
+
+  return { error: '게시판 생성 후 리다이렉트에 실패했습니다.' }
 }
 
 // 게시글 생성
