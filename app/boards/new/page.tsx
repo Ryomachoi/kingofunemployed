@@ -4,9 +4,18 @@ import { createBoard } from "../actions";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 
+
+
 export default function NewBoardPage() {
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
+  const [category, setCategory] = useState("");
+  const [industry, setIndustry] = useState("");
+  const [jobCategory, setJobCategory] = useState("");
+  const [headquartersLocation, setHeadquartersLocation] = useState("");
+  const [website, setWebsite] = useState("");
+  const [tags, setTags] = useState("");
+  const [communityRules, setCommunityRules] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState("");
   const [selectedIcon, setSelectedIcon] = useState("");
@@ -20,6 +29,18 @@ export default function NewBoardPage() {
     const formData = new FormData();
     formData.append("name", name);
     formData.append("description", description);
+    
+    // 카테고리, 업종, 직무 정보 추가
+    if (category) formData.append("category", category);
+    if (industry) formData.append("industry", industry);
+    if (jobCategory) formData.append("job_category", jobCategory);
+    if (headquartersLocation) formData.append("headquarters_location", headquartersLocation);
+    if (website) formData.append("website", website);
+    if (tags) formData.append("tags", tags);
+    if (communityRules) formData.append("community_rules", communityRules);
+    
+    // 로고 아이콘 추가
+    if (selectedIcon) formData.append("logo_icon", selectedIcon);
 
     try {
       const result = await createBoard(formData);
@@ -82,6 +103,7 @@ export default function NewBoardPage() {
                 <input
                   type="text"
                   id="name"
+                  name="name"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   placeholder="예: 삼성전자, 네이버, 카카오"
@@ -102,6 +124,8 @@ export default function NewBoardPage() {
                 <select
                   id="category"
                   name="category"
+                  value={category}
+                  onChange={(e) => setCategory(e.target.value)}
                   className="w-full px-4 py-3 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-slate-700 dark:text-slate-100 transition-colors"
                   disabled={isSubmitting}
                 >
@@ -124,6 +148,8 @@ export default function NewBoardPage() {
                 <select
                   id="industry"
                   name="industry"
+                  value={industry}
+                  onChange={(e) => setIndustry(e.target.value)}
                   className="w-full px-4 py-3 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-slate-700 dark:text-slate-100 transition-colors"
                   disabled={isSubmitting}
                 >
@@ -148,6 +174,8 @@ export default function NewBoardPage() {
                 <select
                   id="job_category"
                   name="job_category"
+                  value={jobCategory}
+                  onChange={(e) => setJobCategory(e.target.value)}
                   className="w-full px-4 py-3 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-slate-700 dark:text-slate-100 transition-colors"
                   disabled={isSubmitting}
                 >
@@ -178,8 +206,10 @@ export default function NewBoardPage() {
                   type="text"
                   id="headquarters_location"
                   name="headquarters_location"
+                  value={headquartersLocation}
+                  onChange={(e) => setHeadquartersLocation(e.target.value)}
                   className="w-full px-4 py-3 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-slate-700 dark:text-slate-100 transition-colors"
-                  placeholder="예: 서울특별시 강남구"
+                  placeholder="서울특별시 강남구 (선택사항)"
                   disabled={isSubmitting}
                 />
               </div>
@@ -192,6 +222,8 @@ export default function NewBoardPage() {
                   type="text"
                   id="website"
                   name="website"
+                  value={website}
+                  onChange={(e) => setWebsite(e.target.value)}
                   className="w-full px-4 py-3 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-slate-700 dark:text-slate-100 transition-colors"
                   placeholder="https://example.com (선택사항)"
                   disabled={isSubmitting}
@@ -206,6 +238,7 @@ export default function NewBoardPage() {
               </label>
               <textarea
                 id="description"
+                name="description"
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
                 placeholder="이 게시판에서 어떤 정보를 공유할지 간단히 설명해주세요 (선택사항)"
@@ -225,13 +258,15 @@ export default function NewBoardPage() {
                 태그
               </label>
               <input
-                type="text"
-                id="tags"
-                name="tags"
-                className="w-full px-4 py-3 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-slate-700 dark:text-slate-100 transition-colors"
-                placeholder="태그1, 태그2, 태그3 (쉼표로 구분)"
-                disabled={isSubmitting}
-              />
+                  type="text"
+                  id="tags"
+                  name="tags"
+                  value={tags}
+                  onChange={(e) => setTags(e.target.value)}
+                  className="w-full px-4 py-3 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-slate-700 dark:text-slate-100 transition-colors"
+                  placeholder="태그1, 태그2, 태그3 (쉼표로 구분)"
+                  disabled={isSubmitting}
+                />
               <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">최대 10개까지 입력 가능</p>
             </div>
 
@@ -290,13 +325,15 @@ export default function NewBoardPage() {
                 커뮤니티 규칙
               </label>
               <textarea
-                id="community_rules"
-                name="community_rules"
-                rows={6}
-                className="w-full px-4 py-3 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-slate-700 dark:text-slate-100 transition-colors resize-none"
-                placeholder="이 커뮤니티의 규칙과 가이드라인을 입력해주세요"
-                disabled={isSubmitting}
-              />
+                  id="community_rules"
+                  name="community_rules"
+                  value={communityRules}
+                  onChange={(e) => setCommunityRules(e.target.value)}
+                  rows={6}
+                  className="w-full px-4 py-3 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-slate-700 dark:text-slate-100 transition-colors resize-none"
+                  placeholder="이 커뮤니티의 규칙과 가이드라인을 입력해주세요"
+                  disabled={isSubmitting}
+                />
             </div>
 
             {/* 안내 메시지 */}
