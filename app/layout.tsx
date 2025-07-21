@@ -43,35 +43,51 @@ export default async function RootLayout({
               <span className="font-bold text-xl text-slate-900 dark:text-slate-100">백수의 왕</span>
             </Link>
             
-            <nav className="flex items-center space-x-6">
-              <Link href="/boards" className="text-sm font-medium text-slate-700 hover:text-slate-900 dark:text-slate-300 dark:hover:text-slate-100 transition-colors">
+            <div className="flex items-center space-x-8">
+              <Link href="/" className="text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-slate-100 transition-colors">
+                홈
+              </Link>
+              <Link href="/boards" className="text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-slate-100 transition-colors">
                 게시판
               </Link>
-              <Link href="/interview" className="text-sm font-medium text-slate-700 hover:text-slate-900 dark:text-slate-300 dark:hover:text-slate-100 transition-colors">
+              <Link href="/interviews" className="text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-slate-100 transition-colors">
                 면접
               </Link>
-              <Link href="/jobs" className="text-sm font-medium text-slate-700 hover:text-slate-900 dark:text-slate-300 dark:hover:text-slate-100 transition-colors">
+              <Link href="/jobs" className="text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-slate-100 transition-colors">
                 채용정보
               </Link>
-
-              
+              <Link href="/mypage" className="text-slate-600 hover:text-slate-900 dark:text-slate-300 dark:hover:text-slate-100 transition-colors">
+                마이페이지
+              </Link>
+            </div>
+            
+            <nav className="flex items-center space-x-4">
               {user ? (
                 <>
-                  <Link href="/mypage" className="text-sm font-medium text-slate-700 hover:text-slate-900 dark:text-slate-300 dark:hover:text-slate-100 transition-colors">
-                    마이페이지
-                  </Link>
-                  <form action={logout} className="inline">
-                    <button type="submit" className="text-sm font-medium text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300 transition-colors cursor-pointer">
+                  <span className="text-sm text-slate-600 dark:text-slate-300">
+                    {user.email}
+                  </span>
+                  <form action={logout}>
+                    <button
+                      type="submit"
+                      className="text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-slate-100 transition-colors"
+                    >
                       로그아웃
                     </button>
                   </form>
                 </>
               ) : (
                 <>
-                  <Link href="/login" className="text-sm font-medium text-slate-700 hover:text-slate-900 dark:text-slate-300 dark:hover:text-slate-100 transition-colors">
+                  <Link
+                    href="/login"
+                    className="text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-slate-100 transition-colors"
+                  >
                     로그인
                   </Link>
-                  <Link href="/signup" className="text-sm font-medium text-slate-700 hover:text-slate-900 dark:text-slate-300 dark:hover:text-slate-100 transition-colors">
+                  <Link
+                    href="/signup"
+                    className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors"
+                  >
                     회원가입
                   </Link>
                 </>

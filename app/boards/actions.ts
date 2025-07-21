@@ -4,6 +4,16 @@ import { createClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
 
+// URL 유효성 검사 함수
+function isValidUrl(string: string): boolean {
+  try {
+    new URL(string)
+    return true
+  } catch (_) {
+    return false
+  }
+}
+
 // 게시판 생성
 export async function createBoard(formData: FormData) {
   const supabase = await createClient()
@@ -16,18 +26,39 @@ export async function createBoard(formData: FormData) {
 
   const name = formData.get('name') as string
   const description = formData.get('description') as string
+  const category = formData.get('category') as string
+  const industry = formData.get('industry') as string
+  const jobCategory = formData.get('job_category') as string
+  const headquartersLocation = formData.get('headquarters_location') as string
+  const website = formData.get('website') as string
+  const tagsString = formData.get('tags') as string
+  const logoIcon = formData.get('logo_icon') as string
+  const communityRules = formData.get('community_rules') as string
 
   // 입력값 검증
   if (!name || name.trim().length === 0) {
     return { error: '기업명을 입력해주세요.' }
   }
 
-  if (name.trim().length > 100) {
-    return { error: '기업명은 100자 이하로 입력해주세요.' }
+  if (name.trim().length > 50) {
+    return { error: '기업명은 50자 이하로 입력해주세요.' }
   }
 
   if (description && description.length > 500) {
-    return { error: '설명은 500자 이하로 입력해주세요.' }
+    return { error: '게시판 설명은 500자 이하로 입력해주세요.' }
+  }
+
+  if (website && !isValidUrl(website)) {
+    return { error: '올바른 웹사이트 URL을 입력해주세요.' }
+  }
+
+  // 태그 처리
+  let tags: string[] = []
+  if (tagsString && tagsString.trim()) {
+    tags = tagsString.split(',').map(tag => tag.trim()).filter(tag => tag.length > 0)
+    if (tags.length > 10) {
+      return { error: '태그는 최대 10개까지 입력할 수 있습니다.' }
+    }
   }
 
   let createdBoardId: string | null = null
@@ -51,6 +82,14 @@ export async function createBoard(formData: FormData) {
       .insert({
         name: name.trim(),
         description: description?.trim() || null,
+        category: category?.trim() || null,
+        industry: industry?.trim() || null,
+        job_category: jobCategory?.trim() || null,
+        headquarters_location: headquartersLocation?.trim() || null,
+        website: website?.trim() || null,
+        tags: tags.length > 0 ? tags : null,
+        logo_icon: logoIcon?.trim() || null,
+        community_rules: communityRules?.trim() || null,
         creator_id: user.id
       })
       .select()

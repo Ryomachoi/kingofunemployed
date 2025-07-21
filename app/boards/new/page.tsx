@@ -9,6 +9,7 @@ export default function NewBoardPage() {
   const [description, setDescription] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState("");
+  const [selectedIcon, setSelectedIcon] = useState("");
   const router = useRouter();
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
@@ -35,7 +36,7 @@ export default function NewBoardPage() {
 
   return (
     <div className="container py-8">
-      <div className="max-w-2xl mx-auto">
+      <div className="max-w-4xl mx-auto">
         {/* 헤더 */}
         <div className="mb-8">
           <Link
@@ -72,25 +73,130 @@ export default function NewBoardPage() {
               </div>
             )}
 
-            {/* 기업명 */}
-            <div>
-              <label htmlFor="name" className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
-                기업명 *
-              </label>
-              <input
-                type="text"
-                id="name"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                placeholder="예: 삼성전자, 네이버, 카카오"
-                className="w-full px-4 py-3 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-slate-700 dark:text-slate-100 transition-colors"
-                maxLength={100}
-                required
-                disabled={isSubmitting}
-              />
-              <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
-                {name.length}/100자
-              </p>
+            {/* 기본 정보 */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <label htmlFor="name" className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                  기업명 *
+                </label>
+                <input
+                  type="text"
+                  id="name"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  placeholder="예: 삼성전자, 네이버, 카카오"
+                  className="w-full px-4 py-3 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-slate-700 dark:text-slate-100 transition-colors"
+                  maxLength={100}
+                  required
+                  disabled={isSubmitting}
+                />
+                <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
+                  {name.length}/100자
+                </p>
+              </div>
+
+              <div>
+                <label htmlFor="category" className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                  카테고리
+                </label>
+                <select
+                  id="category"
+                  name="category"
+                  className="w-full px-4 py-3 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-slate-700 dark:text-slate-100 transition-colors"
+                  disabled={isSubmitting}
+                >
+                  <option value="">카테고리 선택</option>
+                  <option value="대기업">대기업</option>
+                  <option value="중견기업">중견기업</option>
+                  <option value="중소기업">중소기업</option>
+                  <option value="스타트업">스타트업</option>
+                  <option value="공기업">공기업</option>
+                  <option value="외국계">외국계</option>
+                </select>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <label htmlFor="industry" className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                  업종
+                </label>
+                <select
+                  id="industry"
+                  name="industry"
+                  className="w-full px-4 py-3 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-slate-700 dark:text-slate-100 transition-colors"
+                  disabled={isSubmitting}
+                >
+                  <option value="">업종 선택</option>
+                  <option value="IT/소프트웨어">IT/소프트웨어</option>
+                  <option value="제조업">제조업</option>
+                  <option value="금융업">금융업</option>
+                  <option value="서비스업">서비스업</option>
+                  <option value="유통/물류">유통/물류</option>
+                  <option value="건설업">건설업</option>
+                  <option value="의료/제약">의료/제약</option>
+                  <option value="교육">교육</option>
+                  <option value="미디어/엔터테인먼트">미디어/엔터테인먼트</option>
+                  <option value="기타">기타</option>
+                </select>
+              </div>
+
+              <div>
+                <label htmlFor="job_category" className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                  직무
+                </label>
+                <select
+                  id="job_category"
+                  name="job_category"
+                  className="w-full px-4 py-3 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-slate-700 dark:text-slate-100 transition-colors"
+                  disabled={isSubmitting}
+                >
+                  <option value="">직무 선택</option>
+                  <option value="개발/프로그래밍">개발/프로그래밍</option>
+                  <option value="기획/PM">기획/PM</option>
+                  <option value="디자인">디자인</option>
+                  <option value="마케팅">마케팅</option>
+                  <option value="영업">영업</option>
+                  <option value="인사/HR">인사/HR</option>
+                  <option value="재무/회계">재무/회계</option>
+                  <option value="운영/관리">운영/관리</option>
+                  <option value="연구개발">연구개발</option>
+                  <option value="생산/제조">생산/제조</option>
+                  <option value="품질관리">품질관리</option>
+                  <option value="고객서비스">고객서비스</option>
+                  <option value="기타">기타</option>
+                </select>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <label htmlFor="headquarters_location" className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                  본사 위치
+                </label>
+                <input
+                  type="text"
+                  id="headquarters_location"
+                  name="headquarters_location"
+                  className="w-full px-4 py-3 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-slate-700 dark:text-slate-100 transition-colors"
+                  placeholder="예: 서울특별시 강남구"
+                  disabled={isSubmitting}
+                />
+              </div>
+
+              <div>
+                <label htmlFor="website" className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                  웹사이트
+                </label>
+                <input
+                  type="text"
+                  id="website"
+                  name="website"
+                  className="w-full px-4 py-3 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-slate-700 dark:text-slate-100 transition-colors"
+                  placeholder="https://example.com (선택사항)"
+                  disabled={isSubmitting}
+                />
+              </div>
             </div>
 
             {/* 설명 */}
@@ -113,6 +219,86 @@ export default function NewBoardPage() {
               </p>
             </div>
 
+            {/* 태그 */}
+            <div>
+              <label htmlFor="tags" className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                태그
+              </label>
+              <input
+                type="text"
+                id="tags"
+                name="tags"
+                className="w-full px-4 py-3 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-slate-700 dark:text-slate-100 transition-colors"
+                placeholder="태그1, 태그2, 태그3 (쉼표로 구분)"
+                disabled={isSubmitting}
+              />
+              <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">최대 10개까지 입력 가능</p>
+            </div>
+
+            {/* 로고 아이콘 */}
+            <div>
+              <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                로고 아이콘
+              </label>
+              <div className="grid grid-cols-6 gap-2">
+                {[
+                  { value: '🏢', label: '빌딩' },
+                  { value: '🏭', label: '제조' },
+                  { value: '💼', label: '서비스' },
+                  { value: '💻', label: 'IT/테크' },
+                  { value: '🏦', label: '금융' },
+                  { value: '🏥', label: '의료' },
+                  { value: '🎓', label: '교육' },
+                  { value: '🛒', label: '유통' },
+                  { value: '🚚', label: '물류' },
+                  { value: '🎨', label: '창작' },
+                  { value: '📱', label: '모바일' },
+                  { value: '🔧', label: '기술' },
+                  { value: '📊', label: '분석' },
+                  { value: '🌐', label: '글로벌' },
+                  { value: '⚡', label: '에너지' },
+                  { value: '🎯', label: '마케팅' },
+                  { value: '🔒', label: '보안' },
+                  { value: '🚀', label: '스타트업' }
+                ].map((icon) => (
+                  <button
+                    key={icon.value}
+                    type="button"
+                    onClick={() => setSelectedIcon(icon.value)}
+                    className={`p-3 rounded-lg border-2 transition-all duration-200 hover:scale-105 ${
+                      selectedIcon === icon.value
+                        ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20'
+                        : 'border-slate-300 dark:border-slate-600 hover:border-slate-400 dark:hover:border-slate-500'
+                    }`}
+                    title={icon.label}
+                    disabled={isSubmitting}
+                  >
+                    <span className="text-2xl">{icon.value}</span>
+                  </button>
+                ))}
+              </div>
+              <input
+                 type="hidden"
+                 name="logo_icon"
+                 id="logo_icon"
+                 value={selectedIcon}
+               />
+             </div>
+
+            <div>
+              <label htmlFor="community_rules" className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                커뮤니티 규칙
+              </label>
+              <textarea
+                id="community_rules"
+                name="community_rules"
+                rows={6}
+                className="w-full px-4 py-3 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-slate-700 dark:text-slate-100 transition-colors resize-none"
+                placeholder="이 커뮤니티의 규칙과 가이드라인을 입력해주세요"
+                disabled={isSubmitting}
+              />
+            </div>
+
             {/* 안내 메시지 */}
             <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
               <div className="flex items-start">
@@ -125,6 +311,7 @@ export default function NewBoardPage() {
                     <li>• 동일한 기업명의 게시판은 중복 생성할 수 없습니다</li>
                     <li>• 생성된 게시판은 모든 사용자가 볼 수 있습니다</li>
                     <li>• 부적절한 게시판은 관리자에 의해 삭제될 수 있습니다</li>
+                    <li>• 로고 아이콘과 태그는 게시판 메인화면에 표시됩니다</li>
                   </ul>
                 </div>
               </div>

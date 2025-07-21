@@ -41,6 +41,14 @@ export interface Board {
   id: string
   name: string
   description?: string
+  category?: string
+  industry?: string
+  job_category?: string
+  headquarters_location?: string
+  website?: string
+  tags?: string[]
+  logo_icon?: string
+  community_rules?: string
   created_at: string
   creator_id: string
   is_active: boolean
