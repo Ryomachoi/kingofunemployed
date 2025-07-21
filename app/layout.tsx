@@ -5,6 +5,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { createClient } from '@/lib/supabase/server';
 import { logout } from './login/actions';
+import { AuthProvider } from '@/contexts/AuthContext';
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -97,7 +98,9 @@ export default async function RootLayout({
         </header>
         
         <main className="flex-1">
-          {children}
+          <AuthProvider>
+            {children}
+          </AuthProvider>
         </main>
         
         <footer className="border-t border-slate-200 dark:border-slate-700 py-8">
