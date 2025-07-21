@@ -142,34 +142,70 @@ export default function BoardDetailPage() {
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-900">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* 게시판 헤더 */}
-        <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 p-6 mb-6">
-          <div className="flex items-center space-x-4">
-            {/* 게시판 로고 */}
-            <div className="w-16 h-16 bg-blue-100 dark:bg-blue-900 rounded-xl flex items-center justify-center text-2xl">
-              {board.logo_icon || '📋'}
+        {/* 게시판 헤더 - 배경 배너 스타일 */}
+        <div className="relative bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 overflow-hidden mb-6">
+          {/* 배경 배너 이미지 */}
+          <div className="absolute inset-0 bg-gradient-to-r from-blue-500 to-purple-600">
+            <div className="absolute inset-0 bg-black bg-opacity-20"></div>
+          </div>
+          
+          {/* 콘텐츠 영역 */}
+          <div className="relative z-10 p-6">
+            {/* 상단 버튼 */}
+            <div className="flex justify-end mb-6">
+              {user ? (
+                <Link
+                  href={`/boards/${resolvedParams.id}/posts/new`}
+                  className="px-4 py-2 bg-white bg-opacity-90 hover:bg-opacity-100 text-slate-800 text-sm font-medium rounded-lg transition-all"
+                >
+                  글쓰기
+                </Link>
+              ) : (
+                <Link
+                  href="/login"
+                  className="px-4 py-2 bg-white bg-opacity-90 hover:bg-opacity-100 text-slate-800 text-sm font-medium rounded-lg transition-all"
+                >
+                  로그인
+                </Link>
+              )}
             </div>
             
-            {/* 게시판 정보 */}
-            <div className="flex-1">
-              <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100 mb-2">
-                {board.name}
-              </h1>
-              <div className="flex items-center space-x-4 text-sm text-slate-600 dark:text-slate-400">
+            {/* 게시판 로고와 이름 */}
+            <div className="flex items-center gap-4 mb-4">
+              <div className="w-16 h-16 bg-white bg-opacity-90 rounded-xl flex items-center justify-center text-3xl">
+                {board.logo_icon || '📋'}
+              </div>
+              <div className="flex-1">
+                <h1 className="text-3xl font-bold text-white mb-2">
+                  {board.name}
+                </h1>
+              </div>
+            </div>
+            
+            {/* 회원수와 기타 정보 */}
+            <div className="mb-4">
+              <div className="flex items-center gap-6 text-sm text-white text-opacity-90">
+                {/* TODO: member_count 기능 구현 후 활성화 */}
+                {/* <div className="flex items-center">
+                  <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+                  </svg>
+                  {board.member_count || 0}명
+                </div> */}
+                <div className="flex items-center">
+                  <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                  </svg>
+                  {actualPostCount || 0}개 게시물
+                </div>
                 {board.category && (
-                  <span className="px-2 py-1 bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200 rounded-md text-xs font-medium">
-                    {board.category}
-                  </span>
+                  <span className="text-blue-200">{board.category}</span>
                 )}
                 {board.industry && (
-                  <span className="px-2 py-1 bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200 rounded-md text-xs font-medium">
-                    {board.industry}
-                  </span>
+                  <span className="text-green-200">{board.industry}</span>
                 )}
                 {board.job_category && (
-                  <span className="px-2 py-1 bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200 rounded-md text-xs font-medium">
-                    {board.job_category}
-                  </span>
+                  <span className="text-purple-200">{board.job_category}</span>
                 )}
               </div>
             </div>
