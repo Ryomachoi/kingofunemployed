@@ -36,18 +36,17 @@ export default async function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen bg-slate-50 dark:bg-slate-950`}
       >
         <header className="sticky top-0 z-50 w-full border-b border-slate-200 bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/60 dark:border-slate-700 dark:bg-slate-900/95 dark:supports-[backdrop-filter]:bg-slate-900/60">
-          <div className="container flex h-16 items-center justify-between">
-            <Link href="/" className="flex items-center space-x-2">
+          <div className="container flex h-16 items-center">
+            {/* 로고 */}
+            <div className="flex items-center space-x-2 mr-8">
               <div className="h-10 w-10 flex items-center justify-center">
                 <span className="text-2xl font-bold">🦁</span>
               </div>
               <span className="font-bold text-xl text-slate-900 dark:text-slate-100">백수의 왕</span>
-            </Link>
+            </div>
             
-            <div className="flex items-center space-x-8">
-              <Link href="/" className="text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-slate-100 transition-colors">
-                홈
-              </Link>
+            {/* 메인 메뉴 - 로고 바로 오른쪽 */}
+            <div className="flex items-center space-x-8 flex-1">
               <Link href="/boards" className="text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-slate-100 transition-colors">
                 게시판
               </Link>
@@ -62,34 +61,33 @@ export default async function RootLayout({
               </Link>
             </div>
             
-            <nav className="flex items-center space-x-4">
+            {/* 로그인/로그아웃 - 오른쪽 끝 */}
+            <nav className="flex items-center space-x-3">
               {user ? (
-                <>
-                  <span className="text-sm text-slate-600 dark:text-slate-300">
-                    {user.email}
-                  </span>
-                  <form action={logout}>
-                    <button
-                      type="submit"
-                      className="text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-slate-100 transition-colors"
-                    >
-                      로그아웃
-                    </button>
-                  </form>
-                </>
+                <form action={logout}>
+                  <button
+                    type="submit"
+                    className="group relative px-5 py-2.5 text-sm font-medium text-slate-600 dark:text-slate-300 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-600 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-700 hover:text-slate-900 dark:hover:text-slate-100 hover:border-slate-300 dark:hover:border-slate-500 transition-all duration-300 ease-in-out transform hover:scale-105 hover:shadow-md active:scale-95"
+                  >
+                    <span className="relative z-10">로그아웃</span>
+                    <div className="absolute inset-0 bg-gradient-to-r from-red-50 to-orange-50 dark:from-red-900/20 dark:to-orange-900/20 opacity-0 group-hover:opacity-100 rounded-lg transition-opacity duration-300"></div>
+                  </button>
+                </form>
               ) : (
                 <>
                   <Link
                     href="/login"
-                    className="text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-slate-100 transition-colors"
+                    className="group relative px-5 py-2.5 text-sm font-medium text-slate-600 dark:text-slate-300 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-600 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-700 hover:text-slate-900 dark:hover:text-slate-100 hover:border-slate-300 dark:hover:border-slate-500 transition-all duration-300 ease-in-out transform hover:scale-105 hover:shadow-md active:scale-95"
                   >
-                    로그인
+                    <span className="relative z-10">로그인</span>
+                    <div className="absolute inset-0 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 opacity-0 group-hover:opacity-100 rounded-lg transition-opacity duration-300"></div>
                   </Link>
                   <Link
                     href="/signup"
-                    className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors"
+                    className="group relative px-5 py-2.5 text-sm font-medium bg-gradient-to-r from-slate-900 to-slate-800 dark:from-slate-100 dark:to-slate-200 text-white dark:text-slate-900 rounded-lg hover:from-slate-800 hover:to-slate-700 dark:hover:from-slate-200 dark:hover:to-slate-300 transition-all duration-300 ease-in-out transform hover:scale-105 hover:shadow-lg active:scale-95 shadow-sm"
                   >
-                    회원가입
+                    <span className="relative z-10">회원가입</span>
+                    <div className="absolute inset-0 bg-gradient-to-r from-blue-600/20 to-purple-600/20 opacity-0 group-hover:opacity-100 rounded-lg transition-opacity duration-300"></div>
                   </Link>
                 </>
               )}
