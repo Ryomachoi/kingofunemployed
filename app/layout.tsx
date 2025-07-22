@@ -38,12 +38,12 @@ export default async function RootLayout({
         <header className="sticky top-0 z-50 w-full border-b border-slate-200 bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/60 dark:border-slate-700 dark:bg-slate-900/95 dark:supports-[backdrop-filter]:bg-slate-900/60">
           <div className="container flex h-16 items-center">
             {/* 로고 */}
-            <div className="flex items-center space-x-2 mr-8">
+            <Link href="/" className="flex items-center space-x-2 mr-8">
               <div className="h-10 w-10 flex items-center justify-center">
                 <span className="text-2xl font-bold">🦁</span>
               </div>
               <span className="font-bold text-xl text-slate-900 dark:text-slate-100">백수의 왕</span>
-            </div>
+            </Link>
             
             {/* 메인 메뉴 - 로고 바로 오른쪽 */}
             <div className="flex items-center space-x-8 flex-1">
