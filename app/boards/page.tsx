@@ -19,7 +19,8 @@ export default async function BoardsPage() {
       headquarters_location,
       website,
       tags,
-      logo_icon,
+      logo_image_url,
+      banner_image_url,
       community_rules,
       created_at,
       creator_id
@@ -100,8 +101,16 @@ export default async function BoardsPage() {
                 {/* 로고와 게시판 이름, 가입하기 버튼 */}
                 <div className="flex items-center justify-between mb-4">
                   <div className="flex items-center gap-3 flex-1 min-w-0">
-                    <div className="w-10 h-10 bg-blue-100 dark:bg-blue-900 rounded-lg flex items-center justify-center text-xl flex-shrink-0">
-                      {board.logo_icon || '🏢'}
+                    <div className="w-10 h-10 bg-blue-100 dark:bg-blue-900 rounded-lg flex items-center justify-center text-xl flex-shrink-0 overflow-hidden">
+                      {board.logo_image_url ? (
+                        <img 
+                          src={board.logo_image_url} 
+                          alt={`${board.name} 로고`}
+                          className="w-full h-full object-cover rounded-lg"
+                        />
+                      ) : (
+                        <span>🏢</span>
+                      )}
                     </div>
                     <div className="flex-1 min-w-0">
                       <h3 className="font-semibold text-slate-900 dark:text-slate-100 text-base truncate">

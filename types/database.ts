@@ -47,7 +47,8 @@ export interface Board {
   headquarters_location?: string
   website?: string
   tags?: string[]
-  logo_icon?: string
+  logo_image_url?: string
+  banner_image_url?: string
   community_rules?: string
   created_at: string
   creator_id: string

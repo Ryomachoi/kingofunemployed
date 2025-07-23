@@ -32,8 +32,9 @@ export async function createBoard(formData: FormData) {
   const headquartersLocation = formData.get('headquarters_location') as string
   const website = formData.get('website') as string
   const tagsString = formData.get('tags') as string
-  const logoIcon = formData.get('logo_icon') as string
   const communityRules = formData.get('community_rules') as string
+  const logoImage = formData.get('logo_image') as File | null
+  const bannerImage = formData.get('banner_image') as File | null
 
   // 입력값 검증
   if (!name || name.trim().length === 0) {
@@ -62,8 +63,84 @@ export async function createBoard(formData: FormData) {
   }
 
   let createdBoardId: string | null = null
+  let logoImageUrl: string | null = null
+  let bannerImageUrl: string | null = null
 
   try {
+    // 이미지 업로드 처리
+    if (logoImage && logoImage.size > 0) {
+      // 파일 크기 검증 (5MB)
+      if (logoImage.size > 5 * 1024 * 1024) {
+        return { error: '로고 이미지는 5MB 이하로 업로드해주세요.' }
+      }
+      
+      // 파일 확장자 검증
+      const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp']
+      if (!allowedTypes.includes(logoImage.type)) {
+        return { error: '로고 이미지는 JPG, PNG, WebP 형식만 업로드 가능합니다.' }
+      }
+      
+      // 파일명 생성 (UUID + 확장자)
+      const fileExt = logoImage.name.split('.').pop()
+      const fileName = `${crypto.randomUUID()}.${fileExt}`
+      
+      // Supabase Storage에 업로드
+      const { data: uploadData, error: uploadError } = await supabase.storage
+        .from('board-images')
+        .upload(`logos/${fileName}`, logoImage, {
+          cacheControl: '3600',
+          upsert: false
+        })
+      
+      if (uploadError) {
+        console.error('로고 이미지 업로드 오류:', uploadError)
+        return { error: '로고 이미지 업로드에 실패했습니다.' }
+      }
+      
+      // 공개 URL 생성
+      const { data: urlData } = supabase.storage
+        .from('board-images')
+        .getPublicUrl(uploadData.path)
+      
+      logoImageUrl = urlData.publicUrl
+    }
+    
+    if (bannerImage && bannerImage.size > 0) {
+      // 파일 크기 검증 (10MB)
+      if (bannerImage.size > 10 * 1024 * 1024) {
+        return { error: '배너 이미지는 10MB 이하로 업로드해주세요.' }
+      }
+      
+      // 파일 확장자 검증
+      const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp']
+      if (!allowedTypes.includes(bannerImage.type)) {
+        return { error: '배너 이미지는 JPG, PNG, WebP 형식만 업로드 가능합니다.' }
+      }
+      
+      // 파일명 생성 (UUID + 확장자)
+      const fileExt = bannerImage.name.split('.').pop()
+      const fileName = `${crypto.randomUUID()}.${fileExt}`
+      
+      // Supabase Storage에 업로드
+      const { data: uploadData, error: uploadError } = await supabase.storage
+        .from('board-images')
+        .upload(`banners/${fileName}`, bannerImage, {
+          cacheControl: '3600',
+          upsert: false
+        })
+      
+      if (uploadError) {
+        console.error('배너 이미지 업로드 오류:', uploadError)
+        return { error: '배너 이미지 업로드에 실패했습니다.' }
+      }
+      
+      // 공개 URL 생성
+      const { data: urlData } = supabase.storage
+        .from('board-images')
+        .getPublicUrl(uploadData.path)
+      
+      bannerImageUrl = urlData.publicUrl
+    }
     // 중복 게시판 확인
     const { data: existingBoard } = await supabase
       .from('boards')
@@ -88,7 +165,8 @@ export async function createBoard(formData: FormData) {
         headquarters_location: headquartersLocation?.trim() || null,
         website: website?.trim() || null,
         tags: tags.length > 0 ? tags : null,
-        logo_icon: logoIcon?.trim() || null,
+        logo_image_url: logoImageUrl,
+        banner_image_url: bannerImageUrl,
         community_rules: communityRules?.trim() || null,
         creator_id: user.id
       })

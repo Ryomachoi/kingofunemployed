@@ -18,7 +18,11 @@ export default function NewBoardPage() {
   const [communityRules, setCommunityRules] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState("");
-  const [selectedIcon, setSelectedIcon] = useState("");
+
+  const [logoImage, setLogoImage] = useState<File | null>(null);
+  const [bannerImage, setBannerImage] = useState<File | null>(null);
+  const [logoPreview, setLogoPreview] = useState<string | null>(null);
+  const [bannerPreview, setBannerPreview] = useState<string | null>(null);
   const router = useRouter();
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
@@ -39,8 +43,11 @@ export default function NewBoardPage() {
     if (tags) formData.append("tags", tags);
     if (communityRules) formData.append("community_rules", communityRules);
     
-    // 로고 아이콘 추가
-    if (selectedIcon) formData.append("logo_icon", selectedIcon);
+
+    
+    // 이미지 파일 추가
+    if (logoImage) formData.append("logo_image", logoImage);
+    if (bannerImage) formData.append("banner_image", bannerImage);
 
     try {
       const result = await createBoard(formData);
@@ -270,54 +277,97 @@ export default function NewBoardPage() {
               <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">최대 10개까지 입력 가능</p>
             </div>
 
-            {/* 로고 아이콘 */}
+            {/* 로고 이미지 업로드 */}
             <div>
               <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
-                로고 아이콘
+                로고 이미지 업로드 (필수)
               </label>
-              <div className="grid grid-cols-6 gap-2">
-                {[
-                  { value: '🏢', label: '빌딩' },
-                  { value: '🏭', label: '제조' },
-                  { value: '💼', label: '서비스' },
-                  { value: '💻', label: 'IT/테크' },
-                  { value: '🏦', label: '금융' },
-                  { value: '🏥', label: '의료' },
-                  { value: '🎓', label: '교육' },
-                  { value: '🛒', label: '유통' },
-                  { value: '🚚', label: '물류' },
-                  { value: '🎨', label: '창작' },
-                  { value: '📱', label: '모바일' },
-                  { value: '🔧', label: '기술' },
-                  { value: '📊', label: '분석' },
-                  { value: '🌐', label: '글로벌' },
-                  { value: '⚡', label: '에너지' },
-                  { value: '🎯', label: '마케팅' },
-                  { value: '🔒', label: '보안' },
-                  { value: '🚀', label: '스타트업' }
-                ].map((icon) => (
-                  <button
-                    key={icon.value}
-                    type="button"
-                    onClick={() => setSelectedIcon(icon.value)}
-                    className={`p-3 rounded-lg border-2 transition-all duration-200 hover:scale-105 ${
-                      selectedIcon === icon.value
-                        ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20'
-                        : 'border-slate-300 dark:border-slate-600 hover:border-slate-400 dark:hover:border-slate-500'
-                    }`}
-                    title={icon.label}
-                    disabled={isSubmitting}
-                  >
-                    <span className="text-2xl">{icon.value}</span>
-                  </button>
-                ))}
+              <div className="flex items-center space-x-4">
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={(e) => {
+                    const file = e.target.files?.[0];
+                    if (file) {
+                      setLogoImage(file);
+                      const reader = new FileReader();
+                      reader.onload = (e) => setLogoPreview(e.target?.result as string);
+                      reader.readAsDataURL(file);
+                    }
+                  }}
+                  className="block w-full text-sm text-slate-500 dark:text-slate-400 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 dark:file:bg-blue-900/20 dark:file:text-blue-300 dark:hover:file:bg-blue-900/30"
+                  disabled={isSubmitting}
+                  required
+                />
+                {logoPreview && (
+                  <div className="flex-shrink-0">
+                    <img
+                      src={logoPreview}
+                      alt="로고 미리보기"
+                      className="w-16 h-16 object-cover rounded-lg border border-slate-300 dark:border-slate-600"
+                    />
+                  </div>
+                )}
               </div>
-              <input
-                 type="hidden"
-                 name="logo_icon"
-                 id="logo_icon"
-                 value={selectedIcon}
-               />
+              <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
+                정사각형 이미지 권장 (최대 5MB, JPG/PNG/WebP)
+              </p>
+            </div>
+
+             {/* 배너 이미지 업로드 */}
+             <div>
+               <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                 배너 이미지 업로드 (선택사항)
+               </label>
+               <div className="space-y-4">
+                 <input
+                   type="file"
+                   accept="image/*"
+                   onChange={(e) => {
+                     const file = e.target.files?.[0];
+                     if (file) {
+                       setBannerImage(file);
+                       const reader = new FileReader();
+                       reader.onload = (e) => setBannerPreview(e.target?.result as string);
+                       reader.readAsDataURL(file);
+                     }
+                   }}
+                   className="block w-full text-sm text-slate-500 dark:text-slate-400 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 dark:file:bg-blue-900/20 dark:file:text-blue-300 dark:hover:file:bg-blue-900/30"
+                   disabled={isSubmitting}
+                 />
+                 {/* 배너 미리보기 - 배경 이미지로 표시 */}
+                 <div className="relative w-full h-32 rounded-lg border border-slate-300 dark:border-slate-600 overflow-hidden">
+                   {bannerPreview ? (
+                     <>
+                       <div 
+                         className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+                         style={{ backgroundImage: `url(${bannerPreview})` }}
+                       />
+                       <div className="absolute inset-0 bg-black/20 flex items-center justify-center">
+                         <div className="bg-white/90 dark:bg-slate-800/90 px-3 py-1 rounded-lg">
+                           <span className="text-sm font-medium text-slate-700 dark:text-slate-300">
+                             배너 미리보기
+                           </span>
+                         </div>
+                       </div>
+                     </>
+                   ) : (
+                     <div className="absolute inset-0 bg-gradient-to-r from-slate-100 to-slate-200 dark:from-slate-700 dark:to-slate-600 flex items-center justify-center">
+                       <div className="text-center">
+                         <svg className="w-8 h-8 text-slate-400 dark:text-slate-500 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                         </svg>
+                         <span className="text-sm text-slate-500 dark:text-slate-400">
+                           배너 이미지 미리보기
+                         </span>
+                       </div>
+                     </div>
+                   )}
+                 </div>
+               </div>
+               <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
+                 가로형 이미지 권장 (16:9 비율, 최대 10MB)
+               </p>
              </div>
 
             <div>
