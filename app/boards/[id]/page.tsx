@@ -162,8 +162,17 @@ export default function BoardPage() {
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-900">
       {/* 게시판 헤더 - 전체 화면 너비 */}
-      <div className="w-full bg-gradient-to-r from-blue-600 to-purple-600 py-12 mb-8">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="w-full relative py-12 mb-8 overflow-hidden">
+        {/* 배너 이미지만 로드 */}
+        {board.banner_image_url && (
+          <img 
+               src={board.banner_image_url} 
+               alt={`${board.name} 배너`}
+               className="absolute inset-0 w-full h-full object-cover opacity-80"
+             />
+        )}
+        
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center gap-4">
             {/* 로고 */}
             <div className="w-16 h-16 bg-white dark:bg-slate-800 rounded-xl flex items-center justify-center overflow-hidden border border-slate-200 dark:border-slate-700 shadow-lg">
