@@ -98,30 +98,23 @@ export default async function BoardsPage() {
           {boards.map((board) => (
             <div key={board.id} className="bg-white dark:bg-slate-800 rounded-xl shadow-sm hover:shadow-md transition-shadow border border-slate-200 dark:border-slate-700 overflow-hidden flex flex-col h-[280px]">
               <div className="p-5 flex-1 flex flex-col">
-                {/* 로고와 게시판 이름, 가입하기 버튼 */}
-                <div className="flex items-center justify-between mb-4">
-                  <div className="flex items-center gap-3 flex-1 min-w-0">
-                    <div className="w-10 h-10 bg-blue-100 dark:bg-blue-900 rounded-lg flex items-center justify-center text-xl flex-shrink-0 overflow-hidden">
-                      {board.logo_image_url ? (
-                        <img 
-                          src={board.logo_image_url} 
-                          alt={`${board.name} 로고`}
-                          className="w-full h-full object-cover rounded-lg"
-                        />
-                      ) : (
-                        <span>🏢</span>
-                      )}
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <h3 className="font-semibold text-slate-900 dark:text-slate-100 text-base truncate">
-                        {board.name}
-                      </h3>
-                    </div>
+                {/* 로고와 게시판 이름 */}
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="w-10 h-10 bg-blue-100 dark:bg-blue-900 rounded-lg flex items-center justify-center text-xl flex-shrink-0 overflow-hidden">
+                    {board.logo_image_url ? (
+                      <img 
+                        src={board.logo_image_url} 
+                        alt={`${board.name} 로고`}
+                        className="w-full h-full object-cover rounded-lg"
+                      />
+                    ) : (
+                      <span>🏢</span>
+                    )}
                   </div>
-                  <div className="flex-shrink-0 ml-2">
-                    <Link href={`/boards/${board.id}`} className="px-3 py-1.5 bg-blue-500 hover:bg-blue-600 text-white text-sm font-medium rounded-lg transition-colors whitespace-nowrap">
-                      가입하기
-                    </Link>
+                  <div className="flex-1 min-w-0">
+                    <h3 className="font-semibold text-slate-900 dark:text-slate-100 text-base truncate">
+                      {board.name}
+                    </h3>
                   </div>
                 </div>
                 
@@ -182,22 +175,15 @@ export default async function BoardsPage() {
                   )}
                 </div>
                 
-                {/* 게시물 수와 멤버 정보 */}
+                {/* 게시물 수 정보 */}
                 <div className="mt-auto">
-                  <div className="flex items-center justify-between pt-2 border-t border-slate-100 dark:border-slate-700 mb-4">
+                  <div className="flex items-center pt-2 border-t border-slate-100 dark:border-slate-700 mb-4">
                     <div className="flex items-center text-sm text-slate-500 dark:text-slate-400">
                       <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                       </svg>
                       {board.post_count || 0}개 게시물
                     </div>
-                    {/* TODO: member_count 기능 구현 후 활성화 */}
-                    {/* <div className="flex items-center text-sm text-slate-500 dark:text-slate-400">
-                      <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
-                      </svg>
-                      {board.member_count || 0}명 활동중
-                    </div> */}
                   </div>
                   
                   {/* 게시판 보기 버튼 */}

@@ -11,6 +11,7 @@ interface Post {
   content: string
   author_id: string
   board_id: string
+  tags?: string[]
 }
 
 interface EditPostFormProps {
@@ -23,6 +24,8 @@ export default function EditPostForm({ post, boardId, boardName }: EditPostFormP
   const router = useRouter()
   const [title, setTitle] = useState(post.title)
   const [content, setContent] = useState(post.content)
+  const [tags, setTags] = useState<string[]>(post.tags || [])
+  const [tagInput, setTagInput] = useState('')
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState('')
 
@@ -35,7 +38,9 @@ export default function EditPostForm({ post, boardId, boardName }: EditPostFormP
     }
 
     // 변경사항이 없는 경우
-    if (title.trim() === post.title && content.trim() === post.content) {
+    const originalTags = post.tags || []
+    const tagsChanged = JSON.stringify(tags.sort()) !== JSON.stringify(originalTags.sort())
+    if (title.trim() === post.title && content.trim() === post.content && !tagsChanged) {
       router.push(`/boards/${boardId}/posts/${post.id}`)
       return
     }
@@ -48,6 +53,7 @@ export default function EditPostForm({ post, boardId, boardName }: EditPostFormP
       formData.append('postId', post.id)
       formData.append('title', title.trim())
       formData.append('content', content.trim())
+      formData.append('tags', JSON.stringify(tags))
       
       const result = await updatePost(formData)
 
@@ -109,6 +115,76 @@ export default function EditPostForm({ post, boardId, boardName }: EditPostFormP
             </div>
           </div>
 
+          {/* 태그 입력 */}
+          <div>
+            <label htmlFor="tags" className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+              태그
+            </label>
+            <div className="space-y-3">
+              <div className="flex items-center space-x-2">
+                <input
+                  type="text"
+                  id="tags"
+                  value={tagInput}
+                  onChange={(e) => setTagInput(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      e.preventDefault()
+                      const trimmedTag = tagInput.trim()
+                      if (trimmedTag && !tags.includes(trimmedTag) && tags.length < 5) {
+                        setTags([...tags, trimmedTag])
+                        setTagInput('')
+                      }
+                    }
+                  }}
+                  placeholder="태그를 입력하고 Enter를 누르세요 (최대 5개)"
+                  className="flex-1 px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-slate-700 dark:text-slate-100 transition-colors"
+                  maxLength={20}
+                  disabled={isLoading || tags.length >= 5}
+                />
+                <button
+                  type="button"
+                  onClick={() => {
+                    const trimmedTag = tagInput.trim()
+                    if (trimmedTag && !tags.includes(trimmedTag) && tags.length < 5) {
+                      setTags([...tags, trimmedTag])
+                      setTagInput('')
+                    }
+                  }}
+                  disabled={!tagInput.trim() || tags.includes(tagInput.trim()) || tags.length >= 5}
+                  className="px-4 py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-slate-400 disabled:cursor-not-allowed text-white font-medium rounded-lg transition-colors duration-200"
+                >
+                  추가
+                </button>
+              </div>
+              
+              {/* 태그 목록 */}
+              {tags.length > 0 && (
+                <div className="flex flex-wrap gap-2">
+                  {tags.map((tag, index) => (
+                    <span
+                      key={index}
+                      className="inline-flex items-center px-3 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300 text-sm rounded-full"
+                    >
+                      #{tag}
+                      <button
+                        type="button"
+                        onClick={() => setTags(tags.filter((_, i) => i !== index))}
+                        className="ml-2 text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-200"
+                      >
+                        ×
+                      </button>
+                    </span>
+                  ))}
+                </div>
+              )}
+              
+              <p className="text-xs text-slate-500 dark:text-slate-400">
+                태그는 게시글을 분류하고 검색하는 데 도움이 됩니다. (최대 5개, 각 태그 최대 20자)
+              </p>
+            </div>
+          </div>
+
           {/* 내용 입력 */}
           <div>
             <label htmlFor="content" className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
@@ -148,7 +224,7 @@ export default function EditPostForm({ post, boardId, boardName }: EditPostFormP
             </h3>
             <ul className="text-xs text-amber-700 dark:text-amber-400 space-y-1">
               <li>• 수정된 게시글에는 '수정됨' 표시가 나타납니다</li>
-              <li>• 제목과 내용만 수정할 수 있습니다</li>
+              <li>• 제목, 내용, 태그를 수정할 수 있습니다</li>
               <li>• 수정 후에는 되돌릴 수 없으니 신중하게 작성해주세요</li>
             </ul>
           </div>

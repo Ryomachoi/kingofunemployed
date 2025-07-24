@@ -206,6 +206,7 @@ export async function createPost(formData: FormData) {
   const boardId = formData.get('boardId') as string
   const title = formData.get('title') as string
   const content = formData.get('content') as string
+  const tagsString = formData.get('tags') as string
 
   // 입력값 검증
   if (!boardId) {
@@ -228,6 +229,24 @@ export async function createPost(formData: FormData) {
     return { error: '내용은 10,000자 이하로 입력해주세요.' }
   }
 
+  // 태그 처리
+  let tags: string[] = []
+  if (tagsString) {
+    try {
+      tags = JSON.parse(tagsString)
+      if (!Array.isArray(tags)) {
+        tags = []
+      }
+      // 태그 개수 및 길이 검증
+      if (tags.length > 5) {
+        return { error: '태그는 최대 5개까지 입력할 수 있습니다.' }
+      }
+      tags = tags.filter(tag => typeof tag === 'string' && tag.trim().length > 0 && tag.trim().length <= 20)
+    } catch {
+      tags = []
+    }
+  }
+
   try {
     // 게시판 존재 및 활성화 여부 확인
     const { data: board } = await supabase
@@ -248,7 +267,8 @@ export async function createPost(formData: FormData) {
         board_id: boardId,
         author_id: user.id,
         title: title.trim(),
-        content: content.trim()
+        content: content.trim(),
+        tags: tags.length > 0 ? tags : null
       })
       .select()
       .single()
@@ -279,6 +299,7 @@ export async function updatePost(formData: FormData) {
   const postId = formData.get('postId') as string
   const title = formData.get('title') as string
   const content = formData.get('content') as string
+  const tagsString = formData.get('tags') as string
 
   // 입력값 검증
   if (!title || title.trim().length === 0) {
@@ -295,6 +316,24 @@ export async function updatePost(formData: FormData) {
 
   if (content.trim().length > 10000) {
     return { error: '내용은 10,000자 이하로 입력해주세요.' }
+  }
+
+  // 태그 처리
+  let tags: string[] = []
+  if (tagsString) {
+    try {
+      tags = JSON.parse(tagsString)
+      if (!Array.isArray(tags)) {
+        tags = []
+      }
+      // 태그 개수 및 길이 검증
+      if (tags.length > 5) {
+        return { error: '태그는 최대 5개까지 입력할 수 있습니다.' }
+      }
+      tags = tags.filter(tag => typeof tag === 'string' && tag.trim().length > 0 && tag.trim().length <= 20)
+    } catch {
+      tags = []
+    }
   }
 
   try {
@@ -317,6 +356,7 @@ export async function updatePost(formData: FormData) {
       .update({
         title: title.trim(),
         content: content.trim(),
+        tags: tags.length > 0 ? tags : null,
         updated_at: new Date().toISOString()
       })
       .eq('id', postId)
@@ -742,5 +782,136 @@ export async function incrementPostViewCount(postId: string) {
   } catch (error) {
     console.error('조회수 증가 중 오류:', error)
     return { error: '조회수 증가 중 오류가 발생했습니다.' }
+  }
+}
+
+// 게시판 정보 조회
+export async function getBoardById(boardId: string) {
+  const supabase = await createClient()
+
+  try {
+    const { data: board, error } = await supabase
+      .from('boards')
+      .select('*')
+      .eq('id', boardId)
+      .eq('is_active', true)
+      .single()
+
+    if (error) {
+      console.error('게시판 조회 오류:', error)
+      throw new Error('게시판을 찾을 수 없습니다.')
+    }
+
+    return board
+  } catch (error) {
+    console.error('게시판 조회 중 오류:', error)
+    throw error
+  }
+}
+
+// 게시판의 게시글 목록 조회
+export async function getPostsByBoardId(
+  boardId: string,
+  page: number = 1,
+  searchQuery: string = '',
+  searchType: 'title' | 'content' | 'tags' = 'title',
+  limit: number = 20
+) {
+  const supabase = await createClient()
+
+  try {
+    let query = supabase
+      .from('posts')
+      .select('*')
+      .eq('board_id', boardId)
+      .eq('is_deleted', false)
+      .order('created_at', { ascending: false })
+
+    // 검색 조건 적용
+    if (searchQuery.trim()) {
+      switch (searchType) {
+        case 'title':
+          query = query.ilike('title', `%${searchQuery}%`)
+          break
+        case 'content':
+          query = query.ilike('content', `%${searchQuery}%`)
+          break
+        case 'tags':
+          query = query.contains('tags', [searchQuery])
+          break
+      }
+    }
+
+    // 페이지네이션
+    const offset = (page - 1) * limit
+    query = query.range(offset, offset + limit - 1)
+
+    const { data: posts, error } = await query
+
+    if (error) {
+      console.error('게시글 조회 오류:', error)
+      throw new Error('게시글을 불러올 수 없습니다.')
+    }
+
+    // 사용자 프로필 정보를 별도로 조회
+    const postsWithProfiles = await Promise.all(
+      (posts || []).map(async (post) => {
+        if (post.author_id) {
+          const { data: profile } = await supabase
+            .from('user_profiles')
+            .select('nickname, display_name')
+            .eq('id', post.author_id)
+            .single()
+          
+          return {
+            ...post,
+            user_profiles: profile
+          }
+        }
+        return {
+          ...post,
+          user_profiles: null
+        }
+      })
+    )
+
+    // 전체 게시글 수 조회 (페이지네이션용)
+    let countQuery = supabase
+      .from('posts')
+      .select('id', { count: 'exact' })
+      .eq('board_id', boardId)
+      .eq('is_deleted', false)
+
+    if (searchQuery.trim()) {
+      switch (searchType) {
+        case 'title':
+          countQuery = countQuery.ilike('title', `%${searchQuery}%`)
+          break
+        case 'content':
+          countQuery = countQuery.ilike('content', `%${searchQuery}%`)
+          break
+        case 'tags':
+          countQuery = countQuery.contains('tags', [searchQuery])
+          break
+      }
+    }
+
+    const { count, error: countError } = await countQuery
+
+    if (countError) {
+      console.error('게시글 수 조회 오류:', countError)
+    }
+
+    const totalPages = Math.ceil((count || 0) / limit)
+
+    return {
+      posts: postsWithProfiles,
+      totalPages,
+      currentPage: page,
+      totalCount: count || 0
+    }
+  } catch (error) {
+    console.error('게시글 목록 조회 중 오류:', error)
+    throw error
   }
 }

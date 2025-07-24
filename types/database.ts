@@ -20,6 +20,7 @@ export interface Post {
   author_id: string
   board_id: string
   is_deleted: boolean
+  tags?: string[]
   boards?: {
     name: string
   } | null
