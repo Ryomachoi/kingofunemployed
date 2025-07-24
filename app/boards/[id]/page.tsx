@@ -30,6 +30,8 @@ interface Board {
   headquarters_location?: string
   website?: string
   community_rules?: string
+  logo_image_url?: string
+  banner_image_url?: string
   created_at: string
 }
 
@@ -41,6 +43,7 @@ export default function BoardPage() {
   const [loading, setLoading] = useState(true)
   const [searchQuery, setSearchQuery] = useState('')
   const [searchType, setSearchType] = useState<'title' | 'content' | 'tags'>('title')
+  const [sortBy, setSortBy] = useState<'latest' | 'popular'>('latest')
   const [currentPage, setCurrentPage] = useState(1)
   const [totalPages, setTotalPages] = useState(1)
   const [resolvedParams, setResolvedParams] = useState<{ id: string } | null>(null)
@@ -58,7 +61,7 @@ export default function BoardPage() {
       loadBoard()
       loadPosts()
     }
-  }, [resolvedParams, currentPage, searchQuery, searchType])
+  }, [resolvedParams, currentPage, searchQuery, searchType, sortBy])
 
   const loadBoard = async () => {
     if (!resolvedParams?.id) return
@@ -97,26 +100,40 @@ export default function BoardPage() {
     loadPosts()
   }
 
-  const filterPosts = (posts: Post[]) => {
-    if (!searchQuery.trim()) return posts
+  const filterAndSortPosts = (posts: Post[]) => {
+    let filtered = posts
     
-    return posts.filter(post => {
-      switch (searchType) {
-        case 'title':
-          return post.title.toLowerCase().includes(searchQuery.toLowerCase())
-        case 'content':
-          return post.content.toLowerCase().includes(searchQuery.toLowerCase())
-        case 'tags':
-          return post.tags?.some(tag => 
-            tag.toLowerCase().includes(searchQuery.toLowerCase())
-          )
-        default:
-          return true
+    // 검색 필터링
+    if (searchQuery.trim()) {
+      filtered = posts.filter(post => {
+        switch (searchType) {
+          case 'title':
+            return post.title.toLowerCase().includes(searchQuery.toLowerCase())
+          case 'content':
+            return post.content.toLowerCase().includes(searchQuery.toLowerCase())
+          case 'tags':
+            return post.tags?.some(tag => 
+              tag.toLowerCase().includes(searchQuery.toLowerCase())
+            )
+          default:
+            return true
+        }
+      })
+    }
+    
+    // 정렬
+    const sorted = [...filtered].sort((a, b) => {
+      if (sortBy === 'popular') {
+        return (b.like_count || 0) - (a.like_count || 0)
+      } else {
+        return new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
       }
     })
+    
+    return sorted
   }
 
-  const filteredPosts = filterPosts(posts)
+  const filteredPosts = filterAndSortPosts(posts)
 
   if (!resolvedParams) {
     return (
@@ -145,61 +162,125 @@ export default function BoardPage() {
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-900">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* 헤더 */}
-        <div className="mb-8">
-          <div className="flex items-center justify-between mb-4">
+        {/* 게시판 헤더 */}
+        <div className="mb-8 bg-gradient-to-r from-blue-600 to-purple-600 p-6 rounded-xl">
+          <div className="flex items-center gap-4">
+            {/* 로고 */}
+            <div className="w-16 h-16 bg-white dark:bg-slate-800 rounded-xl flex items-center justify-center overflow-hidden border border-slate-200 dark:border-slate-700 shadow-lg">
+              {board.logo_image_url ? (
+                <img 
+                  src={board.logo_image_url} 
+                  alt={`${board.name} 로고`}
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                <span className="text-2xl">🏢</span>
+              )}
+            </div>
             <div>
-              <h1 className="text-3xl font-bold text-slate-900 dark:text-slate-100">{board.name}</h1>
-              <p className="text-slate-600 dark:text-slate-400 mt-2">{board.description}</p>
+              <h1 className="text-3xl font-bold text-white drop-shadow-lg">{board.name}</h1>
             </div>
-            {user && (
-              <Link
-                href={`/boards/${resolvedParams.id}/posts/new`}
-                className="inline-flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors duration-200"
-              >
-                <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-                </svg>
-                글쓰기
-              </Link>
-            )}
           </div>
-
-          {/* 검색 */}
-          <form onSubmit={handleSearch} className="flex gap-4 items-center">
-            <select
-              value={searchType}
-              onChange={(e) => setSearchType(e.target.value as 'title' | 'content' | 'tags')}
-              className="px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            >
-              <option value="title">제목</option>
-              <option value="content">내용</option>
-              <option value="tags">태그</option>
-            </select>
-            <div className="flex-1 relative">
-              <input
-                type="text"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder={`${searchType === 'title' ? '제목' : searchType === 'content' ? '내용' : '태그'}으로 검색...`}
-                className="w-full px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              />
-              <button
-                type="submit"
-                className="absolute right-2 top-1/2 transform -translate-y-1/2 p-1 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300"
-              >
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                </svg>
-              </button>
-            </div>
-          </form>
         </div>
+        
+        {/* 게시판 소개 영역 */}
+        <div className="mb-8 bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 p-8 shadow-sm">
+          <div>
+            <h2 className="text-2xl font-bold text-slate-900 dark:text-slate-100 mb-3">소개</h2>
+            <p className="text-slate-700 dark:text-slate-300 text-lg leading-relaxed mb-4">{board.description}</p>
+            
+            {/* 게시판 태그 */}
+            <div className="flex flex-wrap gap-2">
+              <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">
+                #{board.category || '일반'}
+              </span>
+              <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">
+                #커뮤니티
+              </span>
+              <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200">
+                #정보공유
+              </span>
+            </div>
+          </div>
+        </div>
+
 
         <div className="flex gap-8">
           {/* 메인 콘텐츠 */}
           <div className="flex-1">
             <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700">
+              {/* 검색 및 정렬 기능 */}
+              <div className="p-6 border-b border-slate-200 dark:border-slate-700">
+                <div className="flex justify-between items-center gap-4">
+                  {/* 정렬 옵션 - 왼쪽 */}
+                  <div className="flex border border-slate-200 dark:border-slate-600 rounded-lg overflow-hidden">
+                    <button
+                      onClick={() => setSortBy('latest')}
+                      className={`px-4 py-2 text-sm font-medium transition-colors duration-200 ${
+                        sortBy === 'latest'
+                          ? 'bg-blue-600 text-white'
+                          : 'bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700'
+                      }`}
+                    >
+                      최신
+                    </button>
+                    <button
+                      onClick={() => setSortBy('popular')}
+                      className={`px-4 py-2 text-sm font-medium transition-colors duration-200 border-l border-slate-200 dark:border-slate-600 ${
+                        sortBy === 'popular'
+                          ? 'bg-blue-600 text-white'
+                          : 'bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700'
+                      }`}
+                    >
+                      인기
+                    </button>
+                  </div>
+                  
+                  {/* 검색 기능 - 중앙 */}
+                  <form onSubmit={handleSearch} className="flex gap-4 items-center flex-1">
+                    <select
+                      value={searchType}
+                      onChange={(e) => setSearchType(e.target.value as 'title' | 'content' | 'tags')}
+                      className="px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    >
+                      <option value="title">제목</option>
+                      <option value="content">내용</option>
+                      <option value="tags">태그</option>
+                    </select>
+                    <div className="flex-1 relative max-w-md">
+                      <input
+                        type="text"
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                        placeholder={`${searchType === 'title' ? '제목' : searchType === 'content' ? '내용' : '태그'}으로 검색...`}
+                        className="w-full px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      />
+                      <button
+                        type="submit"
+                        className="absolute right-2 top-1/2 transform -translate-y-1/2 p-1 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300"
+                      >
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                        </svg>
+                      </button>
+                    </div>
+                  </form>
+                  
+                  {/* 글쓰기 버튼 - 오른쪽 */}
+                  {user && (
+                    <Link
+                      href={`/boards/${resolvedParams.id}/posts/new`}
+                      className="inline-flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors duration-200"
+                    >
+                      <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                      </svg>
+                      게시물 작성
+                    </Link>
+                  )}
+                </div>
+              </div>
+              
               {/* 게시글 목록 */}
               <div className="divide-y divide-slate-200 dark:divide-slate-700">
                 {loading ? (
@@ -365,48 +446,43 @@ export default function BoardPage() {
 
           {/* 사이드바 */}
           <div className="lg:w-1/4">
-            <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 p-6">
-              <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100 mb-4">게시판 정보</h3>
-              
-              <div className="space-y-4">
-                {board.headquarters_location && (
-                  <div>
-                    <dt className="text-sm font-medium text-slate-500 dark:text-slate-400">본사 위치</dt>
-                    <dd className="text-sm text-slate-900 dark:text-slate-100">{board.headquarters_location}</dd>
-                  </div>
-                )}
-                
-                {board.website && (
-                  <div>
-                    <dt className="text-sm font-medium text-slate-500 dark:text-slate-400">웹사이트</dt>
-                    <dd className="text-sm">
-                      <a 
-                        href={board.website} 
-                        target="_blank" 
-                        rel="noopener noreferrer"
-                        className="text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300"
-                      >
-                        {board.website}
-                      </a>
-                    </dd>
-                  </div>
-                )}
-                
-                {board.community_rules && (
-                  <div>
-                    <dt className="text-sm font-medium text-slate-500 dark:text-slate-400">커뮤니티 규칙</dt>
-                    <dd className="text-sm text-slate-900 dark:text-slate-100">{board.community_rules}</dd>
-                  </div>
-                )}
-                
-                <div>
-                  <dt className="text-sm font-medium text-slate-500 dark:text-slate-400">생성일</dt>
-                  <dd className="text-sm text-slate-900 dark:text-slate-100">
-                    {new Date(board.created_at).toLocaleDateString('ko-KR')}
-                  </dd>
-                </div>
+            {/* 커뮤니티 규칙 */}
+            {board.community_rules && (
+              <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 p-6 mb-6">
+                <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100 mb-4">커뮤니티 규칙</h3>
+                <p className="text-sm text-slate-900 dark:text-slate-100">{board.community_rules}</p>
               </div>
-            </div>
+            )}
+            
+            {/* 정보 */}
+             <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 p-6">
+               <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100 mb-4">정보</h3>
+               
+               <div className="space-y-4">
+                 {board.headquarters_location && (
+                   <div>
+                     <dt className="text-sm font-medium text-slate-500 dark:text-slate-400">본사 위치</dt>
+                     <dd className="text-sm text-slate-900 dark:text-slate-100">{board.headquarters_location}</dd>
+                   </div>
+                 )}
+                 
+                 {board.website && (
+                   <div>
+                     <dt className="text-sm font-medium text-slate-500 dark:text-slate-400">웹사이트</dt>
+                     <dd className="text-sm">
+                       <a 
+                         href={board.website} 
+                         target="_blank" 
+                         rel="noopener noreferrer"
+                         className="text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300"
+                       >
+                         {board.website}
+                       </a>
+                     </dd>
+                   </div>
+                 )}
+               </div>
+             </div>
           </div>
         </div>
       </div>

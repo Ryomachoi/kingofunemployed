@@ -96,7 +96,9 @@ export default async function BoardsPage() {
       {boards && boards.length > 0 ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {boards.map((board) => (
-            <div key={board.id} className="bg-white dark:bg-slate-800 rounded-xl shadow-sm hover:shadow-md transition-shadow border border-slate-200 dark:border-slate-700 overflow-hidden flex flex-col h-[280px]">
+            <div key={board.id} className="bg-white dark:bg-slate-800 rounded-xl shadow-sm hover:shadow-md transition-shadow border border-slate-200 dark:border-slate-700 overflow-hidden flex flex-col h-[320px]">
+
+              
               <div className="p-5 flex-1 flex flex-col">
                 {/* 로고와 게시판 이름 */}
                 <div className="flex items-center gap-3 mb-4">
