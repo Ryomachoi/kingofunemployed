@@ -31,6 +31,7 @@ interface Board {
   website?: string
   community_rules?: string
   logo_image_url?: string
+  logo_icon?: string
   banner_image_url?: string
   created_at: string
 }
@@ -175,13 +176,15 @@ export default function BoardPage() {
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center gap-4">
             {/* 로고 */}
-            <div className="w-16 h-16 bg-white dark:bg-slate-800 rounded-xl flex items-center justify-center overflow-hidden border border-slate-200 dark:border-slate-700 shadow-lg">
+            <div className="w-16 h-16 bg-transparent rounded-xl flex items-center justify-center overflow-hidden shadow-lg">
               {board.logo_image_url ? (
                 <img 
                   src={board.logo_image_url} 
                   alt={`${board.name} 로고`}
-                  className="w-full h-full object-cover"
+                  className="w-14 h-14 object-contain"
                 />
+              ) : board.logo_icon ? (
+                <span className="text-2xl">{board.logo_icon}</span>
               ) : (
                 <span className="text-2xl">🏢</span>
               )}

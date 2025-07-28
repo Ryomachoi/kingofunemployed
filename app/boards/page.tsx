@@ -20,6 +20,7 @@ export default async function BoardsPage() {
       website,
       tags,
       logo_image_url,
+      logo_icon,
       banner_image_url,
       community_rules,
       created_at,
@@ -102,13 +103,15 @@ export default async function BoardsPage() {
               <div className="p-5 flex-1 flex flex-col">
                 {/* 로고와 게시판 이름 */}
                 <div className="flex items-center gap-3 mb-4">
-                  <div className="w-10 h-10 bg-blue-100 dark:bg-blue-900 rounded-lg flex items-center justify-center text-xl flex-shrink-0 overflow-hidden">
+                  <div className="w-10 h-10 bg-transparent rounded-lg flex items-center justify-center text-xl flex-shrink-0 overflow-hidden">
                     {board.logo_image_url ? (
                       <img 
                         src={board.logo_image_url} 
                         alt={`${board.name} 로고`}
-                        className="w-full h-full object-cover rounded-lg"
+                        className="w-9 h-9 object-contain"
                       />
+                    ) : board.logo_icon ? (
+                      <span>{board.logo_icon}</span>
                     ) : (
                       <span>🏢</span>
                     )}
@@ -152,43 +155,41 @@ export default async function BoardsPage() {
                   )}
                 </div>
                 
-                {/* 태그 */}
+                {/* 태그와 게시물 수 정보 */}
                 <div className="mb-4 min-h-[28px]">
-                  {board.tags && board.tags.length > 0 && (
-                    <div className="flex flex-wrap gap-1">
-                      {board.tags.slice(0, 3).map((tag, index) => {
-                        // 태그에서 '#' 제거하고 표시
-                        const cleanTag = tag.startsWith('#') ? tag.substring(1) : tag;
-                        return (
-                          <span
-                            key={index}
-                            className="inline-block px-2 py-1 text-xs bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 rounded-full"
-                          >
-                            {cleanTag}
-                          </span>
-                        );
-                      })}
-                      {board.tags.length > 3 && (
-                        <span className="inline-block px-2 py-1 text-xs text-slate-500 dark:text-slate-400">
-                          +{board.tags.length - 3}
-                        </span>
+                  <div className="flex items-center justify-between pt-2 border-t border-slate-100 dark:border-slate-700">
+                    {/* 태그 - 왼쪽 */}
+                    <div className="flex-1">
+                      {board.tags && board.tags.length > 0 && (
+                        <div className="flex flex-wrap gap-1">
+                          {board.tags.map((tag, index) => {
+                            // 태그에서 '#' 제거하고 표시
+                            const cleanTag = tag.startsWith('#') ? tag.substring(1) : tag;
+                            return (
+                              <span
+                                key={index}
+                                className="inline-block px-2 py-1 text-xs bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 rounded-full"
+                              >
+                                {cleanTag}
+                              </span>
+                            );
+                          })}
+                        </div>
                       )}
                     </div>
-                  )}
-                </div>
-                
-                {/* 게시물 수 정보 */}
-                <div className="mt-auto">
-                  <div className="flex items-center pt-2 border-t border-slate-100 dark:border-slate-700 mb-4">
-                    <div className="flex items-center text-sm text-slate-500 dark:text-slate-400">
+                    
+                    {/* 게시물 수 - 오른쪽 */}
+                    <div className="flex items-center text-sm text-slate-500 dark:text-slate-400 ml-2">
                       <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                       </svg>
                       {board.post_count || 0}개 게시물
                     </div>
                   </div>
-                  
-                  {/* 게시판 보기 버튼 */}
+                </div>
+                
+                {/* 게시판 보기 버튼 */}
+                <div className="mt-auto">
                   <div className="flex">
                     <Link
                       href={`/boards/${board.id}`}

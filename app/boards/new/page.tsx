@@ -19,10 +19,14 @@ export default function NewBoardPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState("");
 
+  const [logoType, setLogoType] = useState<'image' | 'icon'>('icon');
+  const [selectedIcon, setSelectedIcon] = useState('🏢');
   const [logoImage, setLogoImage] = useState<File | null>(null);
   const [bannerImage, setBannerImage] = useState<File | null>(null);
   const [logoPreview, setLogoPreview] = useState<string | null>(null);
   const [bannerPreview, setBannerPreview] = useState<string | null>(null);
+  
+  const iconOptions = ['🏢', '🏭', '💼', '🏪', '🏬', '🏦', '🏛️', '🏗️', '⚡', '💻', '📱', '🚀', '💡', '🔧', '⚙️', '📊', '💰', '🎯', '🌟', '🔥'];
   const router = useRouter();
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
@@ -45,8 +49,14 @@ export default function NewBoardPage() {
     
 
     
-    // 이미지 파일 추가
-    if (logoImage) formData.append("logo_image", logoImage);
+    // 로고 정보 추가
+    if (logoType === 'image' && logoImage) {
+      formData.append("logo_image", logoImage);
+    } else if (logoType === 'icon') {
+      formData.append("logo_icon", selectedIcon);
+    }
+    
+    // 배너 이미지 추가 (선택사항)
     if (bannerImage) formData.append("banner_image", bannerImage);
 
     try {
@@ -277,41 +287,100 @@ export default function NewBoardPage() {
               <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">최대 10개까지 입력 가능</p>
             </div>
 
-            {/* 로고 이미지 업로드 */}
+            {/* 로고 선택 */}
             <div>
               <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
-                로고 이미지 업로드 (필수)
+                로고 선택 (필수)
               </label>
-              <div className="flex items-center space-x-4">
-                <input
-                  type="file"
-                  accept="image/*"
-                  onChange={(e) => {
-                    const file = e.target.files?.[0];
-                    if (file) {
-                      setLogoImage(file);
-                      const reader = new FileReader();
-                      reader.onload = (e) => setLogoPreview(e.target?.result as string);
-                      reader.readAsDataURL(file);
-                    }
-                  }}
-                  className="block w-full text-sm text-slate-500 dark:text-slate-400 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 dark:file:bg-blue-900/20 dark:file:text-blue-300 dark:hover:file:bg-blue-900/30"
+              
+              {/* 로고 타입 선택 */}
+              <div className="flex space-x-4 mb-4">
+                <button
+                  type="button"
+                  onClick={() => setLogoType('image')}
+                  className={`px-4 py-2 rounded-lg border transition-colors ${
+                    logoType === 'image'
+                      ? 'bg-blue-50 border-blue-300 text-blue-700 dark:bg-blue-900/20 dark:border-blue-600 dark:text-blue-300'
+                      : 'bg-white border-slate-300 text-slate-700 hover:bg-slate-50 dark:bg-slate-700 dark:border-slate-600 dark:text-slate-300 dark:hover:bg-slate-600'
+                  }`}
                   disabled={isSubmitting}
-                  required
-                />
-                {logoPreview && (
-                  <div className="flex-shrink-0">
-                    <img
-                      src={logoPreview}
-                      alt="로고 미리보기"
-                      className="w-16 h-16 object-cover rounded-lg border border-slate-300 dark:border-slate-600"
-                    />
-                  </div>
-                )}
+                >
+                  이미지 업로드
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setLogoType('icon')}
+                  className={`px-4 py-2 rounded-lg border transition-colors ${
+                    logoType === 'icon'
+                      ? 'bg-blue-50 border-blue-300 text-blue-700 dark:bg-blue-900/20 dark:border-blue-600 dark:text-blue-300'
+                      : 'bg-white border-slate-300 text-slate-700 hover:bg-slate-50 dark:bg-slate-700 dark:border-slate-600 dark:text-slate-300 dark:hover:bg-slate-600'
+                  }`}
+                  disabled={isSubmitting}
+                >
+                  아이콘 선택
+                </button>
               </div>
-              <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
-                정사각형 이미지 권장 (최대 5MB, JPG/PNG/WebP)
-              </p>
+
+              {/* 이미지 업로드 */}
+              {logoType === 'image' && (
+                <div>
+                  <div className="flex items-center space-x-4">
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={(e) => {
+                        const file = e.target.files?.[0];
+                        if (file) {
+                          setLogoImage(file);
+                          const reader = new FileReader();
+                          reader.onload = (e) => setLogoPreview(e.target?.result as string);
+                          reader.readAsDataURL(file);
+                        }
+                      }}
+                      className="block w-full text-sm text-slate-500 dark:text-slate-400 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 dark:file:bg-blue-900/20 dark:file:text-blue-300 dark:hover:file:bg-blue-900/30"
+                      disabled={isSubmitting}
+                    />
+                    {logoPreview && (
+                      <div className="flex-shrink-0">
+                        <img
+                          src={logoPreview}
+                          alt="로고 미리보기"
+                          className="w-16 h-16 object-contain rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800"
+                        />
+                      </div>
+                    )}
+                  </div>
+                  <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
+                    정사각형 이미지 권장 (최대 5MB, JPG/PNG/WebP)
+                  </p>
+                </div>
+              )}
+
+              {/* 아이콘 선택 */}
+              {logoType === 'icon' && (
+                <div>
+                  <div className="grid grid-cols-6 gap-3 mb-3">
+                    {iconOptions.map((icon) => (
+                      <button
+                        key={icon}
+                        type="button"
+                        onClick={() => setSelectedIcon(icon)}
+                        className={`w-12 h-12 rounded-lg border-2 flex items-center justify-center text-xl transition-colors ${
+                          selectedIcon === icon
+                            ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20 dark:border-blue-400'
+                            : 'border-slate-300 bg-white hover:bg-slate-50 dark:border-slate-600 dark:bg-slate-700 dark:hover:bg-slate-600'
+                        }`}
+                        disabled={isSubmitting}
+                      >
+                        {icon}
+                      </button>
+                    ))}
+                  </div>
+                  <p className="text-xs text-slate-500 dark:text-slate-400">
+                    아이콘을 선택하세요
+                  </p>
+                </div>
+              )}
             </div>
 
              {/* 배너 이미지 업로드 */}

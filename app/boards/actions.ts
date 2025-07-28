@@ -34,6 +34,7 @@ export async function createBoard(formData: FormData) {
   const tagsString = formData.get('tags') as string
   const communityRules = formData.get('community_rules') as string
   const logoImage = formData.get('logo_image') as File | null
+  const logoIcon = formData.get('logo_icon') as string | null
   const bannerImage = formData.get('banner_image') as File | null
 
   // 입력값 검증
@@ -64,11 +65,14 @@ export async function createBoard(formData: FormData) {
 
   let createdBoardId: string | null = null
   let logoImageUrl: string | null = null
+  let logoIconValue: string | null = null
   let bannerImageUrl: string | null = null
 
   try {
-    // 이미지 업로드 처리
-    if (logoImage && logoImage.size > 0) {
+    // 로고 처리 (이미지 또는 아이콘)
+    if (logoIcon) {
+      logoIconValue = logoIcon
+    } else if (logoImage && logoImage.size > 0) {
       // 파일 크기 검증 (5MB)
       if (logoImage.size > 5 * 1024 * 1024) {
         return { error: '로고 이미지는 5MB 이하로 업로드해주세요.' }
@@ -166,6 +170,7 @@ export async function createBoard(formData: FormData) {
         website: website?.trim() || null,
         tags: tags.length > 0 ? tags : null,
         logo_image_url: logoImageUrl,
+        logo_icon: logoIconValue,
         banner_image_url: bannerImageUrl,
         community_rules: communityRules?.trim() || null,
         creator_id: user.id
