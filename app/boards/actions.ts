@@ -920,3 +920,95 @@ export async function getPostsByBoardId(
     throw error
   }
 }
+
+// 전체 게시판의 게시글 목록 조회 (메인화면용)
+export async function getAllPosts(
+  sortBy: 'latest' | 'popular' | 'views' = 'latest',
+  limit: number = 20
+) {
+  const supabase = await createClient()
+
+  try {
+    let query = supabase
+      .from('posts')
+      .select(`
+        id,
+        title,
+        content,
+        like_count,
+        comment_count,
+        view_count,
+        created_at,
+        updated_at,
+        author_id,
+        board_id,
+        tags,
+        boards!inner(
+          id,
+          name,
+          logo_image_url,
+          logo_icon
+        )
+      `)
+      .eq('is_deleted', false)
+      .eq('boards.is_active', true)
+
+    // 정렬 조건 적용
+    switch (sortBy) {
+      case 'popular':
+        query = query.order('like_count', { ascending: false })
+        break
+      case 'views':
+        query = query.order('view_count', { ascending: false })
+        break
+      case 'latest':
+      default:
+        query = query.order('created_at', { ascending: false })
+        break
+    }
+
+    // 제한 적용
+    query = query.limit(limit)
+
+    const { data: posts, error } = await query
+
+    if (error) {
+      console.error('전체 게시글 조회 오류:', error)
+      throw new Error('게시글을 불러올 수 없습니다.')
+    }
+
+    // 사용자 프로필 정보를 별도로 조회
+    const postsWithProfiles = await Promise.all(
+      (posts || []).map(async (post) => {
+        if (post.author_id) {
+          const { data: profile } = await supabase
+            .from('user_profiles')
+            .select('nickname, display_name')
+            .eq('id', post.author_id)
+            .single()
+          
+          return {
+            ...post,
+            user_profiles: profile
+          }
+        }
+        return {
+          ...post,
+          user_profiles: null
+        }
+      })
+    )
+
+    return {
+      posts: postsWithProfiles,
+      success: true
+    }
+  } catch (error) {
+    console.error('전체 게시글 목록 조회 중 오류:', error)
+    return {
+      posts: [],
+      success: false,
+      error: '게시글을 불러오는 중 오류가 발생했습니다.'
+    }
+  }
+}
