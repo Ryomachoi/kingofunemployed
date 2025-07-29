@@ -20,6 +20,7 @@ export interface Post {
   author_id: string
   board_id: string
   is_deleted: boolean
+  tags?: string[]
   boards?: {
     name: string
   } | null
@@ -41,6 +42,16 @@ export interface Board {
   id: string
   name: string
   description?: string
+  category?: string
+  industry?: string
+  job_category?: string
+  headquarters_location?: string
+  website?: string
+  tags?: string[]
+  logo_image_url?: string
+  logo_icon?: string
+  banner_image_url?: string
+  community_rules?: string
   created_at: string
   creator_id: string
   is_active: boolean

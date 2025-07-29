@@ -12,10 +12,12 @@ interface NewPostPageProps {
 }
 
 export default function NewPostPage({ params }: NewPostPageProps) {
-  const resolvedParams = use(params)
+  const { id } = params
   const router = useRouter()
   const [title, setTitle] = useState('')
   const [content, setContent] = useState('')
+  const [tags, setTags] = useState<string[]>([])
+  const [tagInput, setTagInput] = useState('')
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState('')
 
@@ -32,14 +34,15 @@ export default function NewPostPage({ params }: NewPostPageProps) {
 
     try {
       const formData = new FormData()
-      formData.append('boardId', resolvedParams.id)
+      formData.append('boardId', params.id)
       formData.append('title', title.trim())
       formData.append('content', content.trim())
+      formData.append('tags', JSON.stringify(tags))
       
       const result = await createPost(formData)
 
-      if ('success' in result && result.success && 'data' in result && result.data && (result.data as any).id) {
-        router.push(`/boards/${resolvedParams.id}/posts/${(result.data as any).id}`)
+      if (result.success && result.data?.id) {
+        router.push(`/boards/${id}/posts/${result.data.id}`)
       } else {
         setError(result.error || '게시글 작성에 실패했습니다.')
       }
@@ -57,7 +60,7 @@ export default function NewPostPage({ params }: NewPostPageProps) {
         {/* 헤더 */}
         <div className="mb-8">
           <Link
-            href={`/boards/${resolvedParams.id}`}
+            href={`/boards/${id}`}
             className="inline-flex items-center text-sm text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-100 mb-4 transition-colors"
           >
             <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -94,6 +97,76 @@ export default function NewPostPage({ params }: NewPostPageProps) {
               />
               <div className="mt-1 text-xs text-slate-500 dark:text-slate-400 text-right">
                 {title.length}/100
+              </div>
+            </div>
+
+            {/* 태그 입력 */}
+            <div>
+              <label htmlFor="tags" className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                태그
+              </label>
+              <div className="space-y-3">
+                <div className="flex items-center space-x-2">
+                  <input
+                    type="text"
+                    id="tags"
+                    value={tagInput}
+                    onChange={(e) => setTagInput(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') {
+                        e.preventDefault()
+                        const trimmedTag = tagInput.trim()
+                        if (trimmedTag && !tags.includes(trimmedTag) && tags.length < 5) {
+                          setTags([...tags, trimmedTag])
+                          setTagInput('')
+                        }
+                      }
+                    }}
+                    placeholder="태그를 입력하고 Enter를 누르세요 (최대 5개)"
+                    className="flex-1 px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-slate-700 dark:text-slate-100 transition-colors"
+                    maxLength={20}
+                    disabled={isLoading || tags.length >= 5}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const trimmedTag = tagInput.trim()
+                      if (trimmedTag && !tags.includes(trimmedTag) && tags.length < 5) {
+                        setTags([...tags, trimmedTag])
+                        setTagInput('')
+                      }
+                    }}
+                    disabled={!tagInput.trim() || tags.includes(tagInput.trim()) || tags.length >= 5}
+                    className="px-4 py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-slate-400 disabled:cursor-not-allowed text-white font-medium rounded-lg transition-colors duration-200"
+                  >
+                    추가
+                  </button>
+                </div>
+                
+                {/* 태그 목록 */}
+                {tags.length > 0 && (
+                  <div className="flex flex-wrap gap-2">
+                    {tags.map((tag, index) => (
+                      <span
+                        key={index}
+                        className="inline-flex items-center px-3 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300 text-sm rounded-full"
+                      >
+                        #{tag}
+                        <button
+                          type="button"
+                          onClick={() => setTags(tags.filter((_, i) => i !== index))}
+                          className="ml-2 text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-200"
+                        >
+                          ×
+                        </button>
+                      </span>
+                    ))}
+                  </div>
+                )}
+                
+                <p className="text-xs text-slate-500 dark:text-slate-400">
+                  태그는 게시글을 분류하고 검색하는 데 도움이 됩니다. (최대 5개, 각 태그 최대 20자)
+                </p>
               </div>
             </div>
 
@@ -145,7 +218,7 @@ export default function NewPostPage({ params }: NewPostPageProps) {
             {/* 버튼 */}
             <div className="flex items-center justify-end space-x-4 pt-4">
               <Link
-                href={`/boards/${resolvedParams.id}`}
+                href={`/boards/${id}`}
                 className="px-6 py-3 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 font-medium transition-colors"
               >
                 취소

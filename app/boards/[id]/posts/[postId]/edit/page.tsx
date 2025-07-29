@@ -27,6 +27,7 @@ export default async function EditPostPage({ params }: EditPostPageProps) {
       id,
       title,
       content,
+      tags,
       author_id,
       board_id,
       is_deleted,

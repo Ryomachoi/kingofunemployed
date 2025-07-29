@@ -5,6 +5,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { createClient } from '@/lib/supabase/server';
 import { logout } from './login/actions';
+import { AuthProvider } from '@/contexts/AuthContext';
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -35,53 +36,60 @@ export default async function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen bg-slate-50 dark:bg-slate-950`}
       >
         <header className="sticky top-0 z-50 w-full border-b border-slate-200 bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/60 dark:border-slate-700 dark:bg-slate-900/95 dark:supports-[backdrop-filter]:bg-slate-900/60">
-          <div className="container flex h-16 items-center justify-between">
-            <Link href="/" className="flex items-center space-x-2">
+          <div className="container flex h-16 items-center">
+            {/* 로고 */}
+            <Link href="/" className="flex items-center space-x-2 mr-8">
               <div className="h-10 w-10 flex items-center justify-center">
                 <span className="text-2xl font-bold">🦁</span>
               </div>
               <span className="font-bold text-xl text-slate-900 dark:text-slate-100">백수의 왕</span>
             </Link>
             
-            <nav className="flex items-center space-x-6">
-              <Link href="/boards" className="text-sm font-medium text-slate-700 hover:text-slate-900 dark:text-slate-300 dark:hover:text-slate-100 transition-colors">
+            {/* 메인 메뉴 - 로고 바로 오른쪽 */}
+            <div className="flex items-center space-x-8 flex-1">
+              <Link href="/boards" className="text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-slate-100 transition-colors">
                 게시판
               </Link>
-              <Link href="/interview" className="text-sm font-medium text-slate-700 hover:text-slate-900 dark:text-slate-300 dark:hover:text-slate-100 transition-colors">
+              <Link href="/interviews" className="text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-slate-100 transition-colors">
                 면접
               </Link>
-              <Link href="/jobs" className="text-sm font-medium text-slate-700 hover:text-slate-900 dark:text-slate-300 dark:hover:text-slate-100 transition-colors">
+              <Link href="/jobs" className="text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-slate-100 transition-colors">
                 채용정보
               </Link>
-
-              
+              <Link href="/mypage" className="text-slate-600 hover:text-slate-900 dark:text-slate-300 dark:hover:text-slate-100 transition-colors">
+                마이페이지
+              </Link>
+            </div>
+            
+            {/* 로그인/로그아웃 - 오른쪽 끝 */}
+            <nav className="flex items-center space-x-3">
               {user ? (
-                <>
-                  <Link href="/mypage" className="text-sm font-medium text-slate-700 hover:text-slate-900 dark:text-slate-300 dark:hover:text-slate-100 transition-colors">
-                    마이페이지
-                  </Link>
-                  <form action={logout} className="inline">
-                    <button type="submit" className="text-sm font-medium text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300 transition-colors cursor-pointer">
-                      로그아웃
-                    </button>
-                  </form>
-                </>
+                <form action={logout}>
+                  <button
+                    type="submit"
+                    className="group relative px-5 py-2.5 text-sm font-medium text-slate-600 dark:text-slate-300 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-600 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-700 hover:text-slate-900 dark:hover:text-slate-100 hover:border-slate-300 dark:hover:border-slate-500 transition-all duration-300 ease-in-out transform hover:scale-105 hover:shadow-md active:scale-95"
+                  >
+                    <span className="relative z-10">로그아웃</span>
+                    <div className="absolute inset-0 bg-gradient-to-r from-red-50 to-orange-50 dark:from-red-900/20 dark:to-orange-900/20 opacity-0 group-hover:opacity-100 rounded-lg transition-opacity duration-300"></div>
+                  </button>
+                </form>
               ) : (
-                <>
-                  <Link href="/login" className="text-sm font-medium text-slate-700 hover:text-slate-900 dark:text-slate-300 dark:hover:text-slate-100 transition-colors">
-                    로그인
-                  </Link>
-                  <Link href="/signup" className="text-sm font-medium text-slate-700 hover:text-slate-900 dark:text-slate-300 dark:hover:text-slate-100 transition-colors">
-                    회원가입
-                  </Link>
-                </>
+                <Link
+                  href="/login"
+                  className="group relative px-5 py-2.5 text-sm font-medium text-slate-600 dark:text-slate-300 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-600 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-700 hover:text-slate-900 dark:hover:text-slate-100 hover:border-slate-300 dark:hover:border-slate-500 transition-all duration-300 ease-in-out transform hover:scale-105 hover:shadow-md active:scale-95"
+                >
+                  <span className="relative z-10">로그인</span>
+                  <div className="absolute inset-0 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 opacity-0 group-hover:opacity-100 rounded-lg transition-opacity duration-300"></div>
+                </Link>
               )}
             </nav>
           </div>
         </header>
         
         <main className="flex-1">
-          {children}
+          <AuthProvider>
+            {children}
+          </AuthProvider>
         </main>
         
         <footer className="border-t border-slate-200 dark:border-slate-700 py-8">

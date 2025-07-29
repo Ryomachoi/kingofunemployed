@@ -13,6 +13,16 @@ export default async function BoardsPage() {
       id,
       name,
       description,
+      category,
+      industry,
+      job_category,
+      headquarters_location,
+      website,
+      tags,
+      logo_image_url,
+      logo_icon,
+      banner_image_url,
+      community_rules,
       created_at,
       creator_id
     `)
@@ -44,6 +54,9 @@ export default async function BoardsPage() {
   if (error) {
     console.error('게시판 조회 오류:', error)
   }
+  
+  // 디버깅: 데이터 확인
+  console.log('게시판 데이터:', boards)
 
   // 사용자 인증 상태 확인
   const { data: { user } } = await supabase.auth.getUser()
@@ -84,37 +97,110 @@ export default async function BoardsPage() {
       {boards && boards.length > 0 ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {boards.map((board) => (
-            <Link
-              key={board.id}
-              href={`/boards/${board.id}`}
-              className="group block bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 hover:border-blue-300 dark:hover:border-blue-600 transition-all duration-200 hover:shadow-lg"
-            >
-              <div className="p-6">
-                <div className="flex items-start justify-between mb-3">
-                  <h3 className="text-xl font-bold text-slate-900 dark:text-slate-100 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
-                    {board.name}
-                  </h3>
-                  <div className="flex items-center text-sm text-slate-500 dark:text-slate-400">
-                    <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                    </svg>
-                    {board.post_count}
+            <div key={board.id} className="bg-white dark:bg-slate-800 rounded-xl shadow-sm hover:shadow-md transition-shadow border border-slate-200 dark:border-slate-700 overflow-hidden flex flex-col h-[320px]">
+
+              
+              <div className="p-5 flex-1 flex flex-col">
+                {/* 로고와 게시판 이름 */}
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="w-10 h-10 bg-transparent rounded-lg flex items-center justify-center text-xl flex-shrink-0 overflow-hidden">
+                    {board.logo_image_url ? (
+                      <img 
+                        src={board.logo_image_url} 
+                        alt={`${board.name} 로고`}
+                        className="w-9 h-9 object-contain"
+                      />
+                    ) : board.logo_icon ? (
+                      <span>{board.logo_icon}</span>
+                    ) : (
+                      <span>🏢</span>
+                    )}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <h3 className="font-semibold text-slate-900 dark:text-slate-100 text-base truncate">
+                      {board.name}
+                    </h3>
                   </div>
                 </div>
                 
-                {board.description && (
-                  <p className="text-slate-600 dark:text-slate-400 text-sm mb-4 line-clamp-2">
-                    {board.description}
-                  </p>
+                {/* 카테고리, 업종, 직무 정보 */}
+                {(board.category || board.industry || board.job_category) && (
+                  <div className="mb-3">
+                    <div className="flex flex-wrap gap-1">
+                      {board.category && (
+                        <span className="text-xs px-2 py-1 bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 rounded">
+                          {board.category}
+                        </span>
+                      )}
+                      {board.industry && (
+                        <span className="text-xs px-2 py-1 bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 rounded">
+                          {board.industry}
+                        </span>
+                      )}
+                      {board.job_category && (
+                        <span className="text-xs px-2 py-1 bg-purple-100 dark:bg-purple-900 text-purple-800 dark:text-purple-200 rounded">
+                          {board.job_category}
+                        </span>
+                      )}
+                    </div>
+                  </div>
                 )}
                 
-                <div className="flex items-center justify-end text-xs text-slate-500 dark:text-slate-400">
-                  <span>
-                    생성일: {new Date(board.created_at).toLocaleDateString('ko-KR')}
-                  </span>
+                {/* 설명 */}
+                <div className="mb-2">
+                  {board.description && (
+                    <p className="text-slate-600 dark:text-slate-400 text-sm line-clamp-2">
+                      {board.description}
+                    </p>
+                  )}
+                </div>
+                
+                {/* 태그와 게시물 수 정보 */}
+                <div className="mb-4 min-h-[28px]">
+                  <div className="flex items-center justify-between pt-2 border-t border-slate-100 dark:border-slate-700">
+                    {/* 태그 - 왼쪽 */}
+                    <div className="flex-1">
+                      {board.tags && board.tags.length > 0 && (
+                        <div className="flex flex-wrap gap-1">
+                          {board.tags.map((tag, index) => {
+                            // 태그에서 '#' 제거하고 표시
+                            const cleanTag = tag.startsWith('#') ? tag.substring(1) : tag;
+                            return (
+                              <span
+                                key={index}
+                                className="inline-block px-2 py-1 text-xs bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 rounded-full"
+                              >
+                                {cleanTag}
+                              </span>
+                            );
+                          })}
+                        </div>
+                      )}
+                    </div>
+                    
+                    {/* 게시물 수 - 오른쪽 */}
+                    <div className="flex items-center text-sm text-slate-500 dark:text-slate-400 ml-2">
+                      <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                      </svg>
+                      {board.post_count || 0}개 게시물
+                    </div>
+                  </div>
+                </div>
+                
+                {/* 게시판 보기 버튼 */}
+                <div className="mt-auto">
+                  <div className="flex">
+                    <Link
+                      href={`/boards/${board.id}`}
+                      className="w-full py-2 px-4 text-center bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors"
+                    >
+                      게시판 보기
+                    </Link>
+                  </div>
                 </div>
               </div>
-            </Link>
+            </div>
           ))}
         </div>
       ) : (
@@ -151,45 +237,7 @@ export default async function BoardsPage() {
         </div>
       )}
 
-      {/* 인기 게시판 섹션 */}
-      {boards && boards.length > 0 && (
-        <div className="mt-16">
-          <h2 className="text-2xl font-bold text-slate-900 dark:text-slate-100 mb-6">
-            인기 게시판 TOP 5
-          </h2>
-          <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 overflow-hidden">
-            {boards.slice(0, 5).map((board, index) => (
-              <Link
-                key={board.id}
-                href={`/boards/${board.id}`}
-                className="flex items-center justify-between p-4 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors border-b border-slate-200 dark:border-slate-700 last:border-b-0"
-              >
-                <div className="flex items-center">
-                  <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white font-bold text-sm mr-4">
-                    {index + 1}
-                  </div>
-                  <div>
-                    <h3 className="font-semibold text-slate-900 dark:text-slate-100">
-                      {board.name}
-                    </h3>
-                    {board.description && (
-                      <p className="text-sm text-slate-600 dark:text-slate-400 truncate max-w-md">
-                        {board.description}
-                      </p>
-                    )}
-                  </div>
-                </div>
-                <div className="flex items-center text-sm text-slate-500 dark:text-slate-400">
-                  <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                  </svg>
-                  {board.post_count}개 게시글
-                </div>
-              </Link>
-            ))}
-          </div>
-        </div>
-      )}
+
     </div>
   )
 }

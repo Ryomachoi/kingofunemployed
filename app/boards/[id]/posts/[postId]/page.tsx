@@ -24,6 +24,7 @@ export default async function PostDetailPage({ params }: PostDetailPageProps) {
       id,
       title,
       content,
+      tags,
       like_count,
       comment_count,
       view_count,
@@ -258,6 +259,22 @@ export default async function PostDetailPage({ params }: PostDetailPageProps) {
               {postWithProfile.content}
             </div>
           </div>
+
+          {/* 태그 */}
+          {postWithProfile.tags && postWithProfile.tags.length > 0 && (
+            <div className="mb-6">
+              <div className="flex flex-wrap gap-2">
+                {postWithProfile.tags.map((tag, index) => (
+                  <span
+                    key={index}
+                    className="inline-flex items-center px-3 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300 text-sm rounded-full"
+                  >
+                    #{tag}
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
 
           {/* 게시글 추천 버튼 (중앙) */}
           <div className="flex justify-center pt-4 border-t border-slate-200 dark:border-slate-700">
