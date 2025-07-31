@@ -1,9 +1,9 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { createComment, updateComment, deleteComment, toggleCommentLike } from '@/app/boards/actions'
+import { createComment, updateComment, deleteComment } from '@/app/boards/actions'
 import { CommentWithProfile } from '@/types/database'
 
 interface User {
@@ -15,7 +15,6 @@ interface CommentSectionProps {
   postId: string
   boardId: string
   comments: CommentWithProfile[]
-  userCommentLikes: string[]
   currentUser: User | null
 }
 
@@ -23,12 +22,10 @@ export default function CommentSection({
   postId, 
   boardId, 
   comments: initialComments, 
-  userCommentLikes: initialUserCommentLikes, 
   currentUser 
 }: CommentSectionProps) {
   const router = useRouter()
   const [comments, setComments] = useState<CommentWithProfile[]>(initialComments)
-  const [userCommentLikes, setUserCommentLikes] = useState(initialUserCommentLikes)
   const [newComment, setNewComment] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [editingCommentId, setEditingCommentId] = useState<string | null>(null)
@@ -38,6 +35,11 @@ export default function CommentSection({
   const [replyingToCommentId, setReplyingToCommentId] = useState<string | null>(null)
   const [replyContent, setReplyContent] = useState('')
   const [isSubmittingReply, setIsSubmittingReply] = useState(false)
+
+  // props가 변경될 때 상태 업데이트
+  useEffect(() => {
+    setComments(initialComments)
+  }, [initialComments])
 
   // 전체 댓글 수 계산 (대댓글 포함)
   const getTotalCommentCount = () => {
@@ -205,54 +207,7 @@ export default function CommentSection({
     }
   }
 
-  const handleLikeComment = async (commentId: string) => {
-    if (!currentUser) return
-    
-    const isLiked = userCommentLikes.includes(commentId)
-    
-    try {
-      const result = await toggleCommentLike(commentId)
-      if (result.success) {
-        if (isLiked) {
-          setUserCommentLikes(prev => prev.filter(id => id !== commentId))
-          setComments(prev => prev.map(comment => {
-            if (comment.id === commentId) {
-              return { ...comment, like_count: Math.max(0, comment.like_count - 1) }
-            }
-            // 대댓글인 경우
-            if (comment.replies) {
-              const updatedReplies = comment.replies.map(reply => 
-                reply.id === commentId 
-                  ? { ...reply, like_count: Math.max(0, reply.like_count - 1) }
-                  : reply
-              )
-              return { ...comment, replies: updatedReplies }
-            }
-            return comment
-          }))
-        } else {
-          setUserCommentLikes(prev => [...prev, commentId])
-          setComments(prev => prev.map(comment => {
-            if (comment.id === commentId) {
-              return { ...comment, like_count: comment.like_count + 1 }
-            }
-            // 대댓글인 경우
-            if (comment.replies) {
-              const updatedReplies = comment.replies.map(reply => 
-                reply.id === commentId 
-                  ? { ...reply, like_count: reply.like_count + 1 }
-                  : reply
-              )
-              return { ...comment, replies: updatedReplies }
-            }
-            return comment
-          }))
-        }
-      }
-    } catch (error) {
-      console.error('댓글 좋아요 처리 오류:', error)
-    }
-  }
+
 
   const startEdit = (comment: CommentWithProfile) => {
     setEditingCommentId(comment.id)
@@ -413,30 +368,6 @@ export default function CommentSection({
                   </p>
                   
                   <div className="flex items-center space-x-2">
-                    <button
-                      onClick={() => handleLikeComment(comment.id)}
-                      disabled={!currentUser}
-                      className={`flex items-center space-x-1 px-2 py-1 rounded text-xs font-medium transition-colors ${
-                        userCommentLikes.includes(comment.id)
-                          ? 'bg-red-100 text-red-700 dark:bg-red-900/20 dark:text-red-400'
-                          : 'bg-slate-100 text-slate-600 hover:bg-slate-200 dark:bg-slate-700 dark:text-slate-400 dark:hover:bg-slate-600'
-                      } ${!currentUser ? 'opacity-50 cursor-not-allowed' : ''}`}
-                    >
-                      <svg 
-                        className={`w-3 h-3 ${userCommentLikes.includes(comment.id) ? 'fill-current' : ''}`} 
-                        fill={userCommentLikes.includes(comment.id) ? 'currentColor' : 'none'} 
-                        stroke="currentColor" 
-                        viewBox="0 0 24 24"
-                      >
-                        <path 
-                          strokeLinecap="round" 
-                          strokeLinejoin="round" 
-                          strokeWidth={2} 
-                          d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" 
-                        />
-                      </svg>
-                      <span>{comment.like_count}</span>
-                    </button>
                     
                     {/* 답글 버튼 */}
                     {currentUser && (
@@ -586,32 +517,7 @@ export default function CommentSection({
                             {reply.content}
                           </p>
                           
-                          <div className="flex items-center space-x-2">
-                            <button
-                              onClick={() => handleLikeComment(reply.id)}
-                              disabled={!currentUser}
-                              className={`flex items-center space-x-1 px-2 py-1 rounded text-xs font-medium transition-colors ${
-                                userCommentLikes.includes(reply.id)
-                                  ? 'bg-red-100 text-red-700 dark:bg-red-900/20 dark:text-red-400'
-                                  : 'bg-slate-100 text-slate-600 hover:bg-slate-200 dark:bg-slate-700 dark:text-slate-400 dark:hover:bg-slate-600'
-                              } ${!currentUser ? 'opacity-50 cursor-not-allowed' : ''}`}
-                            >
-                              <svg 
-                                className={`w-3 h-3 ${userCommentLikes.includes(reply.id) ? 'fill-current' : ''}`} 
-                                fill={userCommentLikes.includes(reply.id) ? 'currentColor' : 'none'} 
-                                stroke="currentColor" 
-                                viewBox="0 0 24 24"
-                              >
-                                <path 
-                                  strokeLinecap="round" 
-                                  strokeLinejoin="round" 
-                                  strokeWidth={2} 
-                                  d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" 
-                                />
-                              </svg>
-                              <span>{reply.like_count}</span>
-                            </button>
-                          </div>
+
                         </>
                       )}
                     </div>

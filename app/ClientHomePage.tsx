@@ -11,7 +11,7 @@ interface PostWithDetails extends Post {
 }
 
 interface PostListProps {
-  sortBy: 'latest' | 'popular' | 'views'
+  sortBy: 'latest' | 'views'
 }
 
 function PostList({ sortBy }: PostListProps) {
@@ -155,12 +155,7 @@ function PostList({ sortBy }: PostListProps) {
                   <span>{new Date(post.created_at).toLocaleDateString()}</span>
                 </div>
                 <div className="flex items-center space-x-4">
-                  <span className="flex items-center space-x-1">
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
-                    </svg>
-                    <span>{post.like_count || 0}</span>
-                  </span>
+
                   <span className="flex items-center space-x-1">
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
@@ -185,7 +180,7 @@ function PostList({ sortBy }: PostListProps) {
 }
 
 export default function ClientHomePage() {
-  const [sortBy, setSortBy] = useState<'latest' | 'popular' | 'views'>('latest')
+  const [sortBy, setSortBy] = useState<'latest' | 'views'>('latest')
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800">
@@ -199,16 +194,6 @@ export default function ClientHomePage() {
               <p className="text-slate-600 dark:text-slate-400 mt-1">모든 게시판의 인기 게시물을 한눈에 확인하세요</p>
             </div>
             <div className="flex rounded-lg border border-slate-200 dark:border-slate-600 overflow-hidden">
-              <button
-                onClick={() => setSortBy('popular')}
-                className={`px-4 py-2 text-sm font-medium transition-colors duration-200 ${
-                  sortBy === 'popular'
-                    ? 'bg-blue-600 text-white'
-                    : 'bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700'
-                }`}
-              >
-                추천
-              </button>
               <button
                 onClick={() => setSortBy('views')}
                 className={`px-4 py-2 text-sm font-medium transition-colors duration-200 border-l border-slate-200 dark:border-slate-600 ${
