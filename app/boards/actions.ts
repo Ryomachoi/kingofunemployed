@@ -645,113 +645,9 @@ export async function deleteComment(commentId: string) {
   }
 }
 
-// 게시글 추천/추천 취소
-export async function togglePostLike(postId: string) {
-  const supabase = await createClient()
 
-  // 사용자 인증 확인
-  const { data: { user } } = await supabase.auth.getUser()
-  if (!user) {
-    return redirect(`/login?message=${encodeURIComponent('로그인이 필요합니다.')}`)
-  }
 
-  try {
-    // 기존 추천 확인
-    const { data: existingLike } = await supabase
-      .from('post_likes')
-      .select('id')
-      .eq('post_id', postId)
-      .eq('user_id', user.id)
-      .single()
 
-    if (existingLike) {
-      // 추천 취소
-      const { error } = await supabase
-        .from('post_likes')
-        .delete()
-        .eq('id', existingLike.id)
-
-      if (error) {
-        console.error('추천 취소 오류:', error)
-        return { error: '추천 취소에 실패했습니다.' }
-      }
-
-      return { success: true, liked: false }
-    } else {
-      // 추천 추가
-      const { error } = await supabase
-        .from('post_likes')
-        .insert({
-          post_id: postId,
-          user_id: user.id
-        })
-
-      if (error) {
-        console.error('추천 추가 오류:', error)
-        return { error: '추천에 실패했습니다.' }
-      }
-
-      return { success: true, liked: true }
-    }
-  } catch (error) {
-    console.error('게시글 추천 중 오류:', error)
-    return { error: '추천 처리 중 오류가 발생했습니다.' }
-  }
-}
-
-// 댓글 추천/추천 취소
-export async function toggleCommentLike(commentId: string) {
-  const supabase = await createClient()
-
-  // 사용자 인증 확인
-  const { data: { user } } = await supabase.auth.getUser()
-  if (!user) {
-    return redirect(`/login?message=${encodeURIComponent('로그인이 필요합니다.')}`)
-  }
-
-  try {
-    // 기존 추천 확인
-    const { data: existingLike } = await supabase
-      .from('comment_likes')
-      .select('id')
-      .eq('comment_id', commentId)
-      .eq('user_id', user.id)
-      .single()
-
-    if (existingLike) {
-      // 추천 취소
-      const { error } = await supabase
-        .from('comment_likes')
-        .delete()
-        .eq('id', existingLike.id)
-
-      if (error) {
-        console.error('댓글 추천 취소 오류:', error)
-        return { error: '추천 취소에 실패했습니다.' }
-      }
-
-      return { success: true, liked: false }
-    } else {
-      // 추천 추가
-      const { error } = await supabase
-        .from('comment_likes')
-        .insert({
-          comment_id: commentId,
-          user_id: user.id
-        })
-
-      if (error) {
-        console.error('댓글 추천 추가 오류:', error)
-        return { error: '추천에 실패했습니다.' }
-      }
-
-      return { success: true, liked: true }
-    }
-  } catch (error) {
-    console.error('댓글 추천 중 오류:', error)
-    return { error: '추천 처리 중 오류가 발생했습니다.' }
-  }
-}
 
 // 게시글 조회수 증가
 export async function incrementPostViewCount(postId: string) {
@@ -918,5 +814,93 @@ export async function getPostsByBoardId(
   } catch (error) {
     console.error('게시글 목록 조회 중 오류:', error)
     throw error
+  }
+}
+
+// 전체 게시판의 게시글 목록 조회 (메인화면용)
+export async function getAllPosts(
+  sortBy: 'latest' | 'views' = 'latest',
+  limit: number = 20
+) {
+  const supabase = await createClient()
+
+  try {
+    let query = supabase
+      .from('posts')
+      .select(`
+        id,
+        title,
+        content,
+        comment_count,
+        view_count,
+        created_at,
+        updated_at,
+        author_id,
+        board_id,
+        tags,
+        boards!inner(
+          id,
+          name,
+          logo_image_url,
+          logo_icon
+        )
+      `)
+      .eq('is_deleted', false)
+      .eq('boards.is_active', true)
+
+    // 정렬 조건 적용
+    switch (sortBy) {
+      case 'views':
+        query = query.order('view_count', { ascending: false })
+        break
+      case 'latest':
+      default:
+        query = query.order('created_at', { ascending: false })
+        break
+    }
+
+    // 제한 적용
+    query = query.limit(limit)
+
+    const { data: posts, error } = await query
+
+    if (error) {
+      console.error('전체 게시글 조회 오류:', error)
+      throw new Error('게시글을 불러올 수 없습니다.')
+    }
+
+    // 사용자 프로필 정보를 별도로 조회
+    const postsWithProfiles = await Promise.all(
+      (posts || []).map(async (post) => {
+        if (post.author_id) {
+          const { data: profile } = await supabase
+            .from('user_profiles')
+            .select('nickname, display_name')
+            .eq('id', post.author_id)
+            .single()
+          
+          return {
+            ...post,
+            user_profiles: profile
+          }
+        }
+        return {
+          ...post,
+          user_profiles: null
+        }
+      })
+    )
+
+    return {
+      posts: postsWithProfiles,
+      success: true
+    }
+  } catch (error) {
+    console.error('전체 게시글 목록 조회 중 오류:', error)
+    return {
+      posts: [],
+      success: false,
+      error: '게시글을 불러오는 중 오류가 발생했습니다.'
+    }
   }
 }

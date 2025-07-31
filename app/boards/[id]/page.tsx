@@ -13,7 +13,6 @@ interface Post {
   author_id: string
   created_at: string
   view_count: number
-  like_count: number
   comment_count: number
   tags?: string[]
   user_profiles?: {
@@ -44,7 +43,7 @@ export default function BoardPage() {
   const [loading, setLoading] = useState(true)
   const [searchQuery, setSearchQuery] = useState('')
   const [searchType, setSearchType] = useState<'title' | 'content' | 'tags'>('title')
-  const [sortBy, setSortBy] = useState<'latest' | 'popular'>('latest')
+  const [sortBy, setSortBy] = useState<'latest'>('latest')
   const [currentPage, setCurrentPage] = useState(1)
   const [totalPages, setTotalPages] = useState(1)
   const [resolvedParams, setResolvedParams] = useState<{ id: string } | null>(null)
@@ -122,13 +121,9 @@ export default function BoardPage() {
       })
     }
     
-    // 정렬
+    // 정렬 (최신순만)
     const sorted = [...filtered].sort((a, b) => {
-      if (sortBy === 'popular') {
-        return (b.like_count || 0) - (a.like_count || 0)
-      } else {
-        return new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
-      }
+      return new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
     })
     
     return sorted
@@ -226,29 +221,7 @@ export default function BoardPage() {
               {/* 검색 및 정렬 기능 */}
               <div className="p-6 border-b border-slate-200 dark:border-slate-700">
                 <div className="flex justify-between items-center gap-4">
-                  {/* 정렬 옵션 - 왼쪽 */}
-                  <div className="flex border border-slate-200 dark:border-slate-600 rounded-lg overflow-hidden">
-                    <button
-                      onClick={() => setSortBy('latest')}
-                      className={`px-4 py-2 text-sm font-medium transition-colors duration-200 ${
-                        sortBy === 'latest'
-                          ? 'bg-blue-600 text-white'
-                          : 'bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700'
-                      }`}
-                    >
-                      최신
-                    </button>
-                    <button
-                      onClick={() => setSortBy('popular')}
-                      className={`px-4 py-2 text-sm font-medium transition-colors duration-200 border-l border-slate-200 dark:border-slate-600 ${
-                        sortBy === 'popular'
-                          ? 'bg-blue-600 text-white'
-                          : 'bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700'
-                      }`}
-                    >
-                      인기
-                    </button>
-                  </div>
+
                   
                   {/* 검색 기능 - 중앙 */}
                   <form onSubmit={handleSearch} className="flex gap-4 items-center flex-1">
@@ -312,16 +285,6 @@ export default function BoardPage() {
                       <div className="p-6">
                         <div className="flex items-start justify-between">
                           <div className="flex items-start space-x-4">
-                            {/* 추천수 - 게시글 제목 앞에 큰 숫자로 표시 */}
-                            <div className="flex flex-col items-center justify-center min-w-[60px]">
-                              <div className="text-2xl font-bold text-red-500 dark:text-red-400">
-                                {post.like_count || 0}
-                              </div>
-                              <div className="text-xs text-slate-500 dark:text-slate-400 mt-1">
-                                추천
-                              </div>
-                            </div>
-                            
                             <div className="flex-1 min-w-0">
                               <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100 mb-2 truncate">
                                 {post.title}
@@ -396,7 +359,7 @@ export default function BoardPage() {
                               </div>
                             </div>
                             
-                            {/* 조회수와 댓글 개수 - 오른쪽 하단 */}
+                            {/* 조회수, 댓글 개수, 추천 수 - 오른쪽 하단 */}
                             <div className="flex items-center space-x-3 text-xs">
                               <div className="flex items-center bg-blue-50 dark:bg-blue-900/20 px-2 py-1 rounded-full">
                                 <svg className="w-4 h-4 mr-1 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -412,6 +375,8 @@ export default function BoardPage() {
                                 </svg>
                                 <span className="font-medium text-green-600 dark:text-green-400">{post.comment_count || 0}</span>
                               </div>
+                              
+
                             </div>
                           </div>
                         </div>

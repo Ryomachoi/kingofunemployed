@@ -1,8 +1,8 @@
 import { createClient } from '@/lib/supabase/server'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
-import PostActions from './PostActions'
 import CommentSection from './CommentSection'
+import DeleteButton from './DeleteButton'
 import { incrementPostViewCount } from '@/app/boards/actions'
 import type { PostWithProfile, CommentWithProfile } from '@/types/database'
 
@@ -25,7 +25,6 @@ export default async function PostDetailPage({ params }: PostDetailPageProps) {
       title,
       content,
       tags,
-      like_count,
       comment_count,
       view_count,
       created_at,
@@ -74,7 +73,6 @@ export default async function PostDetailPage({ params }: PostDetailPageProps) {
     .select(`
       id,
       content,
-      like_count,
       created_at,
       updated_at,
       author_id,
@@ -140,32 +138,7 @@ export default async function PostDetailPage({ params }: PostDetailPageProps) {
   // 사용자 인증 상태 확인
   const { data: { user } } = await supabase.auth.getUser()
 
-  // 사용자의 좋아요 상태 확인
-  let userPostLike = null
-  let userCommentLikes: string[] = []
-  
-  if (user) {
-    // 게시글 좋아요 상태
-    const { data: postLike } = await supabase
-      .from('post_likes')
-      .select('id')
-      .eq('post_id', resolvedParams.postId)
-      .eq('user_id', user.id)
-      .single()
-    
-    userPostLike = postLike
 
-    // 댓글 좋아요 상태
-    if (commentsWithProfiles && commentsWithProfiles.length > 0) {
-      const { data: commentLikes } = await supabase
-        .from('comment_likes')
-        .select('comment_id')
-        .eq('user_id', user.id)
-        .in('comment_id', commentsWithProfiles.map(c => c.id))
-      
-      userCommentLikes = commentLikes?.map(cl => cl.comment_id) || []
-    }
-  }
 
   return (
     <div className="container py-8">
@@ -242,11 +215,9 @@ export default async function PostDetailPage({ params }: PostDetailPageProps) {
                   >
                     수정
                   </Link>
-                  <PostActions 
+                  <DeleteButton 
                     postId={postWithProfile.id} 
-                    boardId={postWithProfile.board_id}
-                    isAuthor={true}
-                    showOnlyDelete={true}
+                    boardId={postWithProfile.board_id} 
                   />
                 </div>
               )}
@@ -276,17 +247,7 @@ export default async function PostDetailPage({ params }: PostDetailPageProps) {
             </div>
           )}
 
-          {/* 게시글 추천 버튼 (중앙) */}
-          <div className="flex justify-center pt-4 border-t border-slate-200 dark:border-slate-700">
-            <PostActions 
-              postId={postWithProfile.id} 
-              boardId={postWithProfile.board_id}
-              likeCount={postWithProfile.like_count}
-              isLiked={!!userPostLike}
-              isAuthor={user?.id === postWithProfile.author_id}
-              showOnlyLike={true}
-            />
-          </div>
+
         </article>
 
         {/* 댓글 섹션 */}
@@ -294,7 +255,6 @@ export default async function PostDetailPage({ params }: PostDetailPageProps) {
           postId={postWithProfile.id}
           boardId={postWithProfile.board_id}
           comments={commentsWithProfiles || []}
-          userCommentLikes={userCommentLikes}
           currentUser={user}
         />
       </div>

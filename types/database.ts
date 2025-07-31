@@ -12,7 +12,6 @@ export interface Post {
   id: string
   title: string
   content: string
-  like_count: number
   comment_count: number
   view_count: number
   created_at: string
@@ -29,7 +28,6 @@ export interface Post {
 export interface Comment {
   id: string
   content: string
-  like_count: number
   created_at: string
   updated_at: string
   author_id: string

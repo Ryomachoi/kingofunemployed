@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { useRouter } from 'next/navigation'
 
 interface ProfileEditorProps {
   userId: string
@@ -10,6 +11,7 @@ interface ProfileEditorProps {
 }
 
 export default function ProfileEditor({ userId, initialNickname, initialDisplayName, onUpdateProfile }: ProfileEditorProps) {
+  const router = useRouter()
   const [nickname, setNickname] = useState(initialNickname)
   const [isEditing, setIsEditing] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
@@ -29,8 +31,8 @@ export default function ProfileEditor({ userId, initialNickname, initialDisplayN
       if (result.success) {
         setMessage('닉네임이 성공적으로 업데이트되었습니다.')
         setIsEditing(false)
-        // 페이지 새로고침으로 변경사항 반영
-        window.location.reload()
+        // 서버 컴포넌트 새로고침으로 변경사항 반영
+        router.refresh()
       } else {
         setMessage(result.error || '업데이트 중 오류가 발생했습니다.')
       }

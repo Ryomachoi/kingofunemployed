@@ -28,7 +28,6 @@ export default async function MyPage() {
       id,
       title,
       created_at,
-      like_count,
       comment_count,
       boards(name)
     `)
@@ -44,7 +43,6 @@ export default async function MyPage() {
       id,
       content,
       created_at,
-      like_count,
       posts(id, title, boards(name))
     `)
     .eq('author_id', user.id)
@@ -94,7 +92,7 @@ export default async function MyPage() {
                       </p>
                     </div>
                     <div className="text-sm text-slate-500 dark:text-slate-400">
-                      👍 {post.like_count} • 💬 {post.comment_count}
+                      💬 {post.comment_count}
                     </div>
                   </div>
                 </div>
@@ -126,9 +124,7 @@ export default async function MyPage() {
                         {(comment.posts as any)?.boards?.name ?? '게시판'} • {(comment.posts as any)?.title ?? '게시글'} • {new Date(comment.created_at).toLocaleDateString()}
                       </p>
                     </div>
-                    <div className="text-sm text-slate-500 dark:text-slate-400">
-                      👍 {comment.like_count}
-                    </div>
+
                   </div>
                 </div>
               ))}

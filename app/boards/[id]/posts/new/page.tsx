@@ -6,13 +6,14 @@ import Link from 'next/link'
 import { createPost } from '@/app/boards/actions'
 
 interface NewPostPageProps {
-  params: {
+  params: Promise<{
     id: string
-  }
+  }>
 }
 
 export default function NewPostPage({ params }: NewPostPageProps) {
-  const { id } = params
+  const resolvedParams = use(params)
+  const { id } = resolvedParams
   const router = useRouter()
   const [title, setTitle] = useState('')
   const [content, setContent] = useState('')
@@ -34,7 +35,7 @@ export default function NewPostPage({ params }: NewPostPageProps) {
 
     try {
       const formData = new FormData()
-      formData.append('boardId', params.id)
+      formData.append('boardId', resolvedParams.id)
       formData.append('title', title.trim())
       formData.append('content', content.trim())
       formData.append('tags', JSON.stringify(tags))

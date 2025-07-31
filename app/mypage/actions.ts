@@ -1,6 +1,7 @@
 'use server'
 
 import { createClient } from '@/lib/supabase/server'
+import { revalidatePath } from 'next/cache'
 
 export async function updateProfile(formData: FormData) {
   const supabase = await createClient()
@@ -57,6 +58,11 @@ export async function updateProfile(formData: FormData) {
       console.error('Profile update error:', updateError)
       return { success: false, error: '프로필 업데이트에 실패했습니다.' }
     }
+
+    // 프로필 변경사항을 즉시 반영하기 위한 revalidation
+    revalidatePath('/mypage')
+    revalidatePath('/layout')
+    revalidatePath('/', 'layout')
 
     return { success: true }
   } catch (error) {
