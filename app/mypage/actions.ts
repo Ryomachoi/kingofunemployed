@@ -40,22 +40,27 @@ export async function updateProfile(formData: FormData) {
       }
     }
 
-    // 프로필 업데이트
-    const updateData: {
-      nickname: string | null
-      updated_at: string
-    } = {
+    // 프로필 업데이트 또는 생성 (upsert 사용)
+    const upsertData = {
+      id: user.id,
       nickname: nickname || null, // 빈 문자열인 경우 null로 저장
+      display_name: user.user_metadata?.full_name || 
+                   user.user_metadata?.name || 
+                   user.user_metadata?.nickname ||
+                   user.id.substring(0, 8),
+      created_at: new Date().toISOString(),
       updated_at: new Date().toISOString()
     }
 
-    const { error: updateError } = await supabase
+    const { error: upsertError } = await supabase
       .from('user_profiles')
-      .update(updateData)
-      .eq('id', user.id)
+      .upsert(upsertData, {
+        onConflict: 'id',
+        ignoreDuplicates: false
+      })
 
-    if (updateError) {
-      console.error('Profile update error:', updateError)
+    if (upsertError) {
+      console.error('Profile upsert error:', upsertError)
       return { success: false, error: '프로필 업데이트에 실패했습니다.' }
     }
 
