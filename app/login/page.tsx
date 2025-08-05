@@ -85,32 +85,33 @@ export default function LoginPage({ searchParams }: { searchParams: { message: s
         </div>
         <div className="card p-8">
           {/* 소셜 로그인 섹션 */}
-          <div className="space-y-4 mb-6">
+          <div className="space-y-4">
             <KakaoLoginButton />
             <NaverLoginButton />
-            <div className="relative">
+          </div>
+
+          {/* 기존 이메일/비밀번호 로그인 - 숨김 처리 */}
+          <div className="hidden">
+            <div className="relative mb-6">
               <div className="absolute inset-0 flex items-center">
                 <div className="w-full border-t border-gray-300"></div>
               </div>
               <div className="relative flex justify-center text-sm">
-                <span className="px-2 bg-white text-gray-500">또는</span>
+                <span className="px-2 bg-white text-gray-500">이메일 로그인 (비활성화)</span>
               </div>
             </div>
+            <form className="space-y-6">
+              <div>
+                <label htmlFor="email" className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">이메일</label>
+                <input id="email" name="email" type="email" disabled className="input" placeholder="your@email.com" />
+              </div>
+              <div>
+                <label htmlFor="password" className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">비밀번호</label>
+                <input id="password" name="password" type="password" disabled className="input" placeholder="••••••••" />
+              </div>
+              <button disabled className="btn btn-primary w-full cursor-not-allowed">이메일로 로그인</button>
+            </form>
           </div>
-
-          {/* 기존 이메일/비밀번호 로그인 */}
-          <form className="space-y-6">
-            <div>
-              <label htmlFor="email" className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">이메일</label>
-              <input id="email" name="email" type="email" required className="input" placeholder="your@email.com" />
-            </div>
-            <div>
-              <label htmlFor="password" className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">비밀번호</label>
-              <input id="password" name="password" type="password" required className="input" placeholder="••••••••" />
-            </div>
-            <button formAction={login} className="btn btn-primary w-full">이메일로 로그인</button>
-            <a href="/signup" className="btn btn-secondary w-full mt-2">회원가입</a>
-          </form>
         </div>
       </div>
     </div>
