@@ -1,7 +1,7 @@
 'use client'
 
 import { login } from './actions'
-import { signInWithKakao } from '@/lib/auth-helpers'
+import { signInWithKakao, signInWithNaver } from '@/lib/auth-helpers'
 import { useState } from 'react'
 
 // 카카오 로그인 버튼 컴포넌트
@@ -40,6 +40,42 @@ function KakaoLoginButton() {
   )
 }
 
+// 네이버 로그인 버튼 컴포넌트
+function NaverLoginButton() {
+  const [isLoading, setIsLoading] = useState(false)
+
+  const handleNaverLogin = async () => {
+    try {
+      setIsLoading(true)
+      await signInWithNaver()
+    } catch (error) {
+      console.error('네이버 로그인 실패:', error)
+      alert('네이버 로그인에 실패했습니다. 다시 시도해주세요.')
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  return (
+    <button
+      onClick={handleNaverLogin}
+      disabled={isLoading}
+      className="w-full flex items-center justify-center px-4 py-3 border border-transparent rounded-md shadow-sm bg-green-500 hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+    >
+      {isLoading ? (
+        <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+      ) : (
+        <>
+          <svg className="w-5 h-5 mr-2" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M16.273 12.845 7.376 0H0v24h7.726V11.156L16.624 24H24V0h-7.727v12.845Z" fill="white"/>
+          </svg>
+          <span className="text-white font-medium">네이버로 로그인</span>
+        </>
+      )}
+    </button>
+  )
+}
+
 export default function LoginPage({ searchParams }: { searchParams: { message: string } }) {
   return (
     <div className="min-h-screen flex items-center justify-center py-12 px-4">
@@ -48,9 +84,10 @@ export default function LoginPage({ searchParams }: { searchParams: { message: s
           <h2 className="text-2xl font-bold text-slate-900 dark:text-slate-100">로그인</h2>
         </div>
         <div className="card p-8">
-          {/* 카카오 로그인 섹션 */}
+          {/* 소셜 로그인 섹션 */}
           <div className="space-y-4 mb-6">
             <KakaoLoginButton />
+            <NaverLoginButton />
             <div className="relative">
               <div className="absolute inset-0 flex items-center">
                 <div className="w-full border-t border-gray-300"></div>

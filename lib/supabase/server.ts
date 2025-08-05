@@ -1,4 +1,5 @@
 import { createServerClient } from '@supabase/ssr'
+import { createClient as createSupabaseClient } from '@supabase/supabase-js'
 import { cookies } from 'next/headers'
 import { type CookieOptions } from '@supabase/ssr'
 
@@ -28,6 +29,20 @@ export async function createClient() {
           }
         },
       },
+    }
+  )
+}
+
+// 관리자 권한을 가진 Supabase 클라이언트 생성
+export function createAdminClient() {
+  return createSupabaseClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!,
+    {
+      auth: {
+        autoRefreshToken: false,
+        persistSession: false
+      }
     }
   )
 }

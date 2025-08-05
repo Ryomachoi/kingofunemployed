@@ -27,6 +27,19 @@ export async function signInWithKakao() {
 }
 
 /**
+ * 네이버 OAuth 로그인 시작
+ */
+export async function signInWithNaver() {
+  try {
+    // 네이버 OAuth API 라우트로 리다이렉트
+    window.location.href = '/api/auth/naver'
+  } catch (error) {
+    console.error('네이버 로그인 오류:', error)
+    throw error
+  }
+}
+
+/**
  * 현재 사용자 세션 확인
  */
 export async function getCurrentUser() {
