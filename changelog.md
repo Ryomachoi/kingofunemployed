@@ -21,3 +21,5 @@ Changelog 버전 기록
 2025-07-21 board/feature06 게시판 기능 다듬기 및 프론트 수정
 
 2025-07-29 mainboard/feature01 메인화면 기능 추가
+
+2025-07-31 login/feature01 로그인 방법 추가

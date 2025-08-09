@@ -1,8 +1,9 @@
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import ProfileEditor from './ProfileEditor'
-import { updateProfile } from './actions'
+import { updateProfile, deleteAccount } from './actions'
 import type { UserProfile } from '@/types/database'
+import DeleteAccountButton from './DeleteAccountButton'
 
 export default async function MyPage() {
   const supabase = await createClient()
@@ -105,7 +106,7 @@ export default async function MyPage() {
       </section>
 
       {/* 내 댓글 관리 */}
-      <section>
+      <section className="mb-10">
         <h2 className="text-lg font-semibold mb-4">내 댓글 관리</h2>
         <div className="rounded border p-4 bg-white dark:bg-slate-900">
           {comments && comments.length > 0 ? (
@@ -132,6 +133,23 @@ export default async function MyPage() {
           ) : (
             <p className="text-slate-500">작성한 댓글이 없습니다.</p>
           )}
+        </div>
+      </section>
+
+      {/* 회원탈퇴 섹션 */}
+      <section>
+        <h2 className="text-lg font-semibold mb-4 text-red-600 dark:text-red-400">회원탈퇴</h2>
+        <div className="rounded border border-red-200 dark:border-red-800 p-6 bg-red-50 dark:bg-red-950">
+          <div className="mb-4">
+            <h3 className="font-medium text-red-800 dark:text-red-200 mb-2">회원탈퇴 시 주의사항</h3>
+            <ul className="text-sm text-red-700 dark:text-red-300 space-y-1">
+              <li>• 작성한 모든 게시글과 댓글이 삭제됩니다.</li>
+              <li>• 프로필 정보가 완전히 삭제됩니다.</li>
+              <li>• 탈퇴 후에는 동일한 계정으로 재가입이 어려울 수 있습니다.</li>
+              <li>• 이 작업은 되돌릴 수 없습니다.</li>
+            </ul>
+          </div>
+          <DeleteAccountButton onDeleteAccount={deleteAccount} />
         </div>
       </section>
     </div>
