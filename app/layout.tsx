@@ -50,7 +50,7 @@ export default async function RootLayout({
               <Link href="/boards" className="text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-slate-100 transition-colors">
                 게시판
               </Link>
-              <Link href="/interviews" className="text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-slate-100 transition-colors">
+              <Link href="/interview" className="text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-slate-100 transition-colors">
                 면접
               </Link>
               <Link href="/jobs" className="text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-slate-100 transition-colors">
