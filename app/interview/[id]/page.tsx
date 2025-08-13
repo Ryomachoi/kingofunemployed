@@ -3,7 +3,22 @@ import { notFound } from 'next/navigation'
 
 export default async function InterviewDetailPage({ params }: { params: { id: string } }) {
   const supabase = await createClient()
-  const { data: interview } = await supabase.from('interviews').select('*').eq('id', params.id).single()
+  const { data: interview } = await supabase
+    .from('interviews')
+    .select('*')
+    .eq('id', params.id)
+    .single()
+
+  // 사용자 프로필 정보를 별도로 조회
+  let userProfile = null
+  if (interview?.user_id) {
+    const { data: profile } = await supabase
+      .from('user_profiles')
+      .select('nickname, display_name')
+      .eq('user_id', interview.user_id)
+      .single()
+    userProfile = profile
+  }
   if (!interview) return notFound()
   return (
     <div className="container py-10 max-w-2xl mx-auto">
@@ -32,7 +47,16 @@ export default async function InterviewDetailPage({ params }: { params: { id: st
           </span>
           <span className="text-xs text-slate-500">{interview.interview_date}</span>
         </div>
-        <div className="text-sm text-slate-500 mb-1">작성자: {interview.user_id}</div>
+        <div className="flex items-center text-sm text-slate-500 mb-1">
+          <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+          </svg>
+          작성자: {interview.user_id ? (
+            userProfile?.nickname || 
+            userProfile?.display_name || 
+            interview.user_id.substring(0, 8)
+          ) : '익명'}
+        </div>
       </div>
       <div className="prose dark:prose-invert mb-8">
         {interview.content}
