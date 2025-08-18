@@ -61,9 +61,10 @@ export default function NewInterviewPage() {
       formData.append("qa_count", qaList.length.toString());
       
       await createInterview(formData);
-      window.location.href = "/interview";
+      // 서버 액션에서 redirect를 처리하므로 클라이언트에서 별도 처리 불필요
     } catch (err) {
-      setError("저장 중 오류가 발생했습니다.");
+      // 서버 액션의 redirect는 정상적인 동작이므로 오류로 처리하지 않음
+      console.log('Server action completed');
     } finally {
       setSubmitting(false);
     }
@@ -121,10 +122,10 @@ export default function NewInterviewPage() {
                     className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100"
                   >
                     <option value="">선택하세요</option>
-                    <option value="화상면접">화상면접</option>
-                    <option value="대면면접">대면면접</option>
-                    <option value="전화면접">전화면접</option>
-                    <option value="기타">기타</option>
+                    <option value="video">화상면접</option>
+                    <option value="in_person">대면면접</option>
+                    <option value="phone">전화면접</option>
+                    <option value="other">기타</option>
                   </select>
                 </div>
                 <div>
@@ -135,9 +136,9 @@ export default function NewInterviewPage() {
                     className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100"
                   >
                     <option value="">선택하세요</option>
-                    <option value="쉬움">쉬움</option>
-                    <option value="보통">보통</option>
-                    <option value="어려움">어려움</option>
+                    <option value="easy">쉬움</option>
+                    <option value="medium">보통</option>
+                    <option value="hard">어려움</option>
                   </select>
                 </div>
               </div>

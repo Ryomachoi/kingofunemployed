@@ -30,7 +30,7 @@ export async function createInterview(formData: FormData) {
     interview_date: formData.get('interview_date') as string,
     interview_type: formData.get('interview_type') as string,
     questions_and_answers: JSON.stringify(qaList), // JSON 문자열로 저장
-    difficulty_level: formData.get('difficulty_level') as string || null,
+    difficulty_level: (formData.get('difficulty') as string)?.trim() || null,
     result: formData.get('result') as string || null,
     overall_rating: formData.get('overall_rating') ? parseInt(formData.get('overall_rating') as string) : null,
     feedback_and_tips: formData.get('feedback_and_tips') as string || null,
@@ -45,5 +45,5 @@ export async function createInterview(formData: FormData) {
     console.error('Error creating interview:', error)
     return redirect(`/interview/new?message=${encodeURIComponent('면접 복기 작성 중 오류가 발생했습니다.')}`)
   }
-  return redirect(`/interview?message=${encodeURIComponent('면접 복기가 성공적으로 작성되었습니다!')}`)
+  return redirect(`/interview/community?message=${encodeURIComponent('면접 복기가 성공적으로 작성되었습니다!')}`)
 }
