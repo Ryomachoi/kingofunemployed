@@ -42,24 +42,13 @@ export default async function InterviewCommunityPage() {
       <div className="sticky top-0 z-50 backdrop-blur-xl bg-white/80 dark:bg-slate-900/80 border-b border-slate-200/50 dark:border-slate-800/50">
         <div className="max-w-6xl mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-6">
-              <Link 
-                href="/interview"
-                className="flex items-center text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 transition-all duration-200 group"
-              >
-                <svg className="w-5 h-5 mr-2 transform group-hover:-translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-                </svg>
-                메인으로
-              </Link>
-              <div>
-                <h1 className="text-2xl font-bold bg-gradient-to-r from-slate-900 to-slate-700 dark:from-slate-100 dark:to-slate-300 bg-clip-text text-transparent">
-                  💼 면접 후기
-                </h1>
-                <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
-                  실제 면접 경험을 공유하고 배워보세요
-                </p>
-              </div>
+            <div>
+              <h1 className="text-2xl font-bold bg-gradient-to-r from-slate-900 to-slate-700 dark:from-slate-100 dark:to-slate-300 bg-clip-text text-transparent">
+                💼 면접 후기
+              </h1>
+              <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
+                실제 면접 경험을 공유하고 배워보세요
+              </p>
             </div>
             
             {user && (
@@ -134,14 +123,11 @@ export default async function InterviewCommunityPage() {
                     <div className="flex items-start justify-between mb-4">
                       <div className="flex-1">
                         <div className="flex items-center gap-3 mb-2">
-                          <div className="flex items-center gap-2">
-                            <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg flex items-center justify-center text-white font-bold text-sm">
-                              {interview.company_name.charAt(0)}
+                            <div className="flex items-center gap-2">
+                              <h3 className="text-lg font-bold text-slate-900 dark:text-slate-100 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
+                                {interview.company_name}
+                              </h3>
                             </div>
-                            <h3 className="text-lg font-bold text-slate-900 dark:text-slate-100 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
-                              {interview.company_name}
-                            </h3>
-                          </div>
                           <div className="flex items-center gap-2">
                             <span className="px-3 py-1 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 text-sm rounded-full font-medium">
                               {interview.position}
@@ -158,30 +144,45 @@ export default async function InterviewCommunityPage() {
                         </div>
                         
                         <div className="flex items-center gap-4 text-sm mb-3">
-                          <span className="flex items-center gap-2 text-slate-600 dark:text-slate-400">
-                            <div className={`w-2 h-2 rounded-full ${
-                              interview.interview_type === 'technical' ? 'bg-blue-500' :
-                              interview.interview_type === 'behavioral' ? 'bg-green-500' :
-                              interview.interview_type === 'case_study' ? 'bg-purple-500' :
-                              interview.interview_type === 'presentation' ? 'bg-orange-500' : 'bg-slate-400'
-                            }`}></div>
-                            {interview.interview_type === 'technical' ? '💻 기술면접' : 
-                             interview.interview_type === 'behavioral' ? '🤝 인성면접' : 
-                             interview.interview_type === 'case_study' ? '📊 케이스 스터디' : 
-                             interview.interview_type === 'presentation' ? '🎯 발표면접' : '📝 기타'}
-                          </span>
-                          
-                          <span className={`flex items-center gap-1 px-2 py-1 rounded-lg text-xs font-semibold ${
-                            interview.difficulty_level === 'easy' ? 'bg-emerald-50 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300' :
-                            interview.difficulty_level === 'medium' ? 'bg-amber-50 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300' :
-                            interview.difficulty_level === 'hard' ? 'bg-red-50 text-red-700 dark:bg-red-900/30 dark:text-red-300' :
-                            'bg-slate-50 text-slate-700 dark:bg-slate-800 dark:text-slate-300'
-                          }`}>
-                            {interview.difficulty_level === 'easy' ? '🟢 쉬움' :
-                             interview.difficulty_level === 'medium' ? '🟡 보통' :
-                             interview.difficulty_level === 'hard' ? '🔴 어려움' : '⚪ 미설정'}
-                          </span>
-                        </div>
+                           <span className="flex items-center gap-2 text-slate-600 dark:text-slate-400">
+                             <div className={`w-2 h-2 rounded-full ${
+                               interview.interview_type === 'technical' ? 'bg-blue-500' :
+                               interview.interview_type === 'behavioral' ? 'bg-green-500' :
+                               interview.interview_type === 'case_study' ? 'bg-purple-500' :
+                               interview.interview_type === 'presentation' ? 'bg-orange-500' :
+                               interview.interview_type === 'video' ? 'bg-blue-500' :
+                               interview.interview_type === 'in_person' ? 'bg-green-500' :
+                               interview.interview_type === 'phone' ? 'bg-purple-500' : 'bg-slate-400'
+                             }`}></div>
+                             {interview.interview_type === 'technical' ? '💻 기술면접' : 
+                              interview.interview_type === 'behavioral' ? '🤝 인성면접' : 
+                              interview.interview_type === 'case_study' ? '📊 케이스 스터디' : 
+                              interview.interview_type === 'presentation' ? '🎯 발표면접' :
+                              interview.interview_type === 'video' ? '💻 화상면접' :
+                              interview.interview_type === 'in_person' ? '🏢 대면면접' :
+                              interview.interview_type === 'phone' ? '📞 전화면접' : '📝 기타'}
+                           </span>
+                           
+                           <span className={`flex items-center gap-1 px-2 py-1 rounded-lg text-xs font-semibold ${
+                             interview.difficulty_level === 'easy' ? 'bg-emerald-50 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300' :
+                             interview.difficulty_level === 'medium' ? 'bg-amber-50 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300' :
+                             interview.difficulty_level === 'hard' ? 'bg-red-50 text-red-700 dark:bg-red-900/30 dark:text-red-300' :
+                             'bg-slate-50 text-slate-700 dark:bg-slate-800 dark:text-slate-300'
+                           }`}>
+                             {interview.difficulty_level === 'easy' ? '🟢 쉬움' :
+                              interview.difficulty_level === 'medium' ? '🟡 보통' :
+                              interview.difficulty_level === 'hard' ? '🔴 어려움' : '⚪ 미설정'}
+                           </span>
+                           
+                           {interview.interview_date && (
+                             <span className="flex items-center gap-1.5 text-slate-500 dark:text-slate-400">
+                               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                               </svg>
+                               면접일: {new Date(interview.interview_date).toLocaleDateString('ko-KR')}
+                             </span>
+                           )}
+                         </div>
                       </div>
                     </div>
                   
@@ -260,7 +261,7 @@ export default async function InterviewCommunityPage() {
                         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                         </svg>
-                        {new Date(interview.created_at).toLocaleDateString('ko-KR')}
+                        작성일: {new Date(interview.created_at).toLocaleDateString('ko-KR')}
                       </span>
                       
                       <div className="flex items-center gap-1 text-slate-400 dark:text-slate-500 group-hover:text-blue-500 dark:group-hover:text-blue-400 transition-colors">

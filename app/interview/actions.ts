@@ -13,6 +13,14 @@ export async function createInterview(formData: FormData) {
     return redirect(`/login?message=${encodeURIComponent('로그인이 필요합니다.')}`)
   }
   
+  const company_name = formData.get('company_name') as string;
+  const position = formData.get('position') as string;
+  const interview_date = formData.get('interview_date') as string;
+  const interview_type = formData.get('interview_type') as string;
+  const difficulty = formData.get('difficulty') as string;
+  const result = formData.get('result') as string;
+  const overall_rating = formData.get('overall_rating') as string;
+  const feedback_and_tips = formData.get('feedback_and_tips') as string;
   const qaCount = Number(formData.get('qa_count')) || 2
   let qaList = [];
   for (let i = 1; i <= qaCount; i++) {
@@ -25,15 +33,15 @@ export async function createInterview(formData: FormData) {
 
   const interviewData = {
     user_id: user.id,
-    company_name: formData.get('company_name') as string,
-    position: formData.get('position') as string,
-    interview_date: formData.get('interview_date') as string,
-    interview_type: formData.get('interview_type') as string,
+    company_name,
+    position,
+    interview_date,
+    interview_type,
     questions_and_answers: JSON.stringify(qaList), // JSON 문자열로 저장
-    difficulty_level: (formData.get('difficulty') as string)?.trim() || null,
-    result: formData.get('result') as string || null,
-    overall_rating: formData.get('overall_rating') ? parseInt(formData.get('overall_rating') as string) : null,
-    feedback_and_tips: formData.get('feedback_and_tips') as string || null,
+    difficulty_level: difficulty?.trim() || null,
+    result: result || null,
+    overall_rating: overall_rating ? parseInt(overall_rating) : null,
+    feedback_and_tips: feedback_and_tips || null,
     // created_at 제거 - Supabase에서 자동으로 처리
   }
   
