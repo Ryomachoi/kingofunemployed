@@ -26,4 +26,5 @@ Changelog 버전 기록
 
 2025-08-12 login/feature02 로그인 기능 수정 및 디자인
            interview/main01 면접복기 메인화면 추가
+           interview/board01 면접 커뮤니티 추가
            

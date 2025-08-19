@@ -1,6 +1,9 @@
 import Link from 'next/link'
+import { createClient } from '@/lib/supabase/server'
 
-export default function InterviewPage() {
+export default async function InterviewPage() {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800">
       <div className="container mx-auto px-4 py-16">
@@ -69,7 +72,7 @@ export default function InterviewPage() {
               </svg>
             </div>
             <h2 className="text-2xl font-bold text-slate-900 dark:text-slate-100 mb-4">
-              커뮤니티 보기
+              면접 후기
             </h2>
             <p className="text-slate-600 dark:text-slate-400 mb-6">
               다른 사람들의 면접 경험과 AI 피드백을 살펴보고, 유용한 팁과 노하우를 얻어보세요.
@@ -94,9 +97,18 @@ export default function InterviewPage() {
                 좋아요 & 북마크
               </div>
             </div>
-            <button className="w-full bg-gradient-to-r from-blue-500 to-blue-600 text-white font-semibold py-3 px-6 rounded-xl hover:from-blue-600 hover:to-blue-700 transition-all duration-200 transform hover:scale-105">
-              커뮤니티 보기
-            </button>
+            <div className="flex gap-3">
+              <Link href={user ? "/interview/new" : "/login"} className="flex-1">
+                <button className="w-full bg-gradient-to-r from-green-500 to-green-600 text-white font-semibold py-3 px-6 rounded-xl hover:from-green-600 hover:to-green-700 transition-all duration-200 transform hover:scale-105">
+                    면접 후기 작성
+                  </button>
+              </Link>
+              <Link href="/interview/community" className="flex-1">
+                <button className="w-full bg-gradient-to-r from-blue-500 to-blue-600 text-white font-semibold py-3 px-6 rounded-xl hover:from-blue-600 hover:to-blue-700 transition-all duration-200 transform hover:scale-105">
+                  면접 후기 보기
+                </button>
+              </Link>
+            </div>
           </div>
         </div>
       </div>
