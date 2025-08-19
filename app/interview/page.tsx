@@ -54,9 +54,11 @@ export default function InterviewPage() {
                 구조화된 피드백
               </div>
             </div>
-            <button className="w-full bg-gradient-to-r from-purple-500 to-purple-600 text-white font-semibold py-3 px-6 rounded-xl hover:from-purple-600 hover:to-purple-700 transition-all duration-200 transform hover:scale-105">
-              AI 피드백 받기
-            </button>
+            <Link href="/interview/analyze">
+              <button className="w-full bg-gradient-to-r from-purple-500 to-purple-600 text-white font-semibold py-3 px-6 rounded-xl hover:from-purple-600 hover:to-purple-700 transition-all duration-200 transform hover:scale-105">
+                AI 피드백 받기
+              </button>
+            </Link>
           </div>
 
           {/* 커뮤니티 보기 Card */}
