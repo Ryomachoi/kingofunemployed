@@ -30,4 +30,5 @@ Changelog 버전 기록
 
 2025-08-15 interview/analyze01 AI 면접 분석 기능 추가, OpenAI API 연동 분석 결과 UI 구현        
 
+2025-08-22 interview/board02 면접 후기 게시판 면접 결과 반영 수정
            
