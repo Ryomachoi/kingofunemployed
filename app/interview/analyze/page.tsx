@@ -62,7 +62,8 @@ export default function InterviewAnalyzePage() {
           parseError: data.parseError
         });
         
-        if (result.data.metadata?.hasParseError || data.parseError) {
+        // 파싱 에러 체크 로직 수정
+        if (data.parseError || !data.total_score || !data.areas || !data.general_advice) {
           // JSON 파싱 실패 시 - 원본 텍스트 표시
           const completeAnalysisResult = {
             rawAnalysis: data.rawAnalysis || data.message || '분석 결과를 받지 못했습니다.',
