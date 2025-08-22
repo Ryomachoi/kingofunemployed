@@ -30,4 +30,5 @@ Changelog 버전 기록
 
 2025-08-15 interview/analyze01 AI 면접 분석 기능 추가, OpenAI API 연동 분석 결과 UI 구현        
 
-           
+2025-08-22 mypage/feature01 마이페이지 댓글 조회 기능 추가 및 프론트 수정
+            
