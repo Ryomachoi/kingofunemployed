@@ -57,13 +57,8 @@ export default function ProfileEditor({ userId, initialNickname, initialDisplayN
           <div className="flex items-center justify-between">
             <div>
               <p className="text-slate-800 dark:text-slate-200 font-medium">
-                {displayName}
+                닉네임: {nickname || '설정되지 않음'}
               </p>
-              {!nickname && (
-                <p className="text-sm text-slate-500 dark:text-slate-400">
-                  닉네임을 설정하지 않았습니다. (기본값: {initialDisplayName})
-                </p>
-              )}
             </div>
             <button
               onClick={() => setIsEditing(true)}

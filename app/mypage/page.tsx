@@ -16,11 +16,11 @@ export default async function MyPage() {
   // 프로필 정보 가져오기
   const { data: profile } = await supabase
     .from('user_profiles')
-    .select('user_id, nickname, display_name, created_at, updated_at')
-    .eq('user_id', user.id)
+    .select('id, nickname, display_name, created_at, updated_at')
+    .eq('id', user.id)
     .single()
 
-  // 최근 게시글 가져오기
+  // 최근 게시글 가져오기 (게시판에서만)
   const { data: posts } = await supabase
     .from('posts')
     .select(`
@@ -29,20 +29,23 @@ export default async function MyPage() {
       comment_count:comments(count)
     `)
     .eq('author_id', user.id)
+    .not('board_id', 'is', null)
     .order('created_at', { ascending: false })
     .limit(10)
 
-  // 최근 댓글 가져오기
+  // 최근 댓글 가져오기 (게시판에서만)
   const { data: comments } = await supabase
     .from('comments')
     .select(`
       *,
-      posts(
+      posts!inner(
         title,
+        board_id,
         boards(name)
       )
     `)
     .eq('author_id', user.id)
+    .not('posts.board_id', 'is', null)
     .order('created_at', { ascending: false })
     .limit(10)
 

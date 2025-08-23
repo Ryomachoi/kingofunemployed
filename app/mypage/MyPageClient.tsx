@@ -19,8 +19,7 @@ export default function MyPageClient({ user, profile, posts, comments }: MyPageP
 
   const stats = {
     posts: posts?.length || 0,
-    comments: comments?.length || 0,
-    likes: 892 // 임시 데이터
+    comments: comments?.length || 0
   }
 
   return (
@@ -38,7 +37,7 @@ export default function MyPageClient({ user, profile, posts, comments }: MyPageP
                 </span>
               </div>
               <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-1">
-                {profile?.nickname || profile?.display_name || user.email.split('@')[0]}
+                {profile?.display_name || user.email.split('@')[0]}
               </h2>
               <p className="text-gray-500 dark:text-gray-400 text-sm mb-4">
                 {user.email}
@@ -58,10 +57,7 @@ export default function MyPageClient({ user, profile, posts, comments }: MyPageP
                 <div className="text-2xl font-bold text-gray-900 dark:text-white">{stats.comments}</div>
                 <div className="text-sm text-gray-500 dark:text-gray-400">댓글</div>
               </div>
-              <div className="text-center">
-                <div className="text-2xl font-bold text-gray-900 dark:text-white">{stats.likes}</div>
-                <div className="text-sm text-gray-500 dark:text-gray-400">좋아요</div>
-              </div>
+
             </div>
             
             <button className="w-full mt-6 bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg transition-colors">
@@ -155,7 +151,7 @@ export default function MyPageClient({ user, profile, posts, comments }: MyPageP
                       이름
                     </label>
                     <p className="text-xl text-gray-900 dark:text-white font-semibold">
-                      {profile?.nickname || profile?.display_name || user.email.split('@')[0]}
+                      {profile?.display_name || user.email.split('@')[0]}
                     </p>
                   </div>
                   
@@ -192,17 +188,14 @@ export default function MyPageClient({ user, profile, posts, comments }: MyPageP
 
           {activeTab === 'posts' && (
             <div className="max-w-4xl">
-              <div className="flex justify-between items-center mb-8">
+              <div className="mb-8">
                 <h1 className="text-2xl font-bold text-gray-900 dark:text-white">작성한 게시물</h1>
-                <Link href="/interview/new" className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium transition-colors">
-                  새 게시물 작성
-                </Link>
               </div>
               
               <div className="space-y-4">
                 {posts && posts.length > 0 ? (
                   posts.map((post) => (
-                    <div key={post.id} className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6 hover:shadow-md transition-shadow">
+                    <Link key={post.id} href={`/board/${post.board_id}/post/${post.id}`} className="block bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6 hover:shadow-md transition-shadow cursor-pointer">
                       <div className="flex justify-between items-start mb-4">
                         <div className="flex-1">
                           <div className="flex items-center gap-2 mb-2">
@@ -235,16 +228,13 @@ export default function MyPageClient({ user, profile, posts, comments }: MyPageP
                           </span>
                         </div>
                       </div>
-                    </div>
+                    </Link>
                   ))
                 ) : (
                   <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-12 text-center">
                     <div className="text-6xl mb-4">📝</div>
                     <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">작성한 게시물이 없습니다</h3>
-                    <p className="text-gray-500 dark:text-gray-400 mb-6">첫 번째 게시물을 작성해보세요!</p>
-                    <Link href="/interview/new" className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-medium transition-colors">
-                      게시물 작성하기
-                    </Link>
+                    <p className="text-gray-500 dark:text-gray-400">아직 작성한 게시물이 없습니다.</p>
                   </div>
                 )}
               </div>
