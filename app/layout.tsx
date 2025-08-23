@@ -53,9 +53,6 @@ export default async function RootLayout({
               <Link href="/interview" className="text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-slate-100 transition-colors">
                 AI 면접복기
               </Link>
-              <Link href="/jobs" className="text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-slate-100 transition-colors">
-                채용정보
-              </Link>
               <Link href="/mypage" className="text-slate-600 hover:text-slate-900 dark:text-slate-300 dark:hover:text-slate-100 transition-colors">
                 마이페이지
               </Link>
