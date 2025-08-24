@@ -40,9 +40,35 @@ export default function InterviewAnalyzePage() {
     setIsAnalyzing(true);
     setAnalysisResult(null);
     setError(null);
+    
     try {
+      // 구조화된 모드일 때 qnaPairs를 문자열로 변환
+      let contentToSend = interviewContent;
+      
+      if (isStructuredMode) {
+        contentToSend = qnaPairs
+          .filter(pair => pair.question.trim() || pair.answer.trim())
+          .map((pair, index) => {
+            return `질문 ${index + 1}: ${pair.question}\n답변 ${index + 1}: ${pair.answer}`;
+          })
+          .join('\n\n');
+      }
+
+      // 공백/줄바꿈 정규화 및 길이 검증 추가
+      const normalized = (contentToSend || '').replace(/\r\n/g, '\n').trim();
+      console.log('🔍 전송할 내용 길이:', normalized.length);
+      if (!normalized) {
+        setIsAnalyzing(false);
+        setError('면접 내용이 비어있습니다. 내용을 입력해 주세요.');
+        return;
+      }
+      
+      console.log('🔍 전송할 내용:', normalized);
+      console.log('🔍 구조화된 모드:', isStructuredMode);
+      console.log('🔍 qnaPairs:', qnaPairs);
+      
       const result = await axios.post('/api/interview/analyze', {
-        content: interviewContent,
+        content: normalized,
         analysisType,
       });
       
@@ -62,7 +88,8 @@ export default function InterviewAnalyzePage() {
           parseError: data.parseError
         });
         
-        if (result.data.metadata?.hasParseError || data.parseError) {
+        // 파싱 에러 체크 로직 수정
+        if (data.parseError || !data.total_score || !data.areas || !data.general_advice) {
           // JSON 파싱 실패 시 - 원본 텍스트 표시
           const completeAnalysisResult = {
             rawAnalysis: data.rawAnalysis || data.message || '분석 결과를 받지 못했습니다.',
