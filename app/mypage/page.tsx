@@ -49,12 +49,21 @@ export default async function MyPage() {
     .order('created_at', { ascending: false })
     .limit(10)
 
+  // 면접 후기 가져오기
+  const { data: interviews } = await supabase
+    .from('interviews')
+    .select('*')
+    .eq('user_id', user.id)
+    .order('created_at', { ascending: false })
+    .limit(20)
+
   return (
     <MyPageClient 
       user={user}
       profile={profile}
       posts={posts || []}
       comments={comments || []}
+      interviews={interviews || []}
     />
   )
 }

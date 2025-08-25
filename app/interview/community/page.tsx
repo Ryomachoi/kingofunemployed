@@ -5,10 +5,11 @@ import { redirect } from 'next/navigation'
 export default async function InterviewCommunityPage() {
   const supabase = await createClient()
   
-  // 면접 후기 목록 조회
+  // 면접 후기 목록 조회 (공개된 면접만)
   const { data: interviews, error } = await supabase
     .from('interviews')
     .select('*')
+    .eq('is_public', true)
     .order('created_at', { ascending: false })
 
   // 각 면접 후기에 대해 사용자 프로필 정보를 별도로 조회
@@ -250,9 +251,9 @@ export default async function InterviewCommunityPage() {
                       
                       <span className="flex items-center gap-1.5">
                         <div className="w-5 h-5 bg-gradient-to-br from-slate-400 to-slate-500 rounded-full flex items-center justify-center text-white text-xs font-bold">
-                          {(interview.user_profiles?.nickname || interview.user_profiles?.display_name || interview.user_id.substring(0, 8)).charAt(0)}
+                          익
                         </div>
-                        {interview.user_profiles?.nickname || interview.user_profiles?.display_name || interview.user_id.substring(0, 8)}
+                        익명의 면접자
                       </span>
                     </div>
                     

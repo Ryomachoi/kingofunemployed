@@ -12,14 +12,16 @@ interface MyPageProps {
   profile: UserProfile | null
   posts: any[]
   comments: any[]
+  interviews: any[]
 }
 
-export default function MyPageClient({ user, profile, posts, comments }: MyPageProps) {
+export default function MyPageClient({ user, profile, posts, comments, interviews }: MyPageProps) {
   const [activeTab, setActiveTab] = useState('profile')
 
   const stats = {
     posts: posts?.length || 0,
-    comments: comments?.length || 0
+    comments: comments?.length || 0,
+    interviews: interviews?.length || 0
   }
 
   return (
@@ -48,7 +50,7 @@ export default function MyPageClient({ user, profile, posts, comments }: MyPageP
             </div>
             
             {/* 통계 */}
-            <div className="flex justify-between mt-6 pt-6 border-t border-gray-200 dark:border-gray-700">
+            <div className="grid grid-cols-3 gap-4 mt-6 pt-6 border-t border-gray-200 dark:border-gray-700">
               <div className="text-center">
                 <div className="text-2xl font-bold text-gray-900 dark:text-white">{stats.posts}</div>
                 <div className="text-sm text-gray-500 dark:text-gray-400">게시물</div>
@@ -57,7 +59,10 @@ export default function MyPageClient({ user, profile, posts, comments }: MyPageP
                 <div className="text-2xl font-bold text-gray-900 dark:text-white">{stats.comments}</div>
                 <div className="text-sm text-gray-500 dark:text-gray-400">댓글</div>
               </div>
-
+              <div className="text-center">
+                <div className="text-2xl font-bold text-gray-900 dark:text-white">{stats.interviews}</div>
+                <div className="text-sm text-gray-500 dark:text-gray-400">면접후기</div>
+              </div>
             </div>
             
             <button className="w-full mt-6 bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg transition-colors">
@@ -105,6 +110,19 @@ export default function MyPageClient({ user, profile, posts, comments }: MyPageP
                 >
                   <span className="mr-3">📝</span>
                   작성한 댓글
+                </button>
+              </li>
+              <li>
+                <button
+                  onClick={() => setActiveTab('interviews')}
+                  className={`w-full flex items-center px-4 py-3 text-left rounded-lg transition-colors ${
+                    activeTab === 'interviews'
+                      ? 'bg-blue-50 text-blue-700 dark:bg-blue-900/20 dark:text-blue-400'
+                      : 'text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700'
+                  }`}
+                >
+                  <span className="mr-3">💼</span>
+                  면접 후기
                 </button>
               </li>
 
@@ -280,6 +298,100 @@ export default function MyPageClient({ user, profile, posts, comments }: MyPageP
                   </div>
                 )}
               </div>
+            </div>
+          )}
+
+          {activeTab === 'interviews' && (
+            <div className="max-w-4xl">
+              <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-8">면접 후기</h1>
+              
+              {interviews && interviews.length > 0 ? (
+                <div className="space-y-6">
+                  {interviews.map((interview: any) => (
+                    <Link key={interview.id} href={`/interview/${interview.id}`}>
+                      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6 hover:shadow-md transition-shadow cursor-pointer">
+                        <div className="flex items-start justify-between mb-4">
+                          <div className="flex-1">
+                            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
+                              {interview.company_name} - {interview.position}
+                            </h3>
+                            <div className="flex items-center gap-4 text-sm text-gray-500 dark:text-gray-400">
+                              {interview.interview_date && (
+                                <span>면접일: {new Date(interview.interview_date).toLocaleDateString('ko-KR')}</span>
+                              )}
+                              {interview.interview_type && (
+                                <span>유형: {interview.interview_type}</span>
+                              )}
+                              {interview.difficulty_level && (
+                                <span>난이도: {interview.difficulty_level}</span>
+                              )}
+                            </div>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            {interview.is_public ? (
+                              <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">
+                                공개
+                              </span>
+                            ) : (
+                              <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200">
+                                비공개
+                              </span>
+                            )}
+                            {interview.overall_rating && (
+                              <div className="flex items-center gap-1">
+                                <span className="text-yellow-400">⭐</span>
+                                <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                                  {interview.overall_rating}/5
+                                </span>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                        
+                        {interview.result && (
+                          <div className="mb-3">
+                            <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                              interview.result === '합격' 
+                                ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
+                                : interview.result === '불합격'
+                                ? 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
+                                : 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200'
+                            }`}>
+                              {interview.result}
+                            </span>
+                          </div>
+                        )}
+                        
+                        <div className="text-sm text-gray-500 dark:text-gray-400">
+                          작성일: {new Date(interview.created_at).toLocaleDateString('ko-KR')}
+                        </div>
+                      </div>
+                    </Link>
+                  ))}
+                </div>
+              ) : (
+                <div className="text-center py-20">
+                  <div className="max-w-md mx-auto">
+                    <div className="w-24 h-24 bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-800 dark:to-gray-700 rounded-2xl flex items-center justify-center mx-auto mb-6">
+                      <svg className="w-12 h-12 text-gray-400 dark:text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                      </svg>
+                    </div>
+                    <h3 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-3">
+                      아직 작성한 면접 후기가 없습니다
+                    </h3>
+                    <p className="text-gray-600 dark:text-gray-400 mb-8 leading-relaxed">
+                      첫 번째 면접 후기를 작성하고 AI 분석을 받아보세요!
+                    </p>
+                    <Link
+                      href="/interview/analyze"
+                      className="inline-flex items-center px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors"
+                    >
+                      면접 후기 작성하기
+                    </Link>
+                  </div>
+                </div>
+              )}
             </div>
           )}
 
