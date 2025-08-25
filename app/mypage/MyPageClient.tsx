@@ -336,6 +336,15 @@ export default function MyPageClient({ user, profile, posts, comments, interview
                                 </span>
                               </div>
                             )}
+                            {/* 면접 타입 표시 */}
+                            {interview.interview_type && (
+                              <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">
+                                {interview.interview_type === 'technical' ? '기술면접' :
+                                 interview.interview_type === 'behavioral' ? '인성면접' :
+                                 interview.interview_type === 'case_study' ? '케이스 스터디' :
+                                 interview.interview_type === 'presentation' ? '발표면접' : '기타'}
+                              </span>
+                            )}
                           </div>
                         </div>
                         

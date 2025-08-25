@@ -1,44 +1,22 @@
 import { NextRequest, NextResponse } from 'next/server';
 import OpenAI from 'openai';
-import { createClient } from '@supabase/supabase-js';
-import { cookies } from 'next/headers';
+import { createClient } from '@/lib/supabase/server';
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });
-
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!,
-  {
-    auth: {
-      autoRefreshToken: false,
-      persistSession: false
-    }
-  }
-);
 
 export async function POST(request: NextRequest) {
   try {
     const { content, analysisType, interviewData } = await request.json();
     
     // 사용자 인증 확인
-    const cookieStore = await cookies();
-    const authCookie = cookieStore.get('sb-localhost-auth-token');
-    
-    if (!authCookie) {
-      return NextResponse.json(
-        { success: false, error: '로그인이 필요합니다.' },
-        { status: 401 }
-      );
-    }
-    
-    // 사용자 정보 가져오기
-    const { data: { user }, error: userError } = await supabase.auth.getUser(authCookie.value);
+    const supabase = await createClient();
+    const { data: { user }, error: userError } = await supabase.auth.getUser();
     
     if (userError || !user) {
       return NextResponse.json(
-        { success: false, error: '사용자 인증에 실패했습니다.' },
+        { success: false, error: '로그인이 필요합니다.' },
         { status: 401 }
       );
     }
@@ -94,21 +72,8 @@ export async function POST(request: NextRequest) {
     }
 
     // 데이터베이스에 면접 정보 저장
-    // "개인 분석만" 선택 시에는 데이터베이스에 저장하지 않음
-    if (analysisType === "개인 분석만") {
-      return NextResponse.json({
-        success: true,
-        data: parsedData,
-        metadata: {
-          analysisType,
-          timestamp: new Date().toISOString(),
-          promptId,
-          hasParseError,
-        },
-      });
-    }
-
-    // "익명 후기 공유" 선택 시에만 데이터베이스에 저장
+    // 모든 분석 결과를 데이터베이스에 저장 (마이페이지 조회를 위해)
+    // is_public으로 커뮤니티 공개 여부 구분
     const interviewRecord = {
       user_id: user.id,
       company_name: interviewData?.company_name || null,
@@ -131,6 +96,7 @@ export async function POST(request: NextRequest) {
       },
       analysis_timestamp: new Date().toISOString(),
       ai_analysis_status: 'completed',
+      // is_public: analysisType === "익명 후기 공유", // 커뮤니티 공개 여부 - 컬럼이 없어서 임시 제거
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString()
     };

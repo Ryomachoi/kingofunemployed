@@ -21,7 +21,7 @@ export default function InterviewAnalyzePage() {
   const [difficulty, setDifficulty] = useState("");
   const [interviewResult, setInterviewResult] = useState("");
   const [overallRating, setOverallRating] = useState("");
-  const [feedbackAndTips, setFeedbackAndTips] = useState("");
+
   const [submitting, setSubmitting] = useState(false);
 
   const toggleStructuredMode = () => {
@@ -103,7 +103,7 @@ export default function InterviewAnalyzePage() {
           difficulty_level: difficulty || null,
           result: interviewResult || null,
           overall_rating: overallRating ? parseInt(overallRating) : null,
-          feedback_and_tips: feedbackAndTips || null,
+
           questions_and_answers: questionsAndAnswers
         }
       });
@@ -383,15 +383,7 @@ export default function InterviewAnalyzePage() {
                     </select>
                   </div>
                 </div>
-                <div>
-                  <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">피드백 및 팁 (선택사항)</label>
-                  <textarea
-                    value={feedbackAndTips}
-                    onChange={(e) => setFeedbackAndTips(e.target.value)}
-                    placeholder="후배들을 위한 조언이나 팁을 작성해주세요. (예: 준비 방법, 주의사항, 면접 분위기 등)"
-                    className="w-full h-24 p-3 border border-slate-200 dark:border-slate-600 rounded-lg bg-slate-50 dark:bg-slate-700 text-slate-900 dark:text-slate-100 placeholder-slate-500 dark:placeholder-slate-400 resize-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
-                  />
-                </div>
+
               </div>
             </div>
             {/* 면접 내용 작성 */}
@@ -490,52 +482,7 @@ export default function InterviewAnalyzePage() {
               </div>
             </div>
 
-            {/* 면접 후기 공개 설정 */}
-            <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 overflow-hidden">
-              <div className="px-6 py-4 border-b border-slate-200 dark:border-slate-700">
-                <h3 className="text-base font-medium text-slate-900 dark:text-slate-100">
-                  면접 후기 공개 설정
-                </h3>
-              </div>
-              <div className="p-6 space-y-4">
-                <label className="flex items-start gap-3 cursor-pointer">
-                  <input
-                    type="radio"
-                    name="analysisType"
-                    value="개인 분석만"
-                    checked={analysisType === "개인 분석만"}
-                    onChange={(e) => setAnalysisType(e.target.value)}
-                    className="mt-1 w-4 h-4 text-purple-600 border-slate-300 focus:ring-purple-500"
-                  />
-                  <div>
-                    <div className="font-medium text-slate-900 dark:text-slate-100">
-                      개인 분석만
-                    </div>
-                    <div className="text-sm text-slate-500 dark:text-slate-400">
-                      나의 공개되지 않으며, 개인 피드백만 제공됩니다
-                    </div>
-                  </div>
-                </label>
-                <label className="flex items-start gap-3 cursor-pointer">
-                  <input
-                    type="radio"
-                    name="analysisType"
-                    value="익명 후기 공유"
-                    checked={analysisType === "익명 후기 공유"}
-                    onChange={(e) => setAnalysisType(e.target.value)}
-                    className="mt-1 w-4 h-4 text-purple-600 border-slate-300 focus:ring-purple-500"
-                  />
-                  <div>
-                    <div className="font-medium text-slate-900 dark:text-slate-100">
-                      익명 후기 공유
-                    </div>
-                    <div className="text-sm text-slate-500 dark:text-slate-400">
-                      개인정보를 제외하고 익명으로 커뮤니티에 공유됩니다
-                    </div>
-                  </div>
-                </label>
-              </div>
-            </div>
+
 
             {/* AI 분석 시작 버튼 */}
             <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 p-6">
@@ -797,13 +744,13 @@ export default function InterviewAnalyzePage() {
                   setDifficulty("");
                   setInterviewResult("");
                   setOverallRating("");
-                  setFeedbackAndTips("");
+
                 }}
                 className="flex-1 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 font-medium py-3 px-6 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors"
               >
                 새로운 분석 시작
               </button>
-              {interviewId && analysisType === "익명 후기 공유" && (
+              {interviewId && (
                 <Link
                   href={`/interview/${interviewId}`}
                   className="flex-1 bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white font-medium py-3 px-6 rounded-xl transition-all duration-200 transform hover:scale-[1.02] text-center"
@@ -811,22 +758,33 @@ export default function InterviewAnalyzePage() {
                   상세 면접 후기 보기
                 </Link>
               )}
-              {analysisType === "익명 후기 공유" && interviewId && (
-                <Link
-                  href="/interview/community"
-                  className="flex-1 bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white font-medium py-3 px-6 rounded-xl transition-all duration-200 transform hover:scale-[1.02] text-center"
-                >
-                  커뮤니티에서 확인하기
-                </Link>
-              )}
               <button
-                onClick={() => {
-                  // 결과 공유 기능 (추후 구현)
-                  alert("결과 공유 기능은 준비 중입니다.");
+                onClick={async () => {
+                  if (!interviewId) {
+                    alert("면접 ID가 없습니다.");
+                    return;
+                  }
+                  
+                  try {
+                    const response = await axios.post('/api/interview/share', {
+                      interviewId: interviewId
+                    });
+                    
+                    if (response.data.success) {
+                      alert("커뮤니티에 성공적으로 공유되었습니다!");
+                      // 커뮤니티 페이지로 이동
+                      window.location.href = '/interview/community';
+                    } else {
+                      alert("공유 중 오류가 발생했습니다: " + (response.data.error || '알 수 없는 오류'));
+                    }
+                  } catch (error) {
+                    console.error('공유 오류:', error);
+                    alert("공유 중 오류가 발생했습니다.");
+                  }
                 }}
-                className="flex-1 bg-gradient-to-r from-purple-500 to-purple-600 hover:from-purple-600 hover:to-purple-700 text-white font-medium py-3 px-6 rounded-xl transition-all duration-200 transform hover:scale-[1.02]"
+                className="flex-1 bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white font-medium py-3 px-6 rounded-xl transition-all duration-200 transform hover:scale-[1.02]"
               >
-                결과 공유하기
+                커뮤니티에 공유하기
               </button>
             </div>
           </div>

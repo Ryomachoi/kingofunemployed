@@ -299,7 +299,7 @@ export default async function InterviewDetailPage({ params }: { params: Promise<
                             </div>
                           )}
                           
-                          {areaData.practical_advice && areaData.practical_advice.length > 0 && (
+                          {areaData.practical_advice && Array.isArray(areaData.practical_advice) && areaData.practical_advice.length > 0 && (
                             <div className="mb-4">
                               <h5 className="text-sm font-medium text-green-600 dark:text-green-400 mb-2">실용적 조언</h5>
                               <ul className="space-y-1">

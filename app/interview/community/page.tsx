@@ -5,10 +5,11 @@ import { redirect } from 'next/navigation'
 export default async function InterviewCommunityPage() {
   const supabase = await createClient()
   
-  // 면접 후기 목록 조회 (모든 면접 후기)
+  // 공유된 면접 후기 목록 조회 (is_shared가 true인 것만)
   const { data: interviews, error } = await supabase
     .from('interviews')
     .select('*')
+    .eq('is_shared', true)
     .order('created_at', { ascending: false })
 
   // 각 면접 후기에 대해 사용자 프로필 정보를 별도로 조회
@@ -200,7 +201,9 @@ export default async function InterviewCommunityPage() {
                             🤖 AI 면접 분석
                           </h4>
                           <p className="text-sm text-violet-700 dark:text-violet-300 line-clamp-2">
-                            {interview.ai_feedback}
+                            {typeof interview.ai_feedback === 'string' 
+                              ? interview.ai_feedback 
+                              : interview.ai_feedback?.general_advice || 'AI 분석 결과가 있습니다.'}
                           </p>
                         </div>
                       </div>
