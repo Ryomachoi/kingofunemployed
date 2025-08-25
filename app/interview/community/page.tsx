@@ -5,11 +5,10 @@ import { redirect } from 'next/navigation'
 export default async function InterviewCommunityPage() {
   const supabase = await createClient()
   
-  // 면접 후기 목록 조회 (공개된 면접만)
+  // 면접 후기 목록 조회 (모든 면접 후기)
   const { data: interviews, error } = await supabase
     .from('interviews')
     .select('*')
-    .eq('is_public', true)
     .order('created_at', { ascending: false })
 
   // 각 면접 후기에 대해 사용자 프로필 정보를 별도로 조회

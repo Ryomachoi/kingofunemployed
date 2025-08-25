@@ -134,9 +134,9 @@ export default async function InterviewDetailPage({ params }: { params: Promise<
               
               <span className="flex items-center gap-2">
                 <div className="w-6 h-6 bg-gradient-to-br from-slate-400 to-slate-500 rounded-full flex items-center justify-center text-white text-xs font-bold">
-                  {(userProfile?.nickname || userProfile?.display_name || interview.user_id.substring(0, 8)).charAt(0)}
+                  익
                 </div>
-                작성자: {userProfile?.nickname || userProfile?.display_name || interview.user_id.substring(0, 8)}
+                작성자: 익명의 면접자
               </span>
             </div>
             

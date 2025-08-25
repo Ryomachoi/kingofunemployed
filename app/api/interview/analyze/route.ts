@@ -94,6 +94,21 @@ export async function POST(request: NextRequest) {
     }
 
     // 데이터베이스에 면접 정보 저장
+    // "개인 분석만" 선택 시에는 데이터베이스에 저장하지 않음
+    if (analysisType === "개인 분석만") {
+      return NextResponse.json({
+        success: true,
+        data: parsedData,
+        metadata: {
+          analysisType,
+          timestamp: new Date().toISOString(),
+          promptId,
+          hasParseError,
+        },
+      });
+    }
+
+    // "익명 후기 공유" 선택 시에만 데이터베이스에 저장
     const interviewRecord = {
       user_id: user.id,
       company_name: interviewData?.company_name || null,
@@ -116,7 +131,6 @@ export async function POST(request: NextRequest) {
       },
       analysis_timestamp: new Date().toISOString(),
       ai_analysis_status: 'completed',
-      is_public: interviewData?.is_public || false,
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString()
     };

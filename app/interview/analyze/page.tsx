@@ -104,8 +104,7 @@ export default function InterviewAnalyzePage() {
           result: interviewResult || null,
           overall_rating: overallRating ? parseInt(overallRating) : null,
           feedback_and_tips: feedbackAndTips || null,
-          questions_and_answers: questionsAndAnswers,
-          is_public: analysisType === "익명 후기 공유"
+          questions_and_answers: questionsAndAnswers
         }
       });
       
@@ -804,12 +803,20 @@ export default function InterviewAnalyzePage() {
               >
                 새로운 분석 시작
               </button>
-              {interviewId && (
+              {interviewId && analysisType === "익명 후기 공유" && (
                 <Link
                   href={`/interview/${interviewId}`}
                   className="flex-1 bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white font-medium py-3 px-6 rounded-xl transition-all duration-200 transform hover:scale-[1.02] text-center"
                 >
                   상세 면접 후기 보기
+                </Link>
+              )}
+              {analysisType === "익명 후기 공유" && interviewId && (
+                <Link
+                  href="/interview/community"
+                  className="flex-1 bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white font-medium py-3 px-6 rounded-xl transition-all duration-200 transform hover:scale-[1.02] text-center"
+                >
+                  커뮤니티에서 확인하기
                 </Link>
               )}
               <button
