@@ -238,11 +238,113 @@ export default async function InterviewDetailPage({ params }: { params: Promise<
               🤖 AI 면접 분석
             </h2>
             
-            <div className="bg-gradient-to-r from-violet-50 to-purple-50 dark:from-violet-900/20 dark:to-purple-900/20 rounded-xl p-6 border border-violet-200/50 dark:border-violet-800/50">
-              <p className="text-slate-700 dark:text-slate-300 whitespace-pre-line leading-relaxed">
-                {interview.ai_feedback}
-              </p>
-            </div>
+            {(() => {
+              // AI 피드백이 구조화된 데이터인지 확인
+              let structuredData = null;
+              try {
+                if (typeof interview.ai_feedback === 'object') {
+                  structuredData = interview.ai_feedback;
+                } else if (typeof interview.ai_feedback === 'string') {
+                  structuredData = JSON.parse(interview.ai_feedback);
+                }
+              } catch (e) {
+                // JSON 파싱 실패 시 원본 텍스트로 표시
+              }
+
+              // 구조화된 데이터가 있고 새로운 스키마 형태인 경우
+              if (structuredData && structuredData.total_score !== undefined && structuredData.areas) {
+                return (
+                  <div className="space-y-6">
+                    {/* 총점 표시 */}
+                    <div className="bg-gradient-to-r from-violet-50 to-purple-50 dark:from-violet-900/20 dark:to-purple-900/20 rounded-xl p-6 border border-violet-200/50 dark:border-violet-800/50">
+                      <div className="flex items-center justify-between mb-4">
+                        <h3 className="text-lg font-semibold text-slate-800 dark:text-slate-200">전체 점수</h3>
+                        <div className="flex items-center gap-2">
+                          <span className="text-3xl font-bold text-violet-600 dark:text-violet-400">
+                            {structuredData.total_score}
+                          </span>
+                          <span className="text-lg text-slate-600 dark:text-slate-400">/ 100</span>
+                        </div>
+                      </div>
+                      <div className="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-3">
+                        <div 
+                          className="bg-gradient-to-r from-violet-500 to-purple-600 h-3 rounded-full transition-all duration-500"
+                          style={{ width: `${Math.min(structuredData.total_score, 100)}%` }}
+                        ></div>
+                      </div>
+                    </div>
+
+                    {/* 영역별 분석 */}
+                    <div className="grid gap-4">
+                      {Object.entries(structuredData.areas).map(([areaName, areaData]: [string, any]) => (
+                        <div key={areaName} className="bg-white dark:bg-slate-700 rounded-xl p-6 border border-slate-200 dark:border-slate-600">
+                          <div className="flex items-center justify-between mb-4">
+                            <h4 className="text-lg font-semibold text-slate-800 dark:text-slate-200">{areaName}</h4>
+                            <span className="text-xl font-bold text-blue-600 dark:text-blue-400">
+                              {areaData.score}/100
+                            </span>
+                          </div>
+                          
+                          {areaData.negative_points && areaData.negative_points.length > 0 && (
+                            <div className="mb-4">
+                              <h5 className="text-sm font-medium text-red-600 dark:text-red-400 mb-2">개선점</h5>
+                              <ul className="space-y-1">
+                                {areaData.negative_points.map((point: string, idx: number) => (
+                                  <li key={idx} className="text-sm text-slate-600 dark:text-slate-400 flex items-start gap-2">
+                                    <span className="text-red-500 mt-1">•</span>
+                                    <span>{point}</span>
+                                  </li>
+                                ))}
+                              </ul>
+                            </div>
+                          )}
+                          
+                          {areaData.practical_advice && areaData.practical_advice.length > 0 && (
+                            <div className="mb-4">
+                              <h5 className="text-sm font-medium text-green-600 dark:text-green-400 mb-2">실용적 조언</h5>
+                              <ul className="space-y-1">
+                                {areaData.practical_advice.map((advice: string, idx: number) => (
+                                  <li key={idx} className="text-sm text-slate-600 dark:text-slate-400 flex items-start gap-2">
+                                    <span className="text-green-500 mt-1">•</span>
+                                    <span>{advice}</span>
+                                  </li>
+                                ))}
+                              </ul>
+                            </div>
+                          )}
+                          
+                          {areaData.interviewer_impression && (
+                            <div>
+                              <h5 className="text-sm font-medium text-blue-600 dark:text-blue-400 mb-2">면접관 관점</h5>
+                              <p className="text-sm text-slate-600 dark:text-slate-400">{areaData.interviewer_impression}</p>
+                            </div>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+
+                    {/* 전반적인 조언 */}
+                    {structuredData.general_advice && (
+                      <div className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 rounded-xl p-6 border border-blue-200/50 dark:border-blue-800/50">
+                        <h4 className="text-lg font-semibold text-slate-800 dark:text-slate-200 mb-3">전반적인 조언</h4>
+                        <p className="text-slate-700 dark:text-slate-300 whitespace-pre-line leading-relaxed">
+                          {structuredData.general_advice}
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                );
+              }
+              
+              // 기존 텍스트 형태의 AI 피드백 표시
+              return (
+                <div className="bg-gradient-to-r from-violet-50 to-purple-50 dark:from-violet-900/20 dark:to-purple-900/20 rounded-xl p-6 border border-violet-200/50 dark:border-violet-800/50">
+                  <p className="text-slate-700 dark:text-slate-300 whitespace-pre-line leading-relaxed">
+                    {typeof interview.ai_feedback === 'string' ? interview.ai_feedback : JSON.stringify(interview.ai_feedback, null, 2)}
+                  </p>
+                </div>
+              );
+            })()}
           </div>
         )}
 

@@ -97,18 +97,11 @@ export default async function InterviewPage() {
                 좋아요 & 북마크
               </div>
             </div>
-            <div className="flex gap-3">
-              <Link href={user ? "/interview/new" : "/login"} className="flex-1">
-                <button className="w-full bg-gradient-to-r from-green-500 to-green-600 text-white font-semibold py-3 px-6 rounded-xl hover:from-green-600 hover:to-green-700 transition-all duration-200 transform hover:scale-105">
-                    면접 후기 작성
-                  </button>
-              </Link>
-              <Link href="/interview/community" className="flex-1">
-                <button className="w-full bg-gradient-to-r from-blue-500 to-blue-600 text-white font-semibold py-3 px-6 rounded-xl hover:from-blue-600 hover:to-blue-700 transition-all duration-200 transform hover:scale-105">
-                  면접 후기 보기
-                </button>
-              </Link>
-            </div>
+            <Link href="/interview/community">
+              <button className="w-full bg-gradient-to-r from-blue-500 to-blue-600 text-white font-semibold py-3 px-6 rounded-xl hover:from-blue-600 hover:to-blue-700 transition-all duration-200 transform hover:scale-105">
+                면접 후기 보기
+              </button>
+            </Link>
           </div>
         </div>
       </div>

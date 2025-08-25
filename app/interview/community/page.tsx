@@ -292,7 +292,7 @@ export default async function InterviewCommunityPage() {
               </p>
               {user ? (
                 <Link 
-                  href="/interview/new"
+                  href="/interview/analyze"
                   className="group inline-flex items-center px-8 py-4 bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-semibold rounded-2xl shadow-lg hover:shadow-xl transform hover:-translate-y-1 transition-all duration-300 overflow-hidden"
                 >
                   <div className="absolute inset-0 bg-gradient-to-r from-blue-700 to-indigo-700 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
@@ -300,7 +300,7 @@ export default async function InterviewCommunityPage() {
                     <svg className="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
                     </svg>
-                    면접 후기 작성하기
+                    AI 면접 분석 & 후기 작성
                   </div>
                 </Link>
               ) : (

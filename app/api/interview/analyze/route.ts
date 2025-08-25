@@ -1,13 +1,47 @@
 import { NextRequest, NextResponse } from 'next/server';
 import OpenAI from 'openai';
+import { createClient } from '@supabase/supabase-js';
+import { cookies } from 'next/headers';
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });
 
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.SUPABASE_SERVICE_ROLE_KEY!,
+  {
+    auth: {
+      autoRefreshToken: false,
+      persistSession: false
+    }
+  }
+);
+
 export async function POST(request: NextRequest) {
   try {
-    const { content, analysisType } = await request.json();
+    const { content, analysisType, interviewData } = await request.json();
+    
+    // 사용자 인증 확인
+    const cookieStore = await cookies();
+    const authCookie = cookieStore.get('sb-localhost-auth-token');
+    
+    if (!authCookie) {
+      return NextResponse.json(
+        { success: false, error: '로그인이 필요합니다.' },
+        { status: 401 }
+      );
+    }
+    
+    // 사용자 정보 가져오기
+    const { data: { user }, error: userError } = await supabase.auth.getUser(authCookie.value);
+    
+    if (userError || !user) {
+      return NextResponse.json(
+        { success: false, error: '사용자 인증에 실패했습니다.' },
+        { status: 401 }
+      );
+    }
     
     const normalizedContent = content?.trim();
     if (!normalizedContent) {
@@ -47,9 +81,11 @@ export async function POST(request: NextRequest) {
     }
 
     let parsedData;
+    let hasParseError = false;
     try {
       parsedData = JSON.parse(aiAnalysis);
-    } catch (parseError) {
+    } catch (parseError: any) {
+      hasParseError = true;
       parsedData = {
         rawAnalysis: aiAnalysis,
         parseError: true,
@@ -57,14 +93,66 @@ export async function POST(request: NextRequest) {
       };
     }
 
+    // 데이터베이스에 면접 정보 저장
+    const interviewRecord = {
+      user_id: user.id,
+      company_name: interviewData?.company_name || null,
+      position: interviewData?.position || null,
+      interview_date: interviewData?.interview_date || null,
+      interview_type: interviewData?.interview_type || null,
+      difficulty_level: interviewData?.difficulty_level || null,
+      result: interviewData?.result || null,
+      overall_rating: interviewData?.overall_rating || null,
+      feedback_and_tips: interviewData?.feedback_and_tips || null,
+      questions_and_answers: interviewData?.questions_and_answers || [],
+      ai_feedback: hasParseError ? aiAnalysis : parsedData,
+      ai_analysis_metadata: {
+        analysisType,
+        timestamp: new Date().toISOString(),
+        promptId,
+        promptVersion,
+        hasParseError,
+        userInput: userInput.substring(0, 1000) // 처음 1000자만 저장
+      },
+      analysis_timestamp: new Date().toISOString(),
+      ai_analysis_status: 'completed',
+      is_public: interviewData?.is_public || false,
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString()
+    };
+
+    const { data: savedInterview, error: saveError } = await supabase
+      .from('interviews')
+      .insert([interviewRecord])
+      .select('id')
+      .single();
+
+    if (saveError) {
+      console.error('데이터베이스 저장 오류:', saveError);
+      // AI 분석은 성공했지만 저장에 실패한 경우에도 결과는 반환
+      return NextResponse.json({
+        success: true,
+        data: parsedData,
+        warning: '분석은 완료되었지만 저장 중 오류가 발생했습니다.',
+        metadata: {
+          analysisType,
+          timestamp: new Date().toISOString(),
+          promptId,
+          hasParseError,
+        },
+      });
+    }
+
     return NextResponse.json({
       success: true,
       data: parsedData,
+      interviewId: savedInterview.id,
       metadata: {
         analysisType,
         timestamp: new Date().toISOString(),
         promptId,
-        hasParseError: parsedData.parseError || false,
+        hasParseError,
+        saved: true
       },
     });
 
