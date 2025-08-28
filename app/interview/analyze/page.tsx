@@ -316,10 +316,10 @@ export default function InterviewAnalyzePage() {
                       className="w-full p-3 border border-slate-200 dark:border-slate-600 rounded-lg bg-slate-50 dark:bg-slate-700 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
                     >
                       <option value="">선택하세요</option>
-                      <option value="video">화상면접</option>
-                      <option value="in_person">대면면접</option>
-                      <option value="phone">전화면접</option>
-                      <option value="other">기타</option>
+                      <option value="화상면접">화상면접</option>
+                      <option value="대면면접">대면면접</option>
+                      <option value="전화면접">전화면접</option>
+                      <option value="기타">기타</option>
                     </select>
                   </div>
                 </div>
