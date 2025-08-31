@@ -3,10 +3,11 @@
 import { useState } from 'react'
 import { useSearchParams } from 'next/navigation'
 import Link from 'next/link'
+import { Interview, UserProfile } from '@/types/database'
 
 interface InterviewDetailClientProps {
-  interview: any
-  userProfile: any
+  interview: Interview
+  userProfile: UserProfile | null
   currentUserId?: string
   parsedQAList: { question: string; answer: string }[]
 }

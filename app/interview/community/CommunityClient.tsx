@@ -2,32 +2,10 @@
 
 import Link from 'next/link'
 import { useState } from 'react'
-
-interface Interview {
-  id: string
-  user_id: string
-  company_name: string
-  position: string
-  interview_date?: string
-  interview_type?: string
-  difficulty_level?: string
-  questions_and_answers?: string
-  result?: string
-  overall_rating?: number
-  feedback_and_tips?: string
-  ai_feedback?: any
-  created_at: string
-  updated_at: string
-  is_public: boolean
-  is_shared: boolean
-  user_profiles?: {
-    nickname?: string
-    display_name?: string
-  } | null
-}
+import { InterviewWithProfile } from '@/types/database'
 
 interface CommunityClientProps {
-  interviews: Interview[]
+  interviews: InterviewWithProfile[]
   currentUserId?: string
 }
 

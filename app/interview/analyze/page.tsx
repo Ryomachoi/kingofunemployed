@@ -99,7 +99,13 @@ export default function InterviewAnalyzePage() {
           company_name: company,
           position: position,
           interview_date: interviewDate || null,
-          interview_type: interviewType || null,
+          interview_type: interviewType ? (
+            interviewType === '화상면접' ? 'video' :
+            interviewType === '대면면접' ? 'in_person' :
+            interviewType === '전화면접' ? 'phone' :
+            interviewType === '기타' ? 'other' :
+            interviewType
+          ) : null,
           difficulty_level: difficulty || null,
           result: interviewResult || null,
           overall_rating: overallRating ? parseInt(overallRating) : null,
@@ -154,6 +160,7 @@ export default function InterviewAnalyzePage() {
         // 경고 메시지가 있는 경우 표시
         if (response.data.warning) {
           console.warn(response.data.warning);
+          alert(`⚠️ ${response.data.warning}`);
         }
       } else {
         setError(response.data.error || '분석 결과를 받아오지 못했습니다.');
@@ -761,7 +768,7 @@ export default function InterviewAnalyzePage() {
               <button
                 onClick={async () => {
                   if (!interviewId) {
-                    alert("면접 ID가 없습니다.");
+                    alert("⚠️ 면접 데이터가 저장되지 않아 공유할 수 없습니다.\n\n데이터베이스 제약조건을 확인하고 다시 분석해주세요.");
                     return;
                   }
                   
@@ -771,20 +778,25 @@ export default function InterviewAnalyzePage() {
                     });
                     
                     if (response.data.success) {
-                      alert("커뮤니티에 성공적으로 공유되었습니다!");
+                      alert("✅ 커뮤니티에 성공적으로 공유되었습니다!");
                       // 커뮤니티 페이지로 이동
                       window.location.href = '/interview/community';
                     } else {
-                      alert("공유 중 오류가 발생했습니다: " + (response.data.error || '알 수 없는 오류'));
+                      alert("❌ 공유 중 오류가 발생했습니다: " + (response.data.error || '알 수 없는 오류'));
                     }
                   } catch (error) {
                     console.error('공유 오류:', error);
-                    alert("공유 중 오류가 발생했습니다.");
+                    alert("❌ 공유 중 오류가 발생했습니다.");
                   }
                 }}
-                className="flex-1 bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white font-medium py-3 px-6 rounded-xl transition-all duration-200 transform hover:scale-[1.02]"
+                disabled={!interviewId}
+                className={`flex-1 font-medium py-3 px-6 rounded-xl transition-all duration-200 transform ${
+                  interviewId 
+                    ? 'bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white hover:scale-[1.02] cursor-pointer'
+                    : 'bg-gray-300 dark:bg-gray-600 text-gray-500 dark:text-gray-400 cursor-not-allowed'
+                }`}
               >
-                커뮤니티에 공유하기
+                {interviewId ? '커뮤니티에 공유하기' : '공유 불가 (데이터 저장 실패)'}
               </button>
             </div>
           </div>

@@ -73,7 +73,7 @@ export async function POST(request: NextRequest) {
 
     // 데이터베이스에 면접 정보 저장
     // 모든 분석 결과를 데이터베이스에 저장 (마이페이지 조회를 위해)
-    // is_public으로 커뮤니티 공개 여부 구분
+    // is_shared로 커뮤니티 공유 여부 구분 (is_public 컬럼은 존재하지 않음)
     const interviewRecord = {
       user_id: user.id,
       company_name: interviewData?.company_name || '회사명 없음',
@@ -95,9 +95,9 @@ export async function POST(request: NextRequest) {
       },
       analysis_timestamp: new Date().toISOString(),
       ai_analysis_status: 'completed',
-      // questions_and_answers 필드 임시 제거 (NOT NULL 제약조건 때문에)
-      // questions_and_answers: interviewData?.questions_and_answers || [],
-      // is_public: analysisType === "익명 후기 공유", // 커뮤니티 공개 여부 - 컬럼이 없어서 임시 제거
+      // questions_and_answers 필드는 별도 테이블로 분리됨
+      // is_public 컬럼은 존재하지 않으므로 제거
+      is_shared: analysisType === "익명 후기 공유", // 커뮤니티 공유 여부
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString()
     };
@@ -130,17 +130,28 @@ export async function POST(request: NextRequest) {
     }
 
     if (saveError) {
-      console.error('데이터베이스 저장 오류:', saveError);
+      console.error('=== 데이터베이스 저장 오류 ===');
+      console.error('Error Code:', saveError.code);
+      console.error('Error Message:', saveError.message);
+      console.error('Error Details:', saveError.details);
+      console.error('Interview Record:', JSON.stringify(interviewRecord, null, 2));
+      console.error('================================');
       // AI 분석은 성공했지만 저장에 실패한 경우에도 결과는 반환
+      // 하지만 interviewId는 null로 설정하여 공유 기능을 비활성화
       return NextResponse.json({
         success: true,
         data: parsedData,
-        warning: '분석은 완료되었지만 저장 중 오류가 발생했습니다.',
+        interviewId: null,
+        warning: '분석은 완료되었지만 저장 중 오류가 발생했습니다. 데이터베이스 제약조건을 확인해주세요.',
         metadata: {
           analysisType,
           timestamp: new Date().toISOString(),
           promptId,
           hasParseError,
+          saved: false,
+          saveError: saveError.message,
+          errorCode: saveError.code,
+          errorDetails: saveError.details
         },
       });
     }
