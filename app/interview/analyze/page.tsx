@@ -9,7 +9,7 @@ export default function InterviewAnalyzePage() {
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [analysisResult, setAnalysisResult] = useState<any>(null);
   const [interviewId, setInterviewId] = useState<string | null>(null);
-  const [error, setError] = useState<string | null>(null); // 이 줄 추가
+  const [error, setError] = useState<string | null>(null);
   const [isStructuredMode, setIsStructuredMode] = useState(false);
   const [qnaPairs, setQnaPairs] = useState([{ question: "", answer: "" }]);
   
