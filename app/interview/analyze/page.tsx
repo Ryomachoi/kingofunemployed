@@ -48,6 +48,74 @@ export default function InterviewAnalyzePage() {
     setQnaPairs(updated);
   };
 
+  // 질문 텍스트에서 불필요한 특수문자 제거하는 함수
+  const cleanQuestionText = (text: string): string => {
+    return text
+      .replace(/^[.\-•*]+\s*/, '') // 앞의 점, 대시, 불릿 포인트 제거
+      .replace(/^\d+[.)\s]+/, '') // 앞의 숫자와 점/괄호 제거 (예: "1. ", "2) ")
+      .replace(/^[가-힣])\s*/, '') // 한글 번호 제거 (예: "가) ", "나) ")
+      .replace(/^Q\d*[.)\s]*:?\s*/i, '') // Q1, Q2 등 제거
+      .trim();
+  };
+
+  // 자유 작성 모드의 textarea 내용을 질문-답변으로 파싱하는 함수
+  const parseInterviewContent = (content: string): { question: string; answer: string }[] => {
+    if (!content.trim()) return [];
+    
+    const lines = content.split('\n').filter(line => line.trim());
+    const parsedQA: { question: string; answer: string }[] = [];
+    let currentQuestion = '';
+    let currentAnswer = '';
+    let isAnswer = false;
+    
+    for (const line of lines) {
+      const trimmedLine = line.trim();
+      
+      // 면접관 질문 패턴 감지
+      if (trimmedLine.match(/^(면접관|질문|Q|interviewer)\s*[:：]?\s*/i)) {
+        // 이전 질문-답변 쌍이 있으면 저장
+        if (currentQuestion && currentAnswer) {
+          parsedQA.push({ 
+            question: cleanQuestionText(currentQuestion.trim()), 
+            answer: currentAnswer.trim() 
+          });
+        }
+        currentQuestion = trimmedLine.replace(/^(면접관|질문|Q|interviewer)\s*[:：]?\s*/i, '').trim();
+        currentAnswer = '';
+        isAnswer = false;
+      }
+      // 답변 패턴 감지
+      else if (trimmedLine.match(/^(나|답변|A|answer|저는|제가)\s*[:：]?\s*/i)) {
+        currentAnswer = trimmedLine.replace(/^(나|답변|A|answer|저는|제가)\s*[:：]?\s*/i, '').trim();
+        isAnswer = true;
+      }
+      // 연속된 답변 내용
+      else if (isAnswer && currentAnswer) {
+        currentAnswer += ' ' + trimmedLine;
+      }
+      // 연속된 질문 내용 또는 일반 텍스트를 질문으로 처리
+      else if (!isAnswer) {
+        if (currentQuestion) {
+          currentQuestion += ' ' + trimmedLine;
+        } else {
+          // 질문 패턴이 없는 경우 첫 번째 라인을 질문으로 간주
+          currentQuestion = trimmedLine;
+        }
+      }
+    }
+    
+    // 마지막 질문-답변 쌍 저장
+    if (currentQuestion && currentAnswer) {
+      parsedQA.push({ 
+        question: cleanQuestionText(currentQuestion.trim()), 
+        answer: currentAnswer.trim() 
+      });
+    }
+    
+    console.log('🔍 파싱된 질문-답변:', parsedQA);
+    return parsedQA;
+  };
+
   const handleAnalyze = async () => {
     // 기본 정보 검증
     if (!company.trim() || !position.trim()) {
@@ -74,7 +142,8 @@ export default function InterviewAnalyzePage() {
           .join('\n\n');
         questionsAndAnswers = validPairs;
       } else {
-        questionsAndAnswers = [];
+        // 자유 작성 모드에서 textarea 내용을 질문-답변으로 파싱
+        questionsAndAnswers = parseInterviewContent(interviewContent);
       }
 
       // 공백/줄바꿈 정규화 및 길이 검증 추가

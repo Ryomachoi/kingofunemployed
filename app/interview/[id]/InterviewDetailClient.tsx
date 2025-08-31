@@ -116,17 +116,20 @@ export default function InterviewDetailClient({ interview, userProfile, currentU
         <div className="bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm rounded-2xl shadow-xl border border-white/20 dark:border-slate-700/50 p-8 mb-8">
           <div className="flex items-start justify-between mb-6">
             <div className="flex-1">
-              <div className="flex items-center gap-4 mb-4">
-                <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-2xl flex items-center justify-center text-white text-2xl font-bold">
-                  {interview.company_name.charAt(0)}
-                </div>
-                <div>
-                  <h1 className="text-3xl font-bold bg-gradient-to-r from-slate-800 to-slate-600 dark:from-slate-200 dark:to-slate-400 bg-clip-text text-transparent">
-                    {interview.company_name}
-                  </h1>
-                  <p className="text-xl text-slate-600 dark:text-slate-400 mt-1">
-                    {interview.position}
-                  </p>
+              <div className="mb-4">
+                <h1 className="text-3xl font-bold bg-gradient-to-r from-slate-800 to-slate-600 dark:from-slate-200 dark:to-slate-400 bg-clip-text text-transparent mb-2">
+                  {interview.company_name}
+                </h1>
+                <div className="flex items-center gap-4 text-xl text-slate-600 dark:text-slate-400">
+                  <span>{interview.position}</span>
+                  {interview.created_at && (
+                    <>
+                      <span className="text-slate-400 dark:text-slate-500">•</span>
+                      <span className="text-sm">
+                        작성일: {new Date(interview.created_at).toLocaleDateString('ko-KR')}
+                      </span>
+                    </>
+                  )}
                 </div>
               </div>
               
@@ -177,7 +180,7 @@ export default function InterviewDetailClient({ interview, userProfile, currentU
             </div>
           </div>
           
-          {/* Interview Date & Author */}
+          {/* Interview Date */}
           <div className="flex items-center justify-between pt-6 border-t border-slate-200/50 dark:border-slate-700/50">
             <div className="flex items-center gap-6 text-sm text-slate-600 dark:text-slate-400">
               {interview.interview_date && (
@@ -188,13 +191,6 @@ export default function InterviewDetailClient({ interview, userProfile, currentU
                   면접일: {new Date(interview.interview_date).toLocaleDateString('ko-KR')}
                 </span>
               )}
-              
-              <span className="flex items-center gap-2">
-                <div className="w-6 h-6 bg-gradient-to-br from-slate-400 to-slate-500 rounded-full flex items-center justify-center text-white text-xs font-bold">
-                  익
-                </div>
-                작성자: 익명
-              </span>
             </div>
             
             {/* Overall Rating */}
