@@ -29,13 +29,15 @@ export default async function InterviewDetailPage({ params }: { params: Promise<
 
   if (!interview) return notFound()
 
-  // 질문/답변 파싱
-  let qaList: { question: string; answer: string }[] = []
-  try {
-    qaList = JSON.parse(interview.questions_and_answers || '[]')
-  } catch (e) {
-    qaList = []
-  }
+  // 새로운 스키마: interview_questions 테이블에서 질문/답변 조회
+  const { data: questions } = await supabase
+    .from('interview_questions')
+    .select('question, answer, question_order')
+    .eq('interview_id', id)
+    .order('question_order', { ascending: true })
+
+  // 질문/답변 리스트 생성
+  const qaList: { question: string; answer: string }[] = questions || []
 
   return (
     <InterviewDetailClient 

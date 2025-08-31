@@ -15,20 +15,35 @@ export default async function InterviewCommunityPage() {
     .eq('is_shared', true)
     .order('created_at', { ascending: false })
 
-  // 각 면접 후기에 대해 사용자 프로필 정보를 별도로 조회
+  // 각 면접 후기에 대해 사용자 프로필 정보와 첫 번째 질문을 별도로 조회
   let interviewsWithProfiles = []
   if (interviews) {
     interviewsWithProfiles = await Promise.all(
       interviews.map(async (interview) => {
+        // 사용자 프로필 조회
+        let profile = null
         if (interview.user_id) {
-          const { data: profile } = await supabase
+          const { data: profileData } = await supabase
             .from('user_profiles')
             .select('nickname, display_name')
-            .eq('id', interview.user_id)
+            .eq('user_id', interview.user_id)
             .single()
-          return { ...interview, user_profiles: profile }
+          profile = profileData
         }
-        return { ...interview, user_profiles: null }
+
+        // 첫 번째 질문 조회 (새로운 스키마)
+        const { data: firstQuestion } = await supabase
+          .from('interview_questions')
+          .select('question')
+          .eq('interview_id', interview.id)
+          .eq('question_order', 1)
+          .single()
+
+        return { 
+          ...interview, 
+          user_profiles: profile,
+          first_question: firstQuestion?.question || null
+        }
       })
     )
   }

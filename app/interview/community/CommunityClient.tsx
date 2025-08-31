@@ -89,7 +89,7 @@ export default function CommunityClient({ interviews: initialInterviews, current
             interviews.map((interview, index) => (
               <div key={interview.id} className="relative">
                 <Link 
-                  href={`/interview/${interview.id}`}
+                  href={`/interview/${interview.id}?view=community`}
                   className="block group"
                 >
                   <article className="bg-white/80 dark:bg-slate-900/80 backdrop-blur-sm rounded-2xl border border-slate-200/50 dark:border-slate-800/50 hover:border-blue-300/50 dark:hover:border-blue-600/50 transition-all duration-300 hover:shadow-xl hover:shadow-blue-500/10 dark:hover:shadow-blue-400/10 overflow-hidden">
@@ -192,17 +192,7 @@ export default function CommunityClient({ interviews: initialInterviews, current
                         </div>
                         <div className="bg-white/80 dark:bg-slate-700/50 rounded-lg p-3">
                           <p className="text-sm text-slate-700 dark:text-slate-300 line-clamp-2">
-                            💬 {(() => {
-                              try {
-                                const qaList = JSON.parse(interview.questions_and_answers)
-                                if (Array.isArray(qaList) && qaList.length > 0) {
-                                  return qaList[0].question
-                                }
-                              } catch (e) {
-                                // JSON 파싱 실패시 원본 텍스트 표시
-                              }
-                              return interview.questions_and_answers.substring(0, 100) + '...'
-                            })()} 
+                            💬 {interview.first_question || '질문 정보가 없습니다.'}
                           </p>
                         </div>
                       </div>

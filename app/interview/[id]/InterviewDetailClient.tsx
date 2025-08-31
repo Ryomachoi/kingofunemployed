@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 
 interface InterviewDetailClientProps {
@@ -12,6 +13,9 @@ interface InterviewDetailClientProps {
 
 export default function InterviewDetailClient({ interview, userProfile, currentUserId, parsedQAList }: InterviewDetailClientProps) {
   console.log('InterviewDetailClient props:', { interview, currentUserId, userProfile })
+  
+  const searchParams = useSearchParams()
+  const isFromCommunity = searchParams.get('view') === 'community'
   
   const [isShared, setIsShared] = useState(interview.is_shared)
   const [isLoading, setIsLoading] = useState(false)
@@ -258,8 +262,8 @@ export default function InterviewDetailClient({ interview, userProfile, currentU
           </div>
         )}
 
-        {/* Feedback & Tips */}
-        {interview.feedback_and_tips && (
+        {/* Feedback & Tips - 커뮤니티에서는 숨김, 작성자이거나 마이페이지에서만 표시 */}
+        {interview.feedback_and_tips && !isFromCommunity && (
           <div className="bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm rounded-2xl shadow-xl border border-white/20 dark:border-slate-700/50 p-8 mb-8">
             <h2 className="text-2xl font-bold text-slate-800 dark:text-slate-200 mb-6 flex items-center gap-3">
               <div className="w-8 h-8 bg-gradient-to-r from-amber-500 to-orange-600 rounded-xl flex items-center justify-center">
@@ -278,8 +282,8 @@ export default function InterviewDetailClient({ interview, userProfile, currentU
           </div>
         )}
 
-        {/* AI Feedback */}
-        {interview.ai_feedback && (
+        {/* AI Feedback - 커뮤니티에서는 숨김, 작성자이거나 마이페이지에서만 표시 */}
+        {interview.ai_feedback && !isFromCommunity && (
           <div className="bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm rounded-2xl shadow-xl border border-white/20 dark:border-slate-700/50 p-8 mb-8">
             <h2 className="text-2xl font-bold text-slate-800 dark:text-slate-200 mb-6 flex items-center gap-3">
               <div className="w-8 h-8 bg-gradient-to-r from-violet-500 to-purple-600 rounded-xl flex items-center justify-center">

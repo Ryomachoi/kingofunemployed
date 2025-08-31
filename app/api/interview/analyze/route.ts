@@ -76,15 +76,14 @@ export async function POST(request: NextRequest) {
     // is_public으로 커뮤니티 공개 여부 구분
     const interviewRecord = {
       user_id: user.id,
-      company_name: interviewData?.company_name || null,
-      position: interviewData?.position || null,
-      interview_date: interviewData?.interview_date || null,
-      interview_type: interviewData?.interview_type || null,
-      difficulty_level: interviewData?.difficulty_level || null,
+      company_name: interviewData?.company_name || '회사명 없음',
+      position: interviewData?.position || '직무 없음',
+      interview_date: interviewData?.interview_date || new Date().toISOString().split('T')[0], // 오늘 날짜를 기본값으로
+      interview_type: interviewData?.interview_type || 'other',
+      difficulty_level: interviewData?.difficulty_level || 'medium',
       result: interviewData?.result || null,
       overall_rating: interviewData?.overall_rating || null,
       feedback_and_tips: interviewData?.feedback_and_tips || null,
-      questions_and_answers: interviewData?.questions_and_answers || [],
       ai_feedback: hasParseError ? aiAnalysis : parsedData,
       ai_analysis_metadata: {
         analysisType,
@@ -96,6 +95,8 @@ export async function POST(request: NextRequest) {
       },
       analysis_timestamp: new Date().toISOString(),
       ai_analysis_status: 'completed',
+      // questions_and_answers 필드 임시 제거 (NOT NULL 제약조건 때문에)
+      // questions_and_answers: interviewData?.questions_and_answers || [],
       // is_public: analysisType === "익명 후기 공유", // 커뮤니티 공개 여부 - 컬럼이 없어서 임시 제거
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString()
@@ -106,6 +107,27 @@ export async function POST(request: NextRequest) {
       .insert([interviewRecord])
       .select('id')
       .single();
+
+    // 질문과 답변을 interview_questions 테이블에 저장 (새로운 스키마)
+    if (savedInterview?.id && interviewData?.questions_and_answers && Array.isArray(interviewData.questions_and_answers)) {
+      const questionsData = interviewData.questions_and_answers.map((qa: any, index: number) => ({
+        interview_id: savedInterview.id,
+        question_order: index + 1,
+        question: qa.question || '',
+        answer: qa.answer || ''
+      })).filter((qa: any) => qa.question.trim() && qa.answer.trim())
+
+      if (questionsData.length > 0) {
+        const { error: questionsError } = await supabase
+          .from('interview_questions')
+          .insert(questionsData)
+
+        if (questionsError) {
+          console.error('Error saving interview questions:', questionsError)
+          // 질문 저장 실패해도 분석 결과는 반환
+        }
+      }
+    }
 
     if (saveError) {
       console.error('데이터베이스 저장 오류:', saveError);
