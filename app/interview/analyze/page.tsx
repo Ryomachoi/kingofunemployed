@@ -53,7 +53,7 @@ export default function InterviewAnalyzePage() {
     return text
       .replace(/^[.\-•*]+\s*/, '') // 앞의 점, 대시, 불릿 포인트 제거
       .replace(/^\d+[.)\s]+/, '') // 앞의 숫자와 점/괄호 제거 (예: "1. ", "2) ")
-      .replace(/^[가-힣])\s*/, '') // 한글 번호 제거 (예: "가) ", "나) ")
+      .replace(/^[가-힣]\)\s*/, '') // 한글 번호 제거 (예: "가) ", "나) ")
       .replace(/^Q\d*[.)\s]*:?\s*/i, '') // Q1, Q2 등 제거
       .trim();
   };
