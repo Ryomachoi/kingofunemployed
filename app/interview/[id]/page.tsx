@@ -21,7 +21,7 @@ export default async function InterviewDetailPage({ params }: { params: Promise<
   if (interview?.user_id) {
     const { data: profile } = await supabase
       .from('user_profiles')
-      .select('nickname, display_name')
+      .select('id, nickname, display_name')
       .eq('user_id', interview.user_id)
       .single()
     userProfile = profile

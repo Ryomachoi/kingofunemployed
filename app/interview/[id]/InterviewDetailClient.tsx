@@ -201,7 +201,7 @@ export default function InterviewDetailClient({ interview, userProfile, currentU
                   {[...Array(5)].map((_, i) => (
                     <svg 
                       key={i} 
-                      className={`w-5 h-5 ${i < interview.overall_rating ? 'text-yellow-400' : 'text-slate-300 dark:text-slate-600'}`} 
+                      className={`w-5 h-5 ${i < (interview.overall_rating || 0) ? 'text-yellow-400' : 'text-slate-300 dark:text-slate-600'}`}
                       fill="currentColor" 
                       viewBox="0 0 20 20"
                     >
