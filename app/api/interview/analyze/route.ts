@@ -8,7 +8,7 @@ const openai = new OpenAI({
 
 export async function POST(request: NextRequest) {
   try {
-    const { content, analysisType, interviewData } = await request.json();
+    const { content, analysisType, shareOption, interviewData } = await request.json();
     
     // 사용자 인증 확인
     const supabase = await createClient();
@@ -97,7 +97,7 @@ export async function POST(request: NextRequest) {
       ai_analysis_status: 'completed',
       // questions_and_answers 필드는 별도 테이블로 분리됨
       // is_public 컬럼은 존재하지 않으므로 제거
-      is_shared: analysisType === "익명 후기 공유", // 커뮤니티 공유 여부
+      is_shared: shareOption === "community", // 커뮤니티 공유 여부 - shareOption 기반으로 설정
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString()
     };

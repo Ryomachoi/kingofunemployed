@@ -21,6 +21,9 @@ export default function InterviewAnalyzePage() {
   const [difficulty, setDifficulty] = useState("");
   const [interviewResult, setInterviewResult] = useState("");
   const [overallRating, setOverallRating] = useState("");
+  
+  // 공유 옵션 상태 - 기본값은 '개인 분석'
+  const [shareOption, setShareOption] = useState("personal"); // "personal" 또는 "community"
 
   const [submitting, setSubmitting] = useState(false);
 
@@ -163,6 +166,7 @@ export default function InterviewAnalyzePage() {
       const response = await axios.post('/api/interview/analyze', {
         content: normalized,
         analysisType,
+        shareOption, // 공유 옵션 추가
         // 새로 추가된 면접 정보
         interviewData: {
           company_name: company,
@@ -462,6 +466,64 @@ export default function InterviewAnalyzePage() {
 
               </div>
             </div>
+            
+            {/* 면접 후기 공개 설정 */}
+            <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 overflow-hidden">
+              <div className="px-6 py-4 border-b border-slate-200 dark:border-slate-700">
+                <h3 className="text-base font-medium text-slate-900 dark:text-slate-100 flex items-center gap-2">
+                  <div className="w-5 h-5 bg-blue-500 rounded-lg flex items-center justify-center">
+                    <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                    </svg>
+                  </div>
+                  면접 후기 공개 설정
+                </h3>
+              </div>
+              <div className="p-6">
+                <div className="space-y-4">
+                  <div className="flex items-start space-x-3">
+                    <input
+                      id="personal"
+                      name="shareOption"
+                      type="radio"
+                      value="personal"
+                      checked={shareOption === "personal"}
+                      onChange={(e) => setShareOption(e.target.value)}
+                      className="mt-1 h-4 w-4 text-purple-600 focus:ring-purple-500 border-slate-300 dark:border-slate-600"
+                    />
+                    <div className="flex-1">
+                      <label htmlFor="personal" className="block text-sm font-medium text-slate-900 dark:text-slate-100 cursor-pointer">
+                        개인 분석만
+                      </label>
+                      <p className="text-sm text-slate-500 dark:text-slate-400">
+                        나의 공개되지 않으며, 개인 피드백 제공됩니다
+                      </p>
+                    </div>
+                  </div>
+                  
+                  <div className="flex items-start space-x-3">
+                    <input
+                      id="community"
+                      name="shareOption"
+                      type="radio"
+                      value="community"
+                      checked={shareOption === "community"}
+                      onChange={(e) => setShareOption(e.target.value)}
+                      className="mt-1 h-4 w-4 text-purple-600 focus:ring-purple-500 border-slate-300 dark:border-slate-600"
+                    />
+                    <div className="flex-1">
+                      <label htmlFor="community" className="block text-sm font-medium text-slate-900 dark:text-slate-100 cursor-pointer">
+                        익명 후기 공유
+                      </label>
+                      <p className="text-sm text-slate-500 dark:text-slate-400">
+                        개인정보를 제외하고 익명으로 커뮤니티에 공유됩니다
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
             {/* 면접 내용 작성 */}
             <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 overflow-hidden">
               <div className="px-6 py-4 border-b border-slate-200 dark:border-slate-700 flex items-center justify-between">
@@ -834,39 +896,7 @@ export default function InterviewAnalyzePage() {
                   상세 면접 후기 보기
                 </Link>
               )}
-              <button
-                onClick={async () => {
-                  if (!interviewId) {
-                    alert("⚠️ 면접 데이터가 저장되지 않아 공유할 수 없습니다.\n\n데이터베이스 제약조건을 확인하고 다시 분석해주세요.");
-                    return;
-                  }
-                  
-                  try {
-                    const response = await axios.post('/api/interview/share', {
-                      interviewId: interviewId
-                    });
-                    
-                    if (response.data.success) {
-                      alert("✅ 커뮤니티에 성공적으로 공유되었습니다!");
-                      // 커뮤니티 페이지로 이동
-                      window.location.href = '/interview/community';
-                    } else {
-                      alert("❌ 공유 중 오류가 발생했습니다: " + (response.data.error || '알 수 없는 오류'));
-                    }
-                  } catch (error) {
-                    console.error('공유 오류:', error);
-                    alert("❌ 공유 중 오류가 발생했습니다.");
-                  }
-                }}
-                disabled={!interviewId}
-                className={`flex-1 font-medium py-3 px-6 rounded-xl transition-all duration-200 transform ${
-                  interviewId 
-                    ? 'bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white hover:scale-[1.02] cursor-pointer'
-                    : 'bg-gray-300 dark:bg-gray-600 text-gray-500 dark:text-gray-400 cursor-not-allowed'
-                }`}
-              >
-                {interviewId ? '커뮤니티에 공유하기' : '공유 불가 (데이터 저장 실패)'}
-              </button>
+
             </div>
           </div>
         )}
