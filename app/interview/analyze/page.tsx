@@ -4,13 +4,13 @@ import Link from "next/link";
 import axios from "axios"; // axios import 추가
 
 export default function InterviewAnalyzePage() {
-  const [interviewContent, setInterviewContent] = useState("");
+  // interviewContent는 구조화된 모드로 고정되어 더 이상 사용하지 않음
   const [analysisType, setAnalysisType] = useState("comprehensive");
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [analysisResult, setAnalysisResult] = useState<any>(null);
   const [interviewId, setInterviewId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [isStructuredMode, setIsStructuredMode] = useState(false);
+  const [isStructuredMode, setIsStructuredMode] = useState(true); // 구조화된 모드로 고정
   const [qnaPairs, setQnaPairs] = useState([{ question: "", answer: "" }]);
   
   // 새로 추가된 면접 정보 상태
@@ -27,12 +27,7 @@ export default function InterviewAnalyzePage() {
 
   const [submitting, setSubmitting] = useState(false);
 
-  const toggleStructuredMode = () => {
-    setIsStructuredMode(!isStructuredMode);
-    // 모드 전환 시 내용 초기화
-    setInterviewContent("");
-    setQnaPairs([{ question: "", answer: "" }]);
-  };
+  // toggleStructuredMode 함수는 구조화된 모드로 고정되어 더 이상 사용하지 않음
 
   const addQnAPair = () => {
     setQnaPairs([...qnaPairs, { question: "", answer: "" }]);
@@ -51,73 +46,9 @@ export default function InterviewAnalyzePage() {
     setQnaPairs(updated);
   };
 
-  // 질문 텍스트에서 불필요한 특수문자 제거하는 함수
-  const cleanQuestionText = (text: string): string => {
-    return text
-      .replace(/^[.\-•*]+\s*/, '') // 앞의 점, 대시, 불릿 포인트 제거
-      .replace(/^\d+[.)\s]+/, '') // 앞의 숫자와 점/괄호 제거 (예: "1. ", "2) ")
-      .replace(/^[가-힣]\)\s*/, '') // 한글 번호 제거 (예: "가) ", "나) ")
-      .replace(/^Q\d*[.)\s]*:?\s*/i, '') // Q1, Q2 등 제거
-      .trim();
-  };
+  // cleanQuestionText 함수는 구조화된 모드로 고정되어 더 이상 사용하지 않음
 
-  // 자유 작성 모드의 textarea 내용을 질문-답변으로 파싱하는 함수
-  const parseInterviewContent = (content: string): { question: string; answer: string }[] => {
-    if (!content.trim()) return [];
-    
-    const lines = content.split('\n').filter(line => line.trim());
-    const parsedQA: { question: string; answer: string }[] = [];
-    let currentQuestion = '';
-    let currentAnswer = '';
-    let isAnswer = false;
-    
-    for (const line of lines) {
-      const trimmedLine = line.trim();
-      
-      // 면접관 질문 패턴 감지
-      if (trimmedLine.match(/^(면접관|질문|Q|interviewer)\s*[:：]?\s*/i)) {
-        // 이전 질문-답변 쌍이 있으면 저장
-        if (currentQuestion && currentAnswer) {
-          parsedQA.push({ 
-            question: cleanQuestionText(currentQuestion.trim()), 
-            answer: currentAnswer.trim() 
-          });
-        }
-        currentQuestion = trimmedLine.replace(/^(면접관|질문|Q|interviewer)\s*[:：]?\s*/i, '').trim();
-        currentAnswer = '';
-        isAnswer = false;
-      }
-      // 답변 패턴 감지
-      else if (trimmedLine.match(/^(나|답변|A|answer|저는|제가)\s*[:：]?\s*/i)) {
-        currentAnswer = trimmedLine.replace(/^(나|답변|A|answer|저는|제가)\s*[:：]?\s*/i, '').trim();
-        isAnswer = true;
-      }
-      // 연속된 답변 내용
-      else if (isAnswer && currentAnswer) {
-        currentAnswer += ' ' + trimmedLine;
-      }
-      // 연속된 질문 내용 또는 일반 텍스트를 질문으로 처리
-      else if (!isAnswer) {
-        if (currentQuestion) {
-          currentQuestion += ' ' + trimmedLine;
-        } else {
-          // 질문 패턴이 없는 경우 첫 번째 라인을 질문으로 간주
-          currentQuestion = trimmedLine;
-        }
-      }
-    }
-    
-    // 마지막 질문-답변 쌍 저장
-    if (currentQuestion && currentAnswer) {
-      parsedQA.push({ 
-        question: cleanQuestionText(currentQuestion.trim()), 
-        answer: currentAnswer.trim() 
-      });
-    }
-    
-    console.log('🔍 파싱된 질문-답변:', parsedQA);
-    return parsedQA;
-  };
+  // parseInterviewContent 함수는 구조화된 모드로 고정되어 더 이상 사용하지 않음
 
   const handleAnalyze = async () => {
     // 기본 정보 검증
@@ -132,22 +63,14 @@ export default function InterviewAnalyzePage() {
     setError(null);
     
     try {
-      // 구조화된 모드일 때 qnaPairs를 문자열로 변환
-      let contentToSend = interviewContent;
-      let questionsAndAnswers: { question: string; answer: string }[];
-      
-      if (isStructuredMode) {
-        const validPairs = qnaPairs.filter(pair => pair.question.trim() || pair.answer.trim());
-        contentToSend = validPairs
-          .map((pair, index) => {
-            return `질문 ${index + 1}: ${pair.question}\n답변 ${index + 1}: ${pair.answer}`;
-          })
-          .join('\n\n');
-        questionsAndAnswers = validPairs;
-      } else {
-        // 자유 작성 모드에서 textarea 내용을 질문-답변으로 파싱
-        questionsAndAnswers = parseInterviewContent(interviewContent);
-      }
+      // 구조화된 모드로 고정 - qnaPairs를 문자열로 변환
+      const validPairs = qnaPairs.filter(pair => pair.question.trim() || pair.answer.trim());
+      const contentToSend = validPairs
+        .map((pair, index) => {
+          return `질문 ${index + 1}: ${pair.question}\n답변 ${index + 1}: ${pair.answer}`;
+        })
+        .join('\n\n');
+      const questionsAndAnswers = validPairs;
 
       // 공백/줄바꿈 정규화 및 길이 검증 추가
       const normalized = (contentToSend || '').replace(/\r\n/g, '\n').trim();
@@ -160,7 +83,6 @@ export default function InterviewAnalyzePage() {
       }
       
       console.log('🔍 전송할 내용:', normalized);
-      console.log('🔍 구조화된 모드:', isStructuredMode);
       console.log('🔍 qnaPairs:', qnaPairs);
       
       const response = await axios.post('/api/interview/analyze', {
@@ -526,97 +448,64 @@ export default function InterviewAnalyzePage() {
             
             {/* 면접 내용 작성 */}
             <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 overflow-hidden">
-              <div className="px-6 py-4 border-b border-slate-200 dark:border-slate-700 flex items-center justify-between">
+              <div className="px-6 py-4 border-b border-slate-200 dark:border-slate-700">
                 <h2 className="text-lg font-medium text-slate-900 dark:text-slate-100">
-                  면접 내용 작성
+                  면접 질문과 답변 작성
                 </h2>
-                <div className="flex items-center gap-3">
-                  <span className="text-sm text-slate-500 dark:text-slate-400">
-                    질문-답변 구조로 정리할까요?
-                  </span>
-                  <button
-                    onClick={toggleStructuredMode}
-                    className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
-                      isStructuredMode 
-                        ? 'bg-purple-600' 
-                        : 'bg-slate-200 dark:bg-slate-600'
-                    }`}
-                  >
-                    <span
-                      className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
-                        isStructuredMode ? 'translate-x-6' : 'translate-x-1'
-                      }`}
-                    />
-                  </button>
-                </div>
+                <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
+                  질문과 답변을 구조적으로 입력해주세요
+                </p>
               </div>
               
               <div className="p-6">
-                {!isStructuredMode ? (
-                  // 자유 작성 모드
-                  <>
-                    <textarea
-                      value={interviewContent}
-                      onChange={(e) => setInterviewContent(e.target.value)}
-                      placeholder="면접 내용을 자유롭게 입력해주세요. 질문과 답변을 모두 포함해서 작성하시면 더 정확한 분석이 가능합니다.\n\nex) \n면접관: 자기소개해보세요\n나: 저는 마켜팅을 사랑합니다...\n면접관의 반응: 고개를 끄덕였어요"
-                      className="w-full h-80 p-4 border border-slate-200 dark:border-slate-600 rounded-lg bg-slate-50 dark:bg-slate-700 text-slate-900 dark:text-slate-100 placeholder-slate-500 dark:placeholder-slate-400 resize-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
-                    />
-                    <div className="mt-3">
-                      <span className="text-sm text-slate-500 dark:text-slate-400">
-                        {interviewContent.length} 글자
-                      </span>
-                    </div>
-                  </>
-                ) : (
-                  // 구조화된 입력 모드
-                  <div className="space-y-6">
-                    {qnaPairs.map((pair, index) => (
-                      <div key={index} className="space-y-4">
-                        <div className="flex items-center justify-between">
-                          <h3 className="text-sm font-medium text-slate-700 dark:text-slate-300">
-                            질문 {index + 1}
-                          </h3>
-                          {qnaPairs.length > 1 && (
-                            <button
-                              onClick={() => removeQnAPair(index)}
-                              className="text-red-500 hover:text-red-700 p-1"
-                            >
-                              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                              </svg>
-                            </button>
-                          )}
-                        </div>
-                        <input
-                          type="text"
-                          value={pair.question}
-                          onChange={(e) => updateQnAPair(index, 'question', e.target.value)}
-                          placeholder="예: 자기소개해주세요"
-                          className="w-full p-3 border border-slate-200 dark:border-slate-600 rounded-lg bg-slate-50 dark:bg-slate-700 text-slate-900 dark:text-slate-100 placeholder-slate-500 dark:placeholder-slate-400 focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
-                        />
-                        
-                        <div>
-                          <h3 className="text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
-                            답변 {index + 1}
-                          </h3>
-                          <textarea
-                            value={pair.answer}
-                            onChange={(e) => updateQnAPair(index, 'answer', e.target.value)}
-                            placeholder="답변을 입력해주세요..."
-                            className="w-full h-32 p-3 border border-slate-200 dark:border-slate-600 rounded-lg bg-slate-50 dark:bg-slate-700 text-slate-900 dark:text-slate-100 placeholder-slate-500 dark:placeholder-slate-400 resize-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
-                          />
-                        </div>
+                {/* 구조화된 입력 모드로 고정 */}
+                <div className="space-y-6">
+                  {qnaPairs.map((pair, index) => (
+                    <div key={index} className="space-y-4">
+                      <div className="flex items-center justify-between">
+                        <h3 className="text-sm font-medium text-slate-700 dark:text-slate-300">
+                          질문 {index + 1}
+                        </h3>
+                        {qnaPairs.length > 1 && (
+                          <button
+                            onClick={() => removeQnAPair(index)}
+                            className="text-red-500 hover:text-red-700 p-1"
+                          >
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                          </button>
+                        )}
                       </div>
-                    ))}
-                    
-                    <button
-                      onClick={addQnAPair}
-                      className="w-full py-3 border-2 border-dashed border-slate-300 dark:border-slate-600 rounded-lg text-slate-500 dark:text-slate-400 hover:border-purple-400 hover:text-purple-600 dark:hover:text-purple-400 transition-colors"
-                    >
-                      + 질문-답변 추가
-                    </button>
-                  </div>
-                )}
+                      <input
+                        type="text"
+                        value={pair.question}
+                        onChange={(e) => updateQnAPair(index, 'question', e.target.value)}
+                        placeholder="예: 자기소개해주세요"
+                        className="w-full p-3 border border-slate-200 dark:border-slate-600 rounded-lg bg-slate-50 dark:bg-slate-700 text-slate-900 dark:text-slate-100 placeholder-slate-500 dark:placeholder-slate-400 focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
+                      />
+                      
+                      <div>
+                        <h3 className="text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                          답변 {index + 1}
+                        </h3>
+                        <textarea
+                          value={pair.answer}
+                          onChange={(e) => updateQnAPair(index, 'answer', e.target.value)}
+                          placeholder="답변을 입력해주세요..."
+                          className="w-full h-32 p-3 border border-slate-200 dark:border-slate-600 rounded-lg bg-slate-50 dark:bg-slate-700 text-slate-900 dark:text-slate-100 placeholder-slate-500 dark:placeholder-slate-400 resize-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
+                        />
+                      </div>
+                    </div>
+                  ))}
+                  
+                  <button
+                    onClick={addQnAPair}
+                    className="w-full py-3 border-2 border-dashed border-slate-300 dark:border-slate-600 rounded-lg text-slate-500 dark:text-slate-400 hover:border-purple-400 hover:text-purple-600 dark:hover:text-purple-400 transition-colors"
+                  >
+                    + 질문-답변 추가
+                  </button>
+                </div>
               </div>
             </div>
 
@@ -649,7 +538,7 @@ export default function InterviewAnalyzePage() {
               
               <button
                 onClick={handleAnalyze}
-                disabled={isAnalyzing || !company.trim() || !position.trim() || (!isStructuredMode && !interviewContent.trim()) || (isStructuredMode && !qnaPairs.some(pair => pair.question.trim() || pair.answer.trim()))}
+                disabled={isAnalyzing || !company.trim() || !position.trim() || !qnaPairs.some(pair => pair.question.trim() || pair.answer.trim())}
                 className="w-full bg-gradient-to-r from-purple-500 to-purple-600 hover:from-purple-600 hover:to-purple-700 disabled:from-slate-300 disabled:to-slate-400 text-white font-medium py-4 px-6 rounded-xl transition-all duration-200 transform hover:scale-[1.02] disabled:scale-100 disabled:cursor-not-allowed"
               >
                 {isAnalyzing ? (
@@ -873,7 +762,7 @@ export default function InterviewAnalyzePage() {
                 onClick={() => {
                   setAnalysisResult(null);
                   setInterviewId(null);
-                  setInterviewContent("");
+                  // interviewContent는 더 이상 사용하지 않음
                   setQnaPairs([{ question: "", answer: "" }]);
                   setCompany("");
                   setPosition("");
