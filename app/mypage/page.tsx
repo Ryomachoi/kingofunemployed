@@ -49,12 +49,39 @@ export default async function MyPage() {
     .order('created_at', { ascending: false })
     .limit(10)
 
+  // 면접 후기 가져오기 (새로운 스키마: 질문 개수 포함)
+  const { data: interviews } = await supabase
+    .from('interviews')
+    .select('*')
+    .eq('user_id', user.id)
+    .order('created_at', { ascending: false })
+    .limit(20)
+
+  // 각 면접에 대한 질문 개수 조회
+  let interviewsWithQuestionCount = []
+  if (interviews) {
+    interviewsWithQuestionCount = await Promise.all(
+      interviews.map(async (interview) => {
+        const { count } = await supabase
+          .from('interview_questions')
+          .select('*', { count: 'exact', head: true })
+          .eq('interview_id', interview.id)
+
+        return {
+          ...interview,
+          question_count: count || 0
+        }
+      })
+    )
+  }
+
   return (
     <MyPageClient 
       user={user}
       profile={profile}
       posts={posts || []}
       comments={comments || []}
+      interviews={interviewsWithQuestionCount || []}
     />
   )
 }

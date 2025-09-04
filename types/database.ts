@@ -70,3 +70,42 @@ export type CommentWithProfile = Comment & {
 export type CommentWithReplies = CommentWithProfile & {
   replies: CommentWithProfile[]
 }
+
+// 면접 관련 타입 정의
+export interface Interview {
+  id: string
+  user_id: string
+  company_name: string
+  position: string
+  interview_date?: string
+  interview_type?: '화상면접' | '대면면접' | '전화면접' | '기타' | 'video' | 'in_person' | 'phone' | 'other' | 'technical' | 'behavioral' | 'coding' | 'presentation' | 'case_study'
+  difficulty_level?: 'easy' | 'medium' | 'hard' | 'very_hard'
+  questions_and_answers?: string
+  result?: 'pass' | 'fail' | 'pending' | 'in_progress'
+  overall_rating?: number
+  feedback_and_tips?: string
+  ai_feedback?: any
+  ai_analysis_metadata?: any
+  created_at: string
+  updated_at: string
+  is_public?: boolean
+  is_shared?: boolean
+  user_profiles?: UserProfile | null
+  question_count?: number
+  first_question?: string | null
+}
+
+// 면접 질문-답변 타입
+export interface InterviewQuestion {
+  id: string
+  interview_id: string
+  question: string
+  answer: string
+  question_order: number
+  created_at: string
+}
+
+// 프로필 정보가 포함된 면접 타입
+export type InterviewWithProfile = Interview & {
+  user_profiles: UserProfile | null
+}

@@ -7,10 +7,25 @@ export default function InterviewAnalyzePage() {
   const [interviewContent, setInterviewContent] = useState("");
   const [analysisType, setAnalysisType] = useState("comprehensive");
   const [isAnalyzing, setIsAnalyzing] = useState(false);
-  const [analysisResult, setAnalysisResult] = useState(null);
-  const [error, setError] = useState(null); // 이 줄 추가
+  const [analysisResult, setAnalysisResult] = useState<any>(null);
+  const [interviewId, setInterviewId] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
   const [isStructuredMode, setIsStructuredMode] = useState(false);
   const [qnaPairs, setQnaPairs] = useState([{ question: "", answer: "" }]);
+  
+  // 새로 추가된 면접 정보 상태
+  const [company, setCompany] = useState("");
+  const [position, setPosition] = useState("");
+  const [interviewDate, setInterviewDate] = useState("");
+  const [interviewType, setInterviewType] = useState("");
+  const [difficulty, setDifficulty] = useState("");
+  const [interviewResult, setInterviewResult] = useState("");
+  const [overallRating, setOverallRating] = useState("");
+  
+  // 공유 옵션 상태 - 기본값은 '개인 분석'
+  const [shareOption, setShareOption] = useState("personal"); // "personal" 또는 "community"
+
+  const [submitting, setSubmitting] = useState(false);
 
   const toggleStructuredMode = () => {
     setIsStructuredMode(!isStructuredMode);
@@ -36,22 +51,102 @@ export default function InterviewAnalyzePage() {
     setQnaPairs(updated);
   };
 
+  // 질문 텍스트에서 불필요한 특수문자 제거하는 함수
+  const cleanQuestionText = (text: string): string => {
+    return text
+      .replace(/^[.\-•*]+\s*/, '') // 앞의 점, 대시, 불릿 포인트 제거
+      .replace(/^\d+[.)\s]+/, '') // 앞의 숫자와 점/괄호 제거 (예: "1. ", "2) ")
+      .replace(/^[가-힣]\)\s*/, '') // 한글 번호 제거 (예: "가) ", "나) ")
+      .replace(/^Q\d*[.)\s]*:?\s*/i, '') // Q1, Q2 등 제거
+      .trim();
+  };
+
+  // 자유 작성 모드의 textarea 내용을 질문-답변으로 파싱하는 함수
+  const parseInterviewContent = (content: string): { question: string; answer: string }[] => {
+    if (!content.trim()) return [];
+    
+    const lines = content.split('\n').filter(line => line.trim());
+    const parsedQA: { question: string; answer: string }[] = [];
+    let currentQuestion = '';
+    let currentAnswer = '';
+    let isAnswer = false;
+    
+    for (const line of lines) {
+      const trimmedLine = line.trim();
+      
+      // 면접관 질문 패턴 감지
+      if (trimmedLine.match(/^(면접관|질문|Q|interviewer)\s*[:：]?\s*/i)) {
+        // 이전 질문-답변 쌍이 있으면 저장
+        if (currentQuestion && currentAnswer) {
+          parsedQA.push({ 
+            question: cleanQuestionText(currentQuestion.trim()), 
+            answer: currentAnswer.trim() 
+          });
+        }
+        currentQuestion = trimmedLine.replace(/^(면접관|질문|Q|interviewer)\s*[:：]?\s*/i, '').trim();
+        currentAnswer = '';
+        isAnswer = false;
+      }
+      // 답변 패턴 감지
+      else if (trimmedLine.match(/^(나|답변|A|answer|저는|제가)\s*[:：]?\s*/i)) {
+        currentAnswer = trimmedLine.replace(/^(나|답변|A|answer|저는|제가)\s*[:：]?\s*/i, '').trim();
+        isAnswer = true;
+      }
+      // 연속된 답변 내용
+      else if (isAnswer && currentAnswer) {
+        currentAnswer += ' ' + trimmedLine;
+      }
+      // 연속된 질문 내용 또는 일반 텍스트를 질문으로 처리
+      else if (!isAnswer) {
+        if (currentQuestion) {
+          currentQuestion += ' ' + trimmedLine;
+        } else {
+          // 질문 패턴이 없는 경우 첫 번째 라인을 질문으로 간주
+          currentQuestion = trimmedLine;
+        }
+      }
+    }
+    
+    // 마지막 질문-답변 쌍 저장
+    if (currentQuestion && currentAnswer) {
+      parsedQA.push({ 
+        question: cleanQuestionText(currentQuestion.trim()), 
+        answer: currentAnswer.trim() 
+      });
+    }
+    
+    console.log('🔍 파싱된 질문-답변:', parsedQA);
+    return parsedQA;
+  };
+
   const handleAnalyze = async () => {
+    // 기본 정보 검증
+    if (!company.trim() || !position.trim()) {
+      setError("회사명과 지원 직무를 입력해주세요.");
+      return;
+    }
+    
     setIsAnalyzing(true);
+    setSubmitting(true);
     setAnalysisResult(null);
     setError(null);
     
     try {
       // 구조화된 모드일 때 qnaPairs를 문자열로 변환
       let contentToSend = interviewContent;
+      let questionsAndAnswers: { question: string; answer: string }[];
       
       if (isStructuredMode) {
-        contentToSend = qnaPairs
-          .filter(pair => pair.question.trim() || pair.answer.trim())
+        const validPairs = qnaPairs.filter(pair => pair.question.trim() || pair.answer.trim());
+        contentToSend = validPairs
           .map((pair, index) => {
             return `질문 ${index + 1}: ${pair.question}\n답변 ${index + 1}: ${pair.answer}`;
           })
           .join('\n\n');
+        questionsAndAnswers = validPairs;
+      } else {
+        // 자유 작성 모드에서 textarea 내용을 질문-답변으로 파싱
+        questionsAndAnswers = parseInterviewContent(interviewContent);
       }
 
       // 공백/줄바꿈 정규화 및 길이 검증 추가
@@ -59,6 +154,7 @@ export default function InterviewAnalyzePage() {
       console.log('🔍 전송할 내용 길이:', normalized.length);
       if (!normalized) {
         setIsAnalyzing(false);
+        setSubmitting(false);
         setError('면접 내용이 비어있습니다. 내용을 입력해 주세요.');
         return;
       }
@@ -67,17 +163,36 @@ export default function InterviewAnalyzePage() {
       console.log('🔍 구조화된 모드:', isStructuredMode);
       console.log('🔍 qnaPairs:', qnaPairs);
       
-      const result = await axios.post('/api/interview/analyze', {
+      const response = await axios.post('/api/interview/analyze', {
         content: normalized,
         analysisType,
+        shareOption, // 공유 옵션 추가
+        // 새로 추가된 면접 정보
+        interviewData: {
+          company_name: company,
+          position: position,
+          interview_date: interviewDate || null,
+          interview_type: interviewType ? (
+            interviewType === '화상면접' ? 'video' :
+            interviewType === '대면면접' ? 'in_person' :
+            interviewType === '전화면접' ? 'phone' :
+            interviewType === '기타' ? 'other' :
+            interviewType
+          ) : null,
+          difficulty_level: difficulty || null,
+          result: interviewResult || null,
+          overall_rating: overallRating ? parseInt(overallRating) : null,
+
+          questions_and_answers: questionsAndAnswers
+        }
       });
       
-      console.log('🔍 API 응답 전체:', result.data);
-      console.log('🔍 API 응답 데이터:', result.data.data);
-      console.log('🔍 메타데이터:', result.data.metadata);
+      console.log('🔍 API 응답 전체:', response.data);
+      console.log('🔍 API 응답 데이터:', response.data.data);
+      console.log('🔍 메타데이터:', response.data.metadata);
       
-      if (result.data.success) {
-        const data = result.data.data;
+      if (response.data.success) {
+        const data = response.data.data;
         
         // 새로운 스키마에 맞춘 디버깅 로그
         console.log('📊 받은 데이터 구조 (새 스키마):', {
@@ -95,8 +210,10 @@ export default function InterviewAnalyzePage() {
             rawAnalysis: data.rawAnalysis || data.message || '분석 결과를 받지 못했습니다.',
             parseError: true,
             message: data.message || '구조화된 분석 실패 - 원본 텍스트로 제공',
+            interviewId: response.data.interviewId
           };
           setAnalysisResult(completeAnalysisResult);
+          setInterviewId(response.data.interviewId || null);
           console.log('⚠️ JSON 파싱 실패, 원본 텍스트 표시');
         } else {
           // 새로운 스키마에 맞춘 정상 파싱 처리
@@ -106,15 +223,23 @@ export default function InterviewAnalyzePage() {
             general_advice: data.general_advice || '',
             conversationalAnalysis: generateConversationalSummary(data),
             dynamicSummary: generateDynamicSummary(data),
+            interviewId: response.data.interviewId
           };
           setAnalysisResult(completeAnalysisResult);
+          setInterviewId(response.data.interviewId || null);
           console.log('✅ 새 스키마 구조화된 데이터 설정 완료');
         }
+        
+        // 경고 메시지가 있는 경우 표시
+        if (response.data.warning) {
+          console.warn(response.data.warning);
+          alert(`⚠️ ${response.data.warning}`);
+        }
       } else {
-        setError(result.data.error || '분석 결과를 받아오지 못했습니다.');
-        console.error('❌ API 호출 실패:', result.data.error);
+        setError(response.data.error || '분석 결과를 받아오지 못했습니다.');
+        console.error('❌ API 호출 실패:', response.data.error);
       }
-    } catch (err) {
+    } catch (err: any) {
       console.error('❌ 분석 오류:', err);
       if (err.response) {
         console.error('응답 상태:', err.response.status);
@@ -123,11 +248,12 @@ export default function InterviewAnalyzePage() {
       setError('분석 중 오류가 발생했습니다. 다시 시도해주세요.');
     } finally {
       setIsAnalyzing(false);
+      setSubmitting(false);
     }
   };
 
   // 새로운 스키마에 맞춘 구어체 요약 생성 함수
-  const generateConversationalSummary = (data) => {
+  const generateConversationalSummary = (data: any) => {
     const score = data.total_score || 0;
     const areas = data.areas || {};
     
@@ -149,14 +275,14 @@ export default function InterviewAnalyzePage() {
       '자신감': '자신감'
     };
     
-    const strongAreas = [];
-    const weakAreas = [];
+    const strongAreas: string[] = [];
+    const weakAreas: string[] = [];
     
-    Object.entries(areas).forEach(([key, value]) => {
+    Object.entries(areas).forEach(([key, value]: [string, any]) => {
       if (value?.score >= 70) {
-        strongAreas.push(areaNames[key] || key);
+        strongAreas.push(areaNames[key as keyof typeof areaNames] || key);
       } else if (value?.score < 50) {
-        weakAreas.push(areaNames[key] || key);
+        weakAreas.push(areaNames[key as keyof typeof areaNames] || key);
       }
     });
     
@@ -174,7 +300,7 @@ export default function InterviewAnalyzePage() {
   };
   
   // 새로운 스키마에 맞춘 동적 요약 생성 함수
-  const generateDynamicSummary = (data) => {
+  const generateDynamicSummary = (data: any) => {
     const score = data.total_score || 0;
     const areas = data.areas || {};
     
@@ -183,7 +309,7 @@ export default function InterviewAnalyzePage() {
       scoreMessage: score >= 80 ? '탁월한 성과입니다!' : score >= 60 ? '좋은 결과예요!' : '더 발전할 수 있어요!',
       areaCount: Object.keys(areas).length,
       averageAreaScore: Object.values(areas).length > 0 ? 
-        Math.round(Object.values(areas).reduce((sum, area) => sum + (area?.score || 0), 0) / Object.values(areas).length) : 0,
+        Math.round(Object.values(areas).reduce((sum: number, area: any) => sum + (area?.score || 0), 0) / Object.values(areas).length) : 0,
       hasGeneralAdvice: !!(data.general_advice && data.general_advice.trim())
     };
   };
@@ -217,6 +343,187 @@ export default function InterviewAnalyzePage() {
       <div className="max-w-4xl mx-auto px-4 py-8">
         {!analysisResult ? (
           <div className="space-y-6">
+            {/* 기본 면접 정보 */}
+            <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 overflow-hidden">
+              <div className="px-6 py-4 border-b border-slate-200 dark:border-slate-700">
+                <h3 className="text-base font-medium text-slate-900 dark:text-slate-100 flex items-center gap-2">
+                  <div className="w-5 h-5 bg-blue-500 rounded-lg flex items-center justify-center">
+                    <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                    </svg>
+                  </div>
+                  기본 면접 정보
+                </h3>
+              </div>
+              <div className="p-6 space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">회사명 *</label>
+                    <input
+                      type="text"
+                      value={company}
+                      onChange={(e) => setCompany(e.target.value)}
+                      required
+                      className="w-full p-3 border border-slate-200 dark:border-slate-600 rounded-lg bg-slate-50 dark:bg-slate-700 text-slate-900 dark:text-slate-100 placeholder-slate-500 dark:placeholder-slate-400 focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
+                      placeholder="회사명을 입력하세요"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">지원 직무 *</label>
+                    <input
+                      type="text"
+                      value={position}
+                      onChange={(e) => setPosition(e.target.value)}
+                      required
+                      className="w-full p-3 border border-slate-200 dark:border-slate-600 rounded-lg bg-slate-50 dark:bg-slate-700 text-slate-900 dark:text-slate-100 placeholder-slate-500 dark:placeholder-slate-400 focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
+                      placeholder="지원 직무를 입력하세요"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">면접 날짜</label>
+                    <input
+                      type="date"
+                      value={interviewDate}
+                      onChange={(e) => setInterviewDate(e.target.value)}
+                      className="w-full p-3 border border-slate-200 dark:border-slate-600 rounded-lg bg-slate-50 dark:bg-slate-700 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">면접 유형</label>
+                    <select
+                      value={interviewType}
+                      onChange={(e) => setInterviewType(e.target.value)}
+                      className="w-full p-3 border border-slate-200 dark:border-slate-600 rounded-lg bg-slate-50 dark:bg-slate-700 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
+                    >
+                      <option value="">선택하세요</option>
+                      <option value="화상면접">화상면접</option>
+                      <option value="대면면접">대면면접</option>
+                      <option value="전화면접">전화면접</option>
+                      <option value="기타">기타</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* 면접 설정 및 결과 */}
+            <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 overflow-hidden">
+              <div className="px-6 py-4 border-b border-slate-200 dark:border-slate-700">
+                <h3 className="text-base font-medium text-slate-900 dark:text-slate-100 flex items-center gap-2">
+                  <div className="w-5 h-5 bg-green-500 rounded-lg flex items-center justify-center">
+                    <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                  </div>
+                  면접 설정 및 결과
+                </h3>
+              </div>
+              <div className="p-6 space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">난이도</label>
+                    <select
+                      value={difficulty}
+                      onChange={(e) => setDifficulty(e.target.value)}
+                      className="w-full p-3 border border-slate-200 dark:border-slate-600 rounded-lg bg-slate-50 dark:bg-slate-700 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
+                    >
+                      <option value="">선택하세요</option>
+                      <option value="easy">쉬움</option>
+                      <option value="medium">보통</option>
+                      <option value="hard">어려움</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">면접 결과</label>
+                    <select
+                      value={interviewResult}
+                      onChange={(e) => setInterviewResult(e.target.value)}
+                      className="w-full p-3 border border-slate-200 dark:border-slate-600 rounded-lg bg-slate-50 dark:bg-slate-700 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
+                    >
+                      <option value="">선택하세요</option>
+                      <option value="pass">합격</option>
+                      <option value="fail">불합격</option>
+                      <option value="pending">대기중</option>
+                      <option value="in_progress">진행중</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">전체 평점</label>
+                    <select
+                      value={overallRating}
+                      onChange={(e) => setOverallRating(e.target.value)}
+                      className="w-full p-3 border border-slate-200 dark:border-slate-600 rounded-lg bg-slate-50 dark:bg-slate-700 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
+                    >
+                      <option value="">선택하세요</option>
+                      <option value="1">⭐ 1점 - 매우 나쁨</option>
+                      <option value="2">⭐⭐ 2점 - 나쁨</option>
+                      <option value="3">⭐⭐⭐ 3점 - 보통</option>
+                      <option value="4">⭐⭐⭐⭐ 4점 - 좋음</option>
+                      <option value="5">⭐⭐⭐⭐⭐ 5점 - 매우 좋음</option>
+                    </select>
+                  </div>
+                </div>
+
+              </div>
+            </div>
+            
+            {/* 면접 후기 공개 설정 */}
+            <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 overflow-hidden">
+              <div className="px-6 py-4 border-b border-slate-200 dark:border-slate-700">
+                <h3 className="text-base font-medium text-slate-900 dark:text-slate-100 flex items-center gap-2">
+                  <div className="w-5 h-5 bg-blue-500 rounded-lg flex items-center justify-center">
+                    <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                    </svg>
+                  </div>
+                  면접 후기 공개 설정
+                </h3>
+              </div>
+              <div className="p-6">
+                <div className="space-y-4">
+                  <div className="flex items-start space-x-3">
+                    <input
+                      id="personal"
+                      name="shareOption"
+                      type="radio"
+                      value="personal"
+                      checked={shareOption === "personal"}
+                      onChange={(e) => setShareOption(e.target.value)}
+                      className="mt-1 h-4 w-4 text-purple-600 focus:ring-purple-500 border-slate-300 dark:border-slate-600"
+                    />
+                    <div className="flex-1">
+                      <label htmlFor="personal" className="block text-sm font-medium text-slate-900 dark:text-slate-100 cursor-pointer">
+                        개인 분석만
+                      </label>
+                      <p className="text-sm text-slate-500 dark:text-slate-400">
+                        나의 공개되지 않으며, 개인 피드백 제공됩니다
+                      </p>
+                    </div>
+                  </div>
+                  
+                  <div className="flex items-start space-x-3">
+                    <input
+                      id="community"
+                      name="shareOption"
+                      type="radio"
+                      value="community"
+                      checked={shareOption === "community"}
+                      onChange={(e) => setShareOption(e.target.value)}
+                      className="mt-1 h-4 w-4 text-purple-600 focus:ring-purple-500 border-slate-300 dark:border-slate-600"
+                    />
+                    <div className="flex-1">
+                      <label htmlFor="community" className="block text-sm font-medium text-slate-900 dark:text-slate-100 cursor-pointer">
+                        익명 후기 공유
+                      </label>
+                      <p className="text-sm text-slate-500 dark:text-slate-400">
+                        개인정보를 제외하고 익명으로 커뮤니티에 공유됩니다
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
             {/* 면접 내용 작성 */}
             <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 overflow-hidden">
               <div className="px-6 py-4 border-b border-slate-200 dark:border-slate-700 flex items-center justify-between">
@@ -313,52 +620,7 @@ export default function InterviewAnalyzePage() {
               </div>
             </div>
 
-            {/* 면접 후기 공개 설정 */}
-            <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 overflow-hidden">
-              <div className="px-6 py-4 border-b border-slate-200 dark:border-slate-700">
-                <h3 className="text-base font-medium text-slate-900 dark:text-slate-100">
-                  면접 후기 공개 설정
-                </h3>
-              </div>
-              <div className="p-6 space-y-4">
-                <label className="flex items-start gap-3 cursor-pointer">
-                  <input
-                    type="radio"
-                    name="analysisType"
-                    value="개인 분석만"
-                    checked={analysisType === "개인 분석만"}
-                    onChange={(e) => setAnalysisType(e.target.value)}
-                    className="mt-1 w-4 h-4 text-purple-600 border-slate-300 focus:ring-purple-500"
-                  />
-                  <div>
-                    <div className="font-medium text-slate-900 dark:text-slate-100">
-                      개인 분석만
-                    </div>
-                    <div className="text-sm text-slate-500 dark:text-slate-400">
-                      나의 공개되지 않으며, 개인 피드백만 제공됩니다
-                    </div>
-                  </div>
-                </label>
-                <label className="flex items-start gap-3 cursor-pointer">
-                  <input
-                    type="radio"
-                    name="analysisType"
-                    value="익명 후기 공유"
-                    checked={analysisType === "익명 후기 공유"}
-                    onChange={(e) => setAnalysisType(e.target.value)}
-                    className="mt-1 w-4 h-4 text-purple-600 border-slate-300 focus:ring-purple-500"
-                  />
-                  <div>
-                    <div className="font-medium text-slate-900 dark:text-slate-100">
-                      익명 후기 공유
-                    </div>
-                    <div className="text-sm text-slate-500 dark:text-slate-400">
-                      개인정보를 제외하고 익명으로 커뮤니티에 공유됩니다
-                    </div>
-                  </div>
-                </label>
-              </div>
-            </div>
+
 
             {/* AI 분석 시작 버튼 */}
             <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 p-6">
@@ -387,16 +649,16 @@ export default function InterviewAnalyzePage() {
               
               <button
                 onClick={handleAnalyze}
-                disabled={isAnalyzing || (!isStructuredMode && !interviewContent.trim()) || (isStructuredMode && !qnaPairs.some(pair => pair.question.trim() || pair.answer.trim()))}
+                disabled={isAnalyzing || !company.trim() || !position.trim() || (!isStructuredMode && !interviewContent.trim()) || (isStructuredMode && !qnaPairs.some(pair => pair.question.trim() || pair.answer.trim()))}
                 className="w-full bg-gradient-to-r from-purple-500 to-purple-600 hover:from-purple-600 hover:to-purple-700 disabled:from-slate-300 disabled:to-slate-400 text-white font-medium py-4 px-6 rounded-xl transition-all duration-200 transform hover:scale-[1.02] disabled:scale-100 disabled:cursor-not-allowed"
               >
                 {isAnalyzing ? (
                   <div className="flex items-center justify-center gap-2">
                     <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                    <span>AI가 면접 내용을 분석하고 있습니다...</span>
+                    <span>AI가 면접을 분석하고 저장하고 있습니다...</span>
                   </div>
                 ) : (
-                  "AI 분석 시작"
+                  "AI 분석 및 저장하기"
                 )}
               </button>
               
@@ -496,7 +758,7 @@ export default function InterviewAnalyzePage() {
                   영역별 상세 분석
                 </h3>
                 <div className="grid gap-6">
-                  {Object.entries(analysisResult.areas).map(([areaName, areaData]) => (
+                  {Object.entries(analysisResult.areas).map(([areaName, areaData]: [string, any]) => (
                     <div key={areaName} className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 p-6">
                       <div className="flex items-center justify-between mb-4">
                         <h4 className="text-lg font-semibold text-slate-900 dark:text-slate-100">
@@ -520,7 +782,7 @@ export default function InterviewAnalyzePage() {
                             개선이 필요한 점
                           </h5>
                           <div className="space-y-2">
-                            {areaData.negative_points.map((point, index) => (
+                            {areaData.negative_points.map((point: string, index: number) => (
                               <div key={index} className="flex items-start gap-2">
                                 <div className="w-1.5 h-1.5 bg-orange-500 rounded-full mt-2 flex-shrink-0"></div>
                                 <p className="text-slate-600 dark:text-slate-400 text-sm">{point}</p>
@@ -610,22 +872,31 @@ export default function InterviewAnalyzePage() {
               <button
                 onClick={() => {
                   setAnalysisResult(null);
+                  setInterviewId(null);
                   setInterviewContent("");
                   setQnaPairs([{ question: "", answer: "" }]);
+                  setCompany("");
+                  setPosition("");
+                  setInterviewDate("");
+                  setInterviewType("");
+                  setDifficulty("");
+                  setInterviewResult("");
+                  setOverallRating("");
+
                 }}
                 className="flex-1 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 font-medium py-3 px-6 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors"
               >
                 새로운 분석 시작
               </button>
-              <button
-                onClick={() => {
-                  // 결과 공유 기능 (추후 구현)
-                  alert("결과 공유 기능은 준비 중입니다.");
-                }}
-                className="flex-1 bg-gradient-to-r from-purple-500 to-purple-600 hover:from-purple-600 hover:to-purple-700 text-white font-medium py-3 px-6 rounded-xl transition-all duration-200 transform hover:scale-[1.02]"
-              >
-                결과 공유하기
-              </button>
+              {interviewId && (
+                <Link
+                  href={`/interview/${interviewId}`}
+                  className="flex-1 bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white font-medium py-3 px-6 rounded-xl transition-all duration-200 transform hover:scale-[1.02] text-center"
+                >
+                  상세 면접 후기 보기
+                </Link>
+              )}
+
             </div>
           </div>
         )}
@@ -633,42 +904,3 @@ export default function InterviewAnalyzePage() {
     </div>
   );
 }
-
-// 아래 모든 코드를 완전히 삭제하세요
-// 결과 렌더링 개선 (컴포넌트 함수 내부에서만 사용)
-// (컴포넌트 바깥의 아래 코드 삭제)
-// {analysisResult && (
-//   <div>
-//     {analysisResult.parseError ? (
-//       <div className="bg-red-50 p-4 rounded">
-//         <div>구조화된 분석 실패 - 원본 텍스트로 제공</div>
-//         <pre>{analysisResult.rawAnalysis}</pre>
-//       </div>
-//     ) : (
-//       <>
-//         <section>
-//           <h3>AI 면접관의 한마디</h3>
-//           <p>{analysisResult.conversationalAnalysis}</p>
-//         </section>
-//         <section>
-//           <h4>동적 요약</h4>
-//           <ul>
-//             <li>종합 점수: {analysisResult.dynamicSummary.score}</li>
-//             <li>강점 개수: {analysisResult.dynamicSummary.strengthCount}</li>
-//             <li>약점 개수: {analysisResult.dynamicSummary.weaknessCount}</li>
-//             <li>추천 개수: {analysisResult.dynamicSummary.recommendCount}</li>
-//           </ul>
-//         </section>
-//         <section>
-//           <h4>상세 리포트</h4>
-//           <ul>
-//             <li>강점: {analysisResult.strengths.join(', ')}</li>
-//             <li>약점: {analysisResult.weaknesses.join(', ')}</li>
-//             <li>추천: {analysisResult.recommendations.join(', ')}</li>
-//             <li>세부 분석: {JSON.stringify(analysisResult.detailed_analysis)}</li>
-//           </ul>
-//         </section>
-//       </>
-//     )}
-//   </div>
-// )}

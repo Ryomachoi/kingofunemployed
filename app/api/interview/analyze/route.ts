@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import OpenAI from 'openai';
+import { createClient } from '@/lib/supabase/server';
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
@@ -7,7 +8,18 @@ const openai = new OpenAI({
 
 export async function POST(request: NextRequest) {
   try {
-    const { content, analysisType } = await request.json();
+    const { content, analysisType, shareOption, interviewData } = await request.json();
+    
+    // 사용자 인증 확인
+    const supabase = await createClient();
+    const { data: { user }, error: userError } = await supabase.auth.getUser();
+    
+    if (userError || !user) {
+      return NextResponse.json(
+        { success: false, error: '로그인이 필요합니다.' },
+        { status: 401 }
+      );
+    }
     
     const normalizedContent = content?.trim();
     if (!normalizedContent) {
@@ -47,9 +59,11 @@ export async function POST(request: NextRequest) {
     }
 
     let parsedData;
+    let hasParseError = false;
     try {
       parsedData = JSON.parse(aiAnalysis);
-    } catch (parseError) {
+    } catch (parseError: any) {
+      hasParseError = true;
       parsedData = {
         rawAnalysis: aiAnalysis,
         parseError: true,
@@ -57,14 +71,101 @@ export async function POST(request: NextRequest) {
       };
     }
 
+    // 데이터베이스에 면접 정보 저장
+    // 모든 분석 결과를 데이터베이스에 저장 (마이페이지 조회를 위해)
+    // is_shared로 커뮤니티 공유 여부 구분 (is_public 컬럼은 존재하지 않음)
+    const interviewRecord = {
+      user_id: user.id,
+      company_name: interviewData?.company_name || '회사명 없음',
+      position: interviewData?.position || '직무 없음',
+      interview_date: interviewData?.interview_date || new Date().toISOString().split('T')[0], // 오늘 날짜를 기본값으로
+      interview_type: interviewData?.interview_type || 'other',
+      difficulty_level: interviewData?.difficulty_level || 'medium',
+      result: interviewData?.result || null,
+      overall_rating: interviewData?.overall_rating || null,
+      feedback_and_tips: interviewData?.feedback_and_tips || null,
+      ai_feedback: hasParseError ? aiAnalysis : parsedData,
+      ai_analysis_metadata: {
+        analysisType,
+        timestamp: new Date().toISOString(),
+        promptId,
+        promptVersion,
+        hasParseError,
+        userInput: userInput.substring(0, 1000) // 처음 1000자만 저장
+      },
+      analysis_timestamp: new Date().toISOString(),
+      ai_analysis_status: 'completed',
+      // questions_and_answers 필드는 별도 테이블로 분리됨
+      // is_public 컬럼은 존재하지 않으므로 제거
+      is_shared: shareOption === "community", // 커뮤니티 공유 여부 - shareOption 기반으로 설정
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString()
+    };
+
+    const { data: savedInterview, error: saveError } = await supabase
+      .from('interviews')
+      .insert([interviewRecord])
+      .select('id')
+      .single();
+
+    // 질문과 답변을 interview_questions 테이블에 저장 (새로운 스키마)
+    if (savedInterview?.id && interviewData?.questions_and_answers && Array.isArray(interviewData.questions_and_answers)) {
+      const questionsData = interviewData.questions_and_answers.map((qa: any, index: number) => ({
+        interview_id: savedInterview.id,
+        question_order: index + 1,
+        question: qa.question || '',
+        answer: qa.answer || ''
+      })).filter((qa: any) => qa.question.trim() && qa.answer.trim())
+
+      if (questionsData.length > 0) {
+        const { error: questionsError } = await supabase
+          .from('interview_questions')
+          .insert(questionsData)
+
+        if (questionsError) {
+          console.error('Error saving interview questions:', questionsError)
+          // 질문 저장 실패해도 분석 결과는 반환
+        }
+      }
+    }
+
+    if (saveError) {
+      console.error('=== 데이터베이스 저장 오류 ===');
+      console.error('Error Code:', saveError.code);
+      console.error('Error Message:', saveError.message);
+      console.error('Error Details:', saveError.details);
+      console.error('Interview Record:', JSON.stringify(interviewRecord, null, 2));
+      console.error('================================');
+      // AI 분석은 성공했지만 저장에 실패한 경우에도 결과는 반환
+      // 하지만 interviewId는 null로 설정하여 공유 기능을 비활성화
+      return NextResponse.json({
+        success: true,
+        data: parsedData,
+        interviewId: null,
+        warning: '분석은 완료되었지만 저장 중 오류가 발생했습니다. 데이터베이스 제약조건을 확인해주세요.',
+        metadata: {
+          analysisType,
+          timestamp: new Date().toISOString(),
+          promptId,
+          hasParseError,
+          saved: false,
+          saveError: saveError.message,
+          errorCode: saveError.code,
+          errorDetails: saveError.details
+        },
+      });
+    }
+
     return NextResponse.json({
       success: true,
       data: parsedData,
+      interviewId: savedInterview.id,
       metadata: {
         analysisType,
         timestamp: new Date().toISOString(),
         promptId,
-        hasParseError: parsedData.parseError || false,
+        hasParseError,
+        saved: true
       },
     });
 
