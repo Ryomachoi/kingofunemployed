@@ -33,4 +33,6 @@ Changelog 버전 기록
 2025-08-22 mypage/feature01 마이페이지 댓글 조회 기능 추가 및 프론트 수정
            interview/analyze002 면접 분석 OpenAI Responses API 구조 개선
 
-2025-08-25 interview/analyze003 면접 분석 DB 저장 및 커뮤니티 연동 기능 구현
+2025-08-25 interview/analyze03 면접 분석 DB 저장 및 커뮤니티 연동 기능 구현
+
+2025-09-05 interview/analyze04 면접 분석 AI API 수정 및 기능 개선
