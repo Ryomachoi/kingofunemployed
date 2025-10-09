@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { getAllPosts } from '@/app/boards/actions'
 import { useState, useEffect } from 'react'
 import { Post, UserProfile, Board } from '@/types/database'
+import SearchBar from '@/app/components/SearchBar'
 
 interface PostWithDetails extends Post {
   user_profiles: UserProfile | null
@@ -12,10 +13,12 @@ interface PostWithDetails extends Post {
 
 interface PostListProps {
   sortBy: 'latest' | 'views'
+  searchQuery?: string
 }
 
-function PostList({ sortBy }: PostListProps) {
+function PostList({ sortBy, searchQuery }: PostListProps) {
   const [posts, setPosts] = useState<PostWithDetails[]>([])
+  const [allPosts, setAllPosts] = useState<PostWithDetails[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
@@ -26,7 +29,9 @@ function PostList({ sortBy }: PostListProps) {
       try {
         const result = await getAllPosts(sortBy, 20)
         if (result.success && result.posts) {
-          setPosts(result.posts as PostWithDetails[])
+          const fetchedPosts = result.posts as PostWithDetails[]
+          setAllPosts(fetchedPosts)
+          setPosts(fetchedPosts)
         } else {
           setError('게시물을 불러올 수 없습니다.')
         }
@@ -39,6 +44,23 @@ function PostList({ sortBy }: PostListProps) {
 
     fetchPosts()
   }, [sortBy])
+
+  // 검색 필터링 효과
+  useEffect(() => {
+    if (!searchQuery || searchQuery.trim() === '') {
+      setPosts(allPosts)
+    } else {
+      const filtered = allPosts.filter(post => {
+        const searchTerm = searchQuery.toLowerCase()
+        return (
+          post.title.toLowerCase().includes(searchTerm) ||
+          post.content.toLowerCase().includes(searchTerm) ||
+          (post.tags && post.tags.some(tag => tag.toLowerCase().includes(searchTerm)))
+        )
+      })
+      setPosts(filtered)
+    }
+  }, [searchQuery, allPosts])
 
   if (loading) {
     return (
@@ -68,12 +90,30 @@ function PostList({ sortBy }: PostListProps) {
     )
   }
 
-  if (posts.length === 0) {
-    return (
-      <div className="text-center py-8">
-        <p className="text-slate-600 dark:text-slate-400">게시물이 없습니다.</p>
-      </div>
-    )
+  if (posts.length === 0 && !loading && !error) {
+    if (searchQuery && searchQuery.trim() !== '') {
+      return (
+        <div className="text-center py-12">
+          <div className="flex flex-col items-center space-y-4">
+            <div className="w-16 h-16 bg-slate-100 dark:bg-slate-700 rounded-full flex items-center justify-center">
+              <svg className="w-8 h-8 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+              </svg>
+            </div>
+            <div className="text-center">
+              <p className="text-lg font-medium text-slate-900 dark:text-slate-100 mb-2">일치하는 게시물이 없습니다</p>
+              <p className="text-slate-600 dark:text-slate-400">다른 검색어를 시도해보세요</p>
+            </div>
+          </div>
+        </div>
+      )
+    } else {
+      return (
+        <div className="text-center py-8">
+          <p className="text-slate-600 dark:text-slate-400">게시물이 없습니다.</p>
+        </div>
+      )
+    }
   }
 
   return (
@@ -191,6 +231,7 @@ function PostList({ sortBy }: PostListProps) {
 export default function ClientHomePage() {
   const [sortBy, setSortBy] = useState<'latest' | 'views'>('latest')
   const [popularBoards, setPopularBoards] = useState<Board[]>([])
+  const [searchQuery, setSearchQuery] = useState<string>('')
 
   // 인기 게시판 데이터 가져오기
   useEffect(() => {
@@ -219,10 +260,15 @@ export default function ClientHomePage() {
             {/* Header Section */}
             <div className="mb-8">
               <div className="flex items-center justify-between mb-6">
-                <div>
+                <div className="flex-1">
                   <h1 className="text-3xl font-bold text-slate-900 dark:text-slate-100">인기 게시물</h1>
-                  <p className="text-slate-600 dark:text-slate-400 mt-1">모든 게시판의 인기 게시물을 한눈에 확인하세요</p>
                 </div>
+                
+                {/* 검색창 */}
+                <div className="flex-1 max-w-md mx-8">
+                  <SearchBar onSearch={setSearchQuery} />
+                </div>
+                
                 <div className="flex rounded-lg border border-slate-200 dark:border-slate-600 overflow-hidden">
                   <button
                     onClick={() => setSortBy('views')}
@@ -248,7 +294,7 @@ export default function ClientHomePage() {
               </div>
             </div>
             
-            <PostList sortBy={sortBy} />
+            <PostList sortBy={sortBy} searchQuery={searchQuery} />
           </div>
 
           {/* 사이드바 */}

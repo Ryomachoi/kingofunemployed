@@ -50,16 +50,19 @@ export default async function RootLayout({
               <Link href="/boards" className="text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-slate-100 transition-colors">
                 게시판
               </Link>
+              <Link href="/interview/community" className="text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-slate-100 transition-colors">
+                면접 후기
+              </Link>
               <Link href="/interview" className="text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-slate-100 transition-colors">
                 AI 면접복기
-              </Link>
-              <Link href="/mypage" className="text-slate-600 hover:text-slate-900 dark:text-slate-300 dark:hover:text-slate-100 transition-colors">
-                마이페이지
               </Link>
             </div>
             
             {/* 로그인/로그아웃 - 오른쪽 끝 */}
             <nav className="flex items-center space-x-3">
+              <Link href="/mypage" className="text-slate-600 hover:text-slate-900 dark:text-slate-300 dark:hover:text-slate-100 transition-colors">
+                마이페이지
+              </Link>
               {user ? (
                 <form action={logout}>
                   <button
