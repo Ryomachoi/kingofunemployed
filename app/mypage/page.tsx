@@ -25,13 +25,30 @@ export default async function MyPage() {
     .from('posts')
     .select(`
       *,
-      boards(name),
-      comment_count:comments(count)
+      boards(name)
     `)
     .eq('author_id', user.id)
     .not('board_id', 'is', null)
     .order('created_at', { ascending: false })
     .limit(10)
+
+  // 각 게시글에 대한 댓글 개수 조회
+  let postsWithCommentCount = []
+  if (posts) {
+    postsWithCommentCount = await Promise.all(
+      posts.map(async (post) => {
+        const { count } = await supabase
+          .from('comments')
+          .select('*', { count: 'exact', head: true })
+          .eq('post_id', post.id)
+
+        return {
+          ...post,
+          comment_count: count || 0
+        }
+      })
+    )
+  }
 
   // 최근 댓글 가져오기 (게시판에서만)
   const { data: comments } = await supabase
@@ -79,7 +96,7 @@ export default async function MyPage() {
     <MyPageClient 
       user={user}
       profile={profile}
-      posts={posts || []}
+      posts={postsWithCommentCount || []}
       comments={comments || []}
       interviews={interviewsWithQuestionCount || []}
     />
