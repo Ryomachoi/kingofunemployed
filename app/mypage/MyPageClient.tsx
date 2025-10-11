@@ -319,18 +319,108 @@ export default function MyPageClient({ user, profile, posts, comments, interview
                   <div className="grid gap-6">
                     {interviews.map((interview: any) => (
                       <Link key={interview.id} href={`/interview/${interview.id}`}>
-                        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6 hover:shadow-lg hover:border-blue-300 dark:hover:border-blue-600 transition-all duration-200 cursor-pointer">
-                          <div className="flex items-start justify-between mb-4">
-                            <div className="flex-1">
-                              <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">
+                        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6 hover:shadow-lg hover:border-blue-300 dark:hover:border-blue-600 transition-all duration-200 cursor-pointer relative">
+                          {/* 작성 시간 - 오른쪽 상단 */}
+                          <div className="absolute top-4 right-4 text-sm text-gray-500 dark:text-gray-400">
+                            {new Date(interview.created_at).toLocaleString('ko-KR', {
+                              year: 'numeric',
+                              month: '2-digit',
+                              day: '2-digit',
+                              hour: '2-digit',
+                              minute: '2-digit'
+                            })}
+                          </div>
+
+                          {/* 전체 평점 - 오른쪽 중단 */}
+                          <div className="absolute top-1/2 right-4 transform -translate-y-1/2">
+                            <div className="flex items-center gap-1">
+                              <span className="text-sm font-medium text-gray-700 dark:text-gray-300">평점 :</span>
+                              {[1, 2, 3, 4, 5].map((star) => (
+                                <svg
+                                  key={star}
+                                  className={`w-4 h-4 ${
+                                    star <= interview.overall_rating
+                                      ? 'text-blue-400 fill-current'
+                                      : 'text-gray-300 dark:text-gray-600'
+                                  }`}
+                                  viewBox="0 0 20 20"
+                                >
+                                  <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                                </svg>
+                              ))}
+                            </div>
+                          </div>
+
+                          {/* 질문 개수 - 오른쪽 하단 */}
+                          <div className="absolute bottom-4 right-4 text-sm text-gray-500 dark:text-gray-400">
+                            질문 {interview.question_count}개
+                          </div>
+
+                          <div className="pr-20">
+                            <div className="flex items-center gap-3 mb-3">
+                              <h3 className="text-xl font-bold text-gray-900 dark:text-white">
                                 {interview.company_name}
                               </h3>
-                              <p className="text-gray-600 dark:text-gray-400 mb-2">
+                              <span className="px-3 py-1 bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 text-sm font-medium rounded-full">
                                 {interview.position}
-                              </p>
-                              <div className="flex items-center gap-4 text-sm text-gray-500 dark:text-gray-400">
+                              </span>
+                            </div>
+                            
+                            <div className="flex items-center gap-4 text-sm text-gray-500 dark:text-gray-400 mb-3">
+                              <div className="flex items-center gap-1">
+                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                </svg>
+                                <span>면접일: {new Date(interview.interview_date).toLocaleDateString('ko-KR')}</span>
+                              </div>
+                              <div className="flex items-center gap-1">
+                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                                </svg>
                                 <span>
-                                  {new Date(interview.created_at).toLocaleDateString('ko-KR')}
+                                  {interview.interview_type === 'phone' ? '전화면접' :
+                                   interview.interview_type === 'video' ? '화상면접' :
+                                   interview.interview_type === 'in_person' ? '대면면접' :
+                                   interview.interview_type === 'coding' ? '코딩테스트' :
+                                   interview.interview_type === 'technical' ? '기술면접' :
+                                   interview.interview_type === 'behavioral' ? '인성면접' :
+                                   interview.interview_type === 'group' ? '그룹면접' :
+                                   interview.interview_type}
+                                </span>
+                              </div>
+                            </div>
+
+                            <div className="flex items-center gap-6 mb-4">
+                              <div className="flex items-center gap-2">
+                                <span className="text-sm font-medium text-gray-700 dark:text-gray-300">난이도:</span>
+                                <span className={`px-2 py-1 rounded text-xs font-medium ${
+                                  interview.difficulty_level === 'easy'
+                                    ? 'bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200'
+                                    : interview.difficulty_level === 'medium'
+                                    ? 'bg-yellow-100 dark:bg-yellow-900 text-yellow-800 dark:text-yellow-200'
+                                    : 'bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-200'
+                                }`}>
+                                  {interview.difficulty_level === 'easy' ? '쉬움' :
+                                   interview.difficulty_level === 'medium' ? '보통' : '어려움'}
+                                </span>
+                              </div>
+                            </div>
+
+                            <div className="flex items-center gap-4 text-sm">
+                              <div className="flex items-center gap-1">
+                                <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                                  interview.result === 'pass' 
+                                    ? 'bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200'
+                                    : interview.result === 'fail'
+                                    ? 'bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-200'
+                                    : interview.result === 'pending'
+                                    ? 'bg-yellow-100 dark:bg-yellow-900 text-yellow-800 dark:text-yellow-200'
+                                    : 'bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200'
+                                }`}>
+                                  {interview.result === 'pass' ? '합격' : 
+                                   interview.result === 'fail' ? '불합격' : 
+                                   interview.result === 'pending' ? '대기중' : 
+                                   interview.result === 'in_progress' ? '진행중' : interview.result}
                                 </span>
                               </div>
                             </div>
@@ -343,7 +433,13 @@ export default function MyPageClient({ user, profile, posts, comments, interview
                   <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-12 text-center">
                     <div className="text-6xl mb-4">💼</div>
                     <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">작성한 면접 후기가 없습니다</h3>
-                    <p className="text-gray-500 dark:text-gray-400">아직 작성한 면접 후기가 없습니다.</p>
+                    <p className="text-gray-500 dark:text-gray-400 mb-6">면접 경험을 공유하고 다른 구직자들에게 도움을 주세요.</p>
+                    <Link 
+                      href="/interview/analyze"
+                      className="inline-flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors duration-200"
+                    >
+                      면접 후기 작성하기
+                    </Link>
                   </div>
                 )}
               </div>
