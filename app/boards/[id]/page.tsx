@@ -297,7 +297,7 @@ export default function BoardPage() {
                               {/* 태그 표시 */}
                               {post.tags && post.tags.length > 0 && (
                                 <div className="flex flex-wrap gap-1 mb-3">
-                                  {post.tags.slice(0, 3).map((tag, index) => (
+                                  {post.tags.slice(0, 10).map((tag, index) => (
                                     <span
                                       key={index}
                                       className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200"
@@ -305,9 +305,9 @@ export default function BoardPage() {
                                       #{tag}
                                     </span>
                                   ))}
-                                  {post.tags.length > 3 && (
+                                  {post.tags.length > 10 && (
                                     <span className="inline-flex items-center px-2 py-1 rounded-full text-xs text-slate-500 dark:text-slate-400">
-                                      +{post.tags.length - 3}
+                                      +{post.tags.length - 10}
                                     </span>
                                   )}
                                 </div>

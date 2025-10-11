@@ -36,3 +36,5 @@ Changelog 버전 기록
 2025-08-25 interview/analyze03 면접 분석 DB 저장 및 커뮤니티 연동 기능 구현
 
 2025-09-05 interview/analyze04 면접 분석 AI API 수정 및 기능 개선
+
+2025-09-22 front/design01 전체적인 프론트 디자인 추가

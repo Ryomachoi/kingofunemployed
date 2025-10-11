@@ -650,39 +650,61 @@ export async function deleteComment(commentId: string) {
 
 
 // 게시글 조회수 증가
-export async function incrementPostViewCount(postId: string) {
+export async function incrementPostViewCount(postId: string): Promise<number> {
   const supabase = await createClient()
-
+  
   try {
-    // 현재 조회수 조회
-    const { data: post, error: fetchError } = await supabase
-      .from('posts')
-      .select('view_count')
-      .eq('id', postId)
-      .eq('is_deleted', false)
-      .single()
-
-    if (fetchError || !post) {
-      console.error('게시글 조회 오류:', fetchError)
-      return { error: '게시글을 찾을 수 없습니다.' }
+    console.log('조회수 증가 시작 - RPC 함수 사용')
+    
+    // RPC 함수를 사용하여 조회수 증가 (RLS 정책 우회)
+    const { data, error } = await supabase
+      .rpc('increment_post_view_count', { post_id: postId })
+    
+    if (error) {
+      console.error('RPC 함수 호출 오류:', error)
+      
+      // RPC 함수가 없는 경우 기존 방식으로 폴백
+      if (error.code === '42883') { // function does not exist
+        console.log('RPC 함수가 없어 기존 방식으로 폴백')
+        
+        // 현재 조회수 조회
+        const { data: currentPost, error: fetchError } = await supabase
+          .from('posts')
+          .select('view_count')
+          .eq('id', postId)
+          .eq('is_deleted', false)
+          .single()
+        
+        if (fetchError || !currentPost) {
+          console.error('게시물 조회 오류:', fetchError)
+          return 0
+        }
+        
+        const newViewCount = (currentPost.view_count || 0) + 1
+        
+        // 조회수 업데이트
+        const { error: updateError } = await supabase
+          .from('posts')
+          .update({ view_count: newViewCount })
+          .eq('id', postId)
+          .eq('is_deleted', false)
+        
+        if (updateError) {
+          console.error('조회수 업데이트 오류:', updateError)
+          return currentPost.view_count || 0
+        }
+        
+        return newViewCount
+      }
+      
+      return 0
     }
-
-    // 조회수 1 증가
-    const { error: updateError } = await supabase
-      .from('posts')
-      .update({ view_count: (post.view_count || 0) + 1 })
-      .eq('id', postId)
-      .eq('is_deleted', false)
-
-    if (updateError) {
-      console.error('조회수 증가 오류:', updateError)
-      return { error: '조회수 증가에 실패했습니다.' }
-    }
-
-    return { success: true }
+    
+    console.log('RPC 함수로 업데이트된 조회수:', data)
+    return data || 0
   } catch (error) {
     console.error('조회수 증가 중 오류:', error)
-    return { error: '조회수 증가 중 오류가 발생했습니다.' }
+    return 0
   }
 }
 
