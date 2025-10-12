@@ -93,6 +93,7 @@ export interface Interview {
   user_profiles?: UserProfile | null
   question_count?: number
   first_question?: string | null
+  review_summary?: string | null
 }
 
 // 면접 질문-답변 타입

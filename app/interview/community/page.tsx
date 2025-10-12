@@ -42,7 +42,10 @@ export default async function InterviewCommunityPage() {
         return { 
           ...interview, 
           user_profiles: profile,
-          first_question: firstQuestion?.question || null
+          first_question: firstQuestion?.question || null,
+          review_summary: interview.feedback_and_tips 
+            ? interview.feedback_and_tips.substring(0, 150) + (interview.feedback_and_tips.length > 150 ? '...' : '')
+            : null,
         }
       })
     )
