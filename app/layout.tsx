@@ -6,6 +6,7 @@ import Image from "next/image";
 import { createClient } from '@/lib/supabase/server';
 import { logout } from './login/actions';
 import { AuthProvider } from '@/contexts/AuthContext';
+import Footer from "./components/Footer";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -33,7 +34,7 @@ export default async function RootLayout({
   return (
     <html lang="ko">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen bg-slate-50 dark:bg-slate-950`}
+        className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen bg-gradient-to-b from-blue-100 to-white dark:from-slate-900 dark:to-slate-950`}
       >
         <header className="sticky top-0 z-50 w-full border-b border-slate-200 bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/60 dark:border-slate-700 dark:bg-slate-900/95 dark:supports-[backdrop-filter]:bg-slate-900/60">
           <div className="container flex h-16 items-center">
@@ -92,11 +93,7 @@ export default async function RootLayout({
           </AuthProvider>
         </main>
         
-        <footer className="border-t border-slate-200 dark:border-slate-700 py-8">
-          <div className="container text-center text-sm text-slate-600 dark:text-slate-400">
-            © 2024 백수의 왕. All rights reserved.
-          </div>
-        </footer>
+        <Footer />
       </body>
     </html>
   );
