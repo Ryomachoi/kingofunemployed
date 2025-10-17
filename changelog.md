@@ -40,3 +40,5 @@ Changelog 버전 기록
 2025-09-22 front/design01 전체적인 프론트 디자인 추가
 
 2025-10-12 front/design02 전체적인 프론트 디자인 수정
+
+2025-10-18 interviewlist/design03 면접 후기 게시판 디자인 시안 03
