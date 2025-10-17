@@ -119,16 +119,43 @@ export default function CommunityClient({ interviews: initialInterviews, current
                             
                             <div className="flex flex-wrap items-center gap-4 text-sm">
                                <span className="flex items-center gap-2 text-slate-600 dark:text-slate-400">
-                                 <div className={`w-2 h-2 rounded-full ${
-                                   interview.interview_type === '화상면접' || interview.interview_type === 'video' ? 'bg-blue-500' :
-                                   interview.interview_type === '대면면접' || interview.interview_type === 'in_person' ? 'bg-green-500' :
-                                   interview.interview_type === '전화면접' || interview.interview_type === 'phone' ? 'bg-purple-500' :
-                                   'bg-slate-400'
-                                 }`}></div>
-                                 {interview.interview_type === '화상면접' || interview.interview_type === 'video' ? '💻 화상면접' :
-                                  interview.interview_type === '대면면접' || interview.interview_type === 'in_person' ? '🏢 대면면접' :
-                                  interview.interview_type === '전화면접' || interview.interview_type === 'phone' ? '📞 전화면접' :
-                                  interview.interview_type ? `📝 ${interview.interview_type}` : '📝 기타'}
+                                 {interview.interview_type === '화상면접' || interview.interview_type === 'video' ? (
+                                   <div className="flex items-center gap-2">
+                                     <div className="inline-flex items-center justify-center w-6 h-6 bg-blue-100 dark:bg-blue-900/20 rounded-full">
+                                       <svg className="w-3 h-3 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                                       </svg>
+                                     </div>
+                                     <span>화상면접</span>
+                                   </div>
+                                 ) : interview.interview_type === '대면면접' || interview.interview_type === 'in_person' ? (
+                                   <div className="flex items-center gap-2">
+                                     <div className="inline-flex items-center justify-center w-6 h-6 bg-sky-100 dark:bg-sky-800/30 rounded-full">
+                                       <svg className="w-3 h-3 text-sky-600 dark:text-sky-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                                       </svg>
+                                     </div>
+                                     <span>대면면접</span>
+                                   </div>
+                                 ) : interview.interview_type === '전화면접' || interview.interview_type === 'phone' ? (
+                                   <div className="flex items-center gap-2">
+                                     <div className="inline-flex items-center justify-center w-6 h-6 bg-blue-200 dark:bg-blue-800/30 rounded-full">
+                                       <svg className="w-3 h-3 text-blue-700 dark:text-blue-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+                                       </svg>
+                                     </div>
+                                     <span>전화면접</span>
+                                   </div>
+                                 ) : (
+                                   <div className="flex items-center gap-2">
+                                     <div className="inline-flex items-center justify-center w-6 h-6 bg-slate-100 dark:bg-slate-800 rounded-full">
+                                       <svg className="w-3 h-3 text-slate-600 dark:text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                       </svg>
+                                     </div>
+                                     <span>{interview.interview_type || '기타'}</span>
+                                   </div>
+                                 )}
                                </span>
                                
                                <span className={`flex items-center gap-1.5 px-2 py-1 rounded-lg text-xs font-semibold ${
@@ -162,18 +189,18 @@ export default function CommunityClient({ interviews: initialInterviews, current
                         )}
 
                         {interview.ai_feedback && (
-                          <div className="bg-gradient-to-r from-violet-50 to-purple-50 dark:from-violet-900/20 dark:to-purple-900/20 rounded-xl p-4 my-5 border border-violet-200/50 dark:border-violet-800/50">
+                          <div className="bg-gradient-to-r from-blue-50 to-sky-50 dark:from-blue-900/20 dark:to-sky-900/20 rounded-xl p-4 my-5 border border-blue-200/50 dark:border-blue-800/50">
                             <div className="flex items-start gap-3">
-                              <div className="w-8 h-8 bg-gradient-to-br from-violet-500 to-purple-600 rounded-lg flex items-center justify-center flex-shrink-0 shadow-lg shadow-violet-500/20">
+                              <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-sky-400 rounded-lg flex items-center justify-center flex-shrink-0 shadow-lg shadow-blue-500/20">
                                 <svg className="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
                                   <path fillRule="evenodd" d="M11.3 1.046A1 1 0 0112 2v5h4a1 1 0 01.82 1.573l-7 10A1 1 0 018 18v-5H4a1 1 0 01-.82-1.573l7-10a1 1 0 011.12-.38z" clipRule="evenodd" />
                                 </svg>
                               </div>
                               <div className="flex-1">
-                                <h4 className="text-sm font-semibold text-violet-900 dark:text-violet-100 mb-1">
+                                <h4 className="text-sm font-semibold text-blue-900 dark:text-blue-100 mb-1">
                                   AI 면접 분석
                                 </h4>
-                                <p className="text-sm text-violet-700 dark:text-violet-300 line-clamp-2 leading-relaxed">
+                                <p className="text-sm text-blue-700 dark:text-blue-300 line-clamp-2 leading-relaxed">
                                   {typeof interview.ai_feedback === 'string' 
                                     ? interview.ai_feedback 
                                     : interview.ai_feedback?.general_advice || 'AI 분석 결과가 있습니다.'}
