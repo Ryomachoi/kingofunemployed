@@ -44,7 +44,7 @@ export default async function RootLayout({
                 면접 후기
               </Link>
               <Link href="/interview" className="text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-slate-100 transition-colors">
-                AI 면접복기
+                AI Feedback
               </Link>
             </div>
             

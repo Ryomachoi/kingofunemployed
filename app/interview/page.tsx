@@ -7,10 +7,10 @@ export default async function InterviewPage() {
   
   return (
     <div className="min-h-screen bg-transparent">
-      <div className="container mx-auto px-4 py-16">
+       <div className="container mx-auto px-4 py-16">
         {/* Header Section */}
-        <div className="text-center mb-16">
-          {/* Camera Icon */}
+        {/* <div className="text-center mb-16">
+          {/* Camera Icon 
           <div className="inline-flex items-center justify-center w-24 h-24 bg-gradient-to-br from-blue-500 to-sky-400 rounded-full mb-8">
             <svg className="w-12 h-12 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
@@ -24,7 +24,7 @@ export default async function InterviewPage() {
           <p className="text-lg text-slate-600 dark:text-slate-400 max-w-2xl mx-auto mb-12">
             AI 기반 면접 분석으로 개선점을 찾고, 면접 스킬을 향상시켜보세요.
           </p>
-        </div>
+        </div> */}
 
         {/* AI 피드백 받기 Section */}
         <div className="max-w-2xl mx-auto mb-16">

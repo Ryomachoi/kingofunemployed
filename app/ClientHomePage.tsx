@@ -344,16 +344,16 @@ export default function ClientHomePage() {
               </div>
             </div>
 
-            {/* AI 면접 복기 섹션 */}
-            <div className="section-bg rounded-lg p-6 border border-blue-200 dark:border-blue-700">
+            {/* AI Feedback 섹션 */}
+            <div className="section-bg rounded-lg p-6 border-2 border-gradient-to-r from-blue-500 to-sky-400 bg-gradient-to-br from-blue-50 to-sky-50 dark:from-blue-900/20 dark:to-sky-900/20 shadow-lg hover:shadow-xl transition-all duration-300">
               <div className="flex items-center space-x-3 mb-4">
-                <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-sky-400 dark:from-blue-500 dark:to-sky-400 rounded-full flex items-center justify-center">
+                <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-sky-400 dark:from-blue-500 dark:to-sky-400 rounded-full flex items-center justify-center shadow-lg">
                   <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
                   </svg>
                 </div>
                 <div>
-                  <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100">AI 면접 복기</h3>
+                  <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100">AI Feedback</h3>
                 </div>
               </div>
               <p className="text-sm text-slate-600 dark:text-slate-400 mb-4">
@@ -361,9 +361,12 @@ export default function ClientHomePage() {
               </p>
               <Link
                 href="/interview"
-                className="w-full bg-gradient-to-r from-blue-500 to-sky-400 hover:from-blue-600 hover:to-sky-500 dark:from-blue-500 dark:to-sky-400 dark:hover:from-blue-600 dark:hover:to-sky-500 text-white font-medium py-3 px-4 rounded-lg transition-colors duration-200 flex items-center justify-center space-x-2"
+                className="w-full bg-gradient-to-r from-blue-500 to-sky-400 hover:from-blue-600 hover:to-sky-500 dark:from-blue-500 dark:to-sky-400 dark:hover:from-blue-600 dark:hover:to-sky-500 text-white font-semibold py-4 px-6 rounded-xl transition-all duration-300 transform hover:scale-105 hover:shadow-xl flex items-center justify-center space-x-2 shadow-lg"
               >
-                <span>면접 피드백 받기</span>
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                </svg>
+                <span>AI 피드백 받기</span>
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                 </svg>
@@ -393,7 +396,7 @@ export default function ClientHomePage() {
             </svg>
           </div>
           <div className="absolute bottom-full right-0 mb-2 px-3 py-1 bg-slate-900 text-white text-sm rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300 whitespace-nowrap">
-            면접 복기
+            AI Feedback
           </div>
         </Link>
       </div>
