@@ -6,7 +6,7 @@ export default async function InterviewPage() {
   const { data: { user } } = await supabase.auth.getUser()
   
   return (
-    <div className="min-h-screen bg-white dark:bg-slate-900">
+    <div className="min-h-screen bg-transparent">
       <div className="container mx-auto px-4 py-16">
         {/* Header Section */}
         <div className="text-center mb-16">

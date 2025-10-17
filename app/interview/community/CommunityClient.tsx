@@ -51,22 +51,23 @@ export default function CommunityClient({ interviews: initialInterviews, current
   }
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-950">
-      <header className="sticky top-0 z-40 w-full backdrop-blur-lg bg-white/80 dark:bg-slate-900/80 border-b border-slate-200/50 dark:border-slate-800/50">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-20">
-            <div>
-              <h1 className="text-3xl font-bold bg-gradient-to-r from-slate-900 to-slate-700 dark:from-slate-100 dark:to-slate-300 bg-clip-text text-transparent tracking-tight">
-                면접 후기
-              </h1>
+    <div className="min-h-screen bg-transparent">
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Header Section */}
+        <div className="mb-8">
+          <div className="flex items-center justify-between mb-6">
+            <div className="flex-1">
+              <h1 className="text-3xl font-bold text-slate-900 dark:text-slate-100">면접 후기</h1>
             </div>
-            <InterviewSearchBar searchQuery={searchQuery} onSearch={handleSearch} />
+            
+            {/* 검색창 */}
+            <div className="flex-1 max-w-md mx-8">
+              <InterviewSearchBar searchQuery={searchQuery} onSearch={handleSearch} />
+            </div>
           </div>
         </div>
-      </header>
 
-      <main className="py-10">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+        <main>
           <div className="space-y-6">
             {filteredInterviews.length === 0 ? (
               <div className="text-center py-16">
@@ -229,9 +230,9 @@ export default function CommunityClient({ interviews: initialInterviews, current
               ))
             )}
           </div>
-        </div>
-      </main>
-       
+        </main>
+      </div>
+      
       <div className="fixed inset-0 -z-10 overflow-hidden pointer-events-none">
         <div className="absolute -top-40 -right-40 w-80 h-80 bg-gradient-to-br from-blue-400/10 to-indigo-400/10 rounded-full blur-3xl"></div>
         <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-gradient-to-tr from-violet-400/10 to-purple-400/10 rounded-full blur-3xl"></div>

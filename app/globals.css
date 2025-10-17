@@ -14,6 +14,10 @@
   --border: #e2e8f0;
   --input: #ffffff;
   --ring: #2563eb;
+  
+  /* 배경색 관리를 위한 CSS 변수 */
+  --section-bg: transparent;
+  --card-bg: #ffffff;
 }
 
 @theme inline {
@@ -38,14 +42,28 @@
     --border: #334155;
     --input: #1e293b;
     --ring: #3b82f6;
+    
+    /* 다크모드 배경색 변수 */
+    --section-bg: transparent;
+    --card-bg: #1e293b;
   }
 }
 
 body {
-  background: var(--background);
   color: var(--foreground);
   font-family: var(--font-sans), system-ui, sans-serif;
   line-height: 1.6;
+}
+
+/* 배경색 관리를 위한 커스텀 클래스 */
+.section-bg {
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(10px);
+}
+
+.card-bg {
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(10px);
 }
 
 /* 공통 컴포넌트 스타일 */
