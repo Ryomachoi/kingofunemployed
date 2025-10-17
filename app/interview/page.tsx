@@ -36,12 +36,12 @@ export default async function InterviewPage() {
             </div>
             
             <h2 className="text-2xl font-bold text-slate-900 dark:text-slate-100 mb-4 text-center">
-              AI 피드백 받기
+              AI Feedback
             </h2>
             <p className="text-slate-600 dark:text-slate-400 mb-8 text-center">
               면접 내용을 입력하면 AI가 답변의 품질, 논리성, 표현력을 분석하고<br />입력된 사용자의 내용에 맞춰 개선점을 제안해드립니다.
             </p>
-            
+
             {/* Features List */}
             <div className="space-y-3 mb-8">
               <div className="flex items-center text-sm text-slate-600 dark:text-slate-400">
