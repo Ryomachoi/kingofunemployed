@@ -29,9 +29,6 @@ export default async function RootLayout({
           <div className="container flex h-16 items-center">
             {/* 로고 */}
             <Link href="/" className="flex items-center space-x-2 mr-8">
-              <div className="h-10 w-10 flex items-center justify-center">
-                <span className="text-2xl font-bold">🦁</span>
-              </div>
               <span className="font-bold text-xl text-slate-900 dark:text-slate-100">백수의 왕</span>
             </Link>
             
