@@ -31,7 +31,7 @@ export default function BoardsClient({ initialBoards, user }: BoardsClientProps)
   }, [searchQuery, allBoards])
 
   return (
-    <div className="mx-auto max-w-screen-xl px-3 sm:px-4 lg:px-6 py-6">
+    <div className="mx-auto max-w-screen-xl px-3 sm:px-4 lg:px-6 py-6 min-h-screen">{/* 최소 높이 설정 */}
       <div className="flex flex-wrap items-center justify-between gap-3 mb-6">
         <div className="flex-1 min-w-0">
           <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100 leading-tight">

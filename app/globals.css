@@ -72,3 +72,24 @@ body {
 .container {
   @apply mx-auto max-w-7xl px-4 sm:px-6 lg:px-8;
 }
+
+/* 커스텀 텍스트 크기 */
+.text-xs-plus {
+  font-size: 0.8125rem; /* 13px - xs(12px)와 sm(14px) 사이 */
+  line-height: 1rem; /* 16px */
+}
+
+.text-xs-minus {
+  font-size: 0.6875rem; /* 11px - xs(12px)와 2xs(10px) 사이 */
+  line-height: 0.9375rem; /* 15px */
+}
+
+.text-2xs {
+  font-size: 0.625rem; /* 10px */
+  line-height: 0.875rem; /* 14px */
+}
+
+.text-3xs {
+  font-size: 0.5rem; /* 8px */
+  line-height: 0.75rem; /* 12px */
+}
