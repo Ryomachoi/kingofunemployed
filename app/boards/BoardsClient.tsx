@@ -15,7 +15,6 @@ export default function BoardsClient({ initialBoards, user }: BoardsClientProps)
   const [allBoards, setAllBoards] = useState<Board[]>(initialBoards)
   const [searchQuery, setSearchQuery] = useState<string>('')
 
-  // 검색 필터링 효과
   useEffect(() => {
     if (!searchQuery || searchQuery.trim() === '') {
       setBoards(allBoards)
@@ -32,25 +31,24 @@ export default function BoardsClient({ initialBoards, user }: BoardsClientProps)
   }, [searchQuery, allBoards])
 
   return (
-    <div className="container py-8">
-      <div className="flex items-center justify-between mb-8">
-        <div className="flex-1">
-          <h1 className="text-3xl font-bold text-slate-900 dark:text-slate-100 mb-2">
+    <div className="mx-auto max-w-screen-xl px-3 sm:px-4 lg:px-6 py-6">
+      <div className="flex flex-wrap items-center justify-between gap-3 mb-6">
+        <div className="flex-1 min-w-0">
+          <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100 leading-tight">
             기업별 게시판
           </h1>
         </div>
-        
-        {/* 검색창 */}
-        <div className="flex-1 max-w-md mx-8">
+
+        <div className="order-3 w-full md:order-none md:w-auto md:flex-1 md:max-w-sm md:mx-4">
           <BoardSearchBar onSearch={setSearchQuery} />
         </div>
-        
+
         {user ? (
           <Link
             href="/boards/new"
-            className="inline-flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors duration-200"
+            className="inline-flex items-center px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg transition-colors duration-200"
           >
-            <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
             </svg>
             새 게시판 만들기
@@ -58,35 +56,32 @@ export default function BoardsClient({ initialBoards, user }: BoardsClientProps)
         ) : (
           <Link
             href="/login"
-            className="inline-flex items-center px-4 py-2 bg-slate-600 hover:bg-slate-700 text-white font-medium rounded-lg transition-colors duration-200"
+            className="inline-flex items-center px-3 py-1.5 bg-slate-600 hover:bg-slate-700 text-white text-sm font-medium rounded-lg transition-colors duration-200"
           >
             로그인하여 게시판 만들기
           </Link>
         )}
       </div>
 
-      {/* 게시판 목록 */}
       {boards && boards.length > 0 ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-3">
           {boards.map((board) => (
             <Link
               key={board.id}
               href={`/boards/${board.id}`}
-              className="group bg-white dark:bg-slate-800 rounded-xl shadow-sm hover:shadow-md transition-all duration-200 border border-slate-200 dark:border-slate-700 overflow-hidden flex flex-col h-[280px] relative cursor-pointer"
+              className="group bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 shadow-xs hover:shadow-sm transition-all duration-200 overflow-hidden flex flex-col relative cursor-pointer"
             >
-              {/* 호버 시 나타나는 화살표 버튼 */}
-              <div className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-10">
-                <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center shadow-lg">
+              <div className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-10">
+                <div className="w-7 h-7 bg-blue-600 rounded-full flex items-center justify-center shadow">
                   <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                   </svg>
                 </div>
               </div>
 
-              <div className="p-4 flex-1 flex flex-col">
-                {/* 로고와 게시판 이름 */}
-                <div className="flex items-start gap-3 mb-3">
-                  <div className="w-12 h-12 bg-transparent rounded-lg flex items-center justify-center text-xl flex-shrink-0 overflow-hidden border border-slate-200 dark:border-slate-600">
+              <div className="p-3 flex-1 flex flex-col">
+                <div className="flex items-start gap-2.5 mb-2.5">
+                  <div className="w-10 h-10 bg-transparent rounded-lg flex items-center justify-center text-lg flex-shrink-0 overflow-hidden">
                     {board.logo_image_url ? (
                       <img 
                         src={board.logo_image_url} 
@@ -94,13 +89,13 @@ export default function BoardsClient({ initialBoards, user }: BoardsClientProps)
                         className="w-full h-full object-cover"
                       />
                     ) : board.logo_icon ? (
-                      <span className="text-xl">{board.logo_icon}</span>
+                      <span className="text-lg">{board.logo_icon}</span>
                     ) : (
-                      <span className="text-xl">🏢</span>
+                      <span className="text-lg">🏢</span>
                     )}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <h3 className="font-bold text-slate-900 dark:text-slate-100 text-base mb-1 leading-tight">
+                    <h3 className="font-bold text-slate-900 dark:text-slate-100 text-base leading-tight">
                       {board.name}
                     </h3>
                     <p className="text-slate-600 dark:text-slate-400 text-xs">
@@ -109,8 +104,7 @@ export default function BoardsClient({ initialBoards, user }: BoardsClientProps)
                   </div>
                 </div>
                 
-                {/* 설명 */}
-                <div className="mb-3">
+                <div className="mb-2">
                   {board.description && (
                     <p className="text-slate-600 dark:text-slate-400 text-xs line-clamp-2 leading-relaxed">
                       {board.description}
@@ -118,8 +112,7 @@ export default function BoardsClient({ initialBoards, user }: BoardsClientProps)
                   )}
                 </div>
                 
-                {/* 통계 정보 */}
-                <div className="flex items-center justify-end mb-3 text-xs text-slate-500 dark:text-slate-400">
+                <div className="flex items-center justify-end mb-2 text-xs text-slate-500 dark:text-slate-400">
                   <div className="flex items-center space-x-1">
                     <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
@@ -128,24 +121,23 @@ export default function BoardsClient({ initialBoards, user }: BoardsClientProps)
                   </div>
                 </div>
                 
-                {/* 태그 */}
                 <div className="mt-auto">
                   <div className="flex flex-wrap gap-1">
                     {board.tags && board.tags.length > 0 ? (
-                      board.tags.slice(0, 3).map((tag, index) => (
-                        <span key={index} className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">
+                      board.tags.slice(0, 2).map((tag, index) => (
+                        <span key={index} className="inline-flex items-center px-1.5 py-0.5 rounded-full text-[11px] font-medium bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">
                           {tag}
                         </span>
                       ))
                     ) : (
                       <>
-                        <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">
+                        <span className="inline-flex items-center px-1.5 py-0.5 rounded-full text-[11px] font-medium bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">
                           반도체
                         </span>
-                        <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">
+                        <span className="inline-flex items-center px-1.5 py-0.5 rounded-full text-[11px] font-medium bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">
                           IT
                         </span>
-                        <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">
+                        <span className="inline-flex items-center px-1.5 py-0.5 rounded-full text-[11px] font-medium bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">
                           전자제품
                         </span>
                       </>
@@ -207,7 +199,6 @@ export default function BoardsClient({ initialBoards, user }: BoardsClientProps)
   )
 }
 
-// 게시판 전용 검색바 컴포넌트
 interface BoardSearchBarProps {
   onSearch?: (query: string) => void
 }
@@ -215,7 +206,6 @@ interface BoardSearchBarProps {
 function BoardSearchBar({ onSearch }: BoardSearchBarProps) {
   const [query, setQuery] = useState('')
 
-  // 디바운스된 검색
   useEffect(() => {
     const timeoutId = setTimeout(() => {
       if (onSearch) {
@@ -227,11 +217,11 @@ function BoardSearchBar({ onSearch }: BoardSearchBarProps) {
   }, [query, onSearch])
 
   return (
-    <div className="relative w-full max-w-md">
+    <div className="relative w-full max-w-sm">
       <div className="relative">
-        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+        <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
           <svg 
-            className="h-5 w-5 text-slate-400" 
+            className="h-5 w-5 text-slate-400 dark:text-slate-500" 
             fill="none" 
             stroke="currentColor" 
             viewBox="0 0 24 24"
@@ -248,8 +238,8 @@ function BoardSearchBar({ onSearch }: BoardSearchBarProps) {
           type="text"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          className="block w-full pl-10 pr-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 placeholder-slate-500 dark:placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
-          placeholder="게시판 이름이나 태그로 검색..."
+          className="block w-full pl-10 pr-4 py-2 border border-slate-300 dark:border-slate-700 rounded-lg bg-white/50 dark:bg-slate-800/50 text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm transition-all"
+          placeholder="게시판 검색..."
         />
       </div>
     </div>

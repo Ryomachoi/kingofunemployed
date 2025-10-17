@@ -17,7 +17,7 @@ export default function InterviewDetailClient({ interview, userProfile, currentU
   
   const searchParams = useSearchParams()
   const isFromCommunity = searchParams.get('view') === 'community'
-  
+
   const [isShared, setIsShared] = useState(interview.is_shared)
   const [isLoading, setIsLoading] = useState(false)
   const isAuthor = currentUserId === interview.user_id
