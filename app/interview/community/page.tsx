@@ -42,7 +42,10 @@ export default async function InterviewCommunityPage() {
         return { 
           ...interview, 
           user_profiles: profile,
-          first_question: firstQuestion?.question || null
+          first_question: firstQuestion?.question || null,
+          review_summary: interview.feedback_and_tips 
+            ? interview.feedback_and_tips.substring(0, 150) + (interview.feedback_and_tips.length > 150 ? '...' : '')
+            : null,
         }
       })
     )
@@ -51,7 +54,7 @@ export default async function InterviewCommunityPage() {
   if (error) {
     console.error('면접 후기 조회 오류:', error)
     return (
-      <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex items-center justify-center">
+      <div className="min-h-screen bg-transparent flex items-center justify-center">
         <div className="text-center">
           <h2 className="text-2xl font-bold text-slate-900 dark:text-slate-100 mb-4">
             데이터를 불러오는 중 오류가 발생했습니다

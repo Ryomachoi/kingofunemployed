@@ -38,3 +38,7 @@ Changelog 버전 기록
 2025-09-05 interview/analyze04 면접 분석 AI API 수정 및 기능 개선
 
 2025-09-22 front/design01 전체적인 프론트 디자인 추가
+
+2025-10-12 front/design02 전체적인 프론트 디자인 수정
+
+2025-10-18 interviewlist/design01 면접 후기 게시판 디자인 시안 02

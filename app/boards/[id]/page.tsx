@@ -133,7 +133,7 @@ export default function BoardPage() {
 
   if (!resolvedParams) {
     return (
-      <div className="min-h-screen bg-slate-50 dark:bg-slate-900 flex items-center justify-center">
+      <div className="min-h-screen bg-transparent flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
           <p className="text-slate-600 dark:text-slate-400">로딩 중...</p>
@@ -144,7 +144,7 @@ export default function BoardPage() {
 
   if (!board) {
     return (
-      <div className="min-h-screen bg-slate-50 dark:bg-slate-900 flex items-center justify-center">
+      <div className="min-h-screen bg-transparent flex items-center justify-center">
         <div className="text-center">
           <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100 mb-4">게시판을 찾을 수 없습니다</h1>
           <Link href="/" className="text-blue-600 hover:text-blue-700 dark:text-blue-400">
@@ -156,7 +156,7 @@ export default function BoardPage() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-900">
+    <div className="min-h-screen bg-transparent">
       {/* 게시판 헤더 - 전체 화면 너비 */}
       <div className="w-full relative py-12 mb-8 overflow-hidden">
         {/* 배너 이미지만 로드 */}

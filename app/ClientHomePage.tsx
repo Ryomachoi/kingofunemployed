@@ -66,7 +66,7 @@ function PostList({ sortBy, searchQuery }: PostListProps) {
     return (
       <div className="space-y-4">
         {[...Array(5)].map((_, i) => (
-          <div key={i} className="bg-white dark:bg-slate-800 rounded-lg p-6 shadow-sm border border-slate-200 dark:border-slate-700 animate-pulse">
+          <div key={i} className="card-bg rounded-lg p-6 shadow-sm border border-slate-200 dark:border-slate-700 animate-pulse">
             <div className="flex items-start space-x-4">
               <div className="w-[60px] h-16 bg-slate-200 dark:bg-slate-700 rounded"></div>
               <div className="flex-1 space-y-3">
@@ -122,7 +122,7 @@ function PostList({ sortBy, searchQuery }: PostListProps) {
         <Link
           key={post.id}
           href={`/boards/${post.board_id}/posts/${post.id}`}
-          className="block bg-white dark:bg-slate-800 rounded-lg p-4 shadow-sm hover:shadow-md transition-shadow border border-slate-200 dark:border-slate-700"
+          className="block card-bg rounded-lg p-4 shadow-sm hover:shadow-md transition-shadow border border-slate-200 dark:border-slate-700"
         >
           <div className="flex items-start space-x-3">
             {/* 게시판 로고 */}
@@ -251,7 +251,7 @@ export default function ClientHomePage() {
   }, [])
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800">
+    <div className="min-h-screen">
       {/* Main Content */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="flex gap-8">
@@ -272,20 +272,20 @@ export default function ClientHomePage() {
                 <div className="flex rounded-lg border border-slate-200 dark:border-slate-600 overflow-hidden">
                   <button
                     onClick={() => setSortBy('views')}
-                    className={`px-4 py-2 text-sm font-medium transition-colors duration-200 border-l border-slate-200 dark:border-slate-600 ${
+                    className={`px-4 py-2 text-sm font-medium transition-all duration-200 border-l border-slate-200 dark:border-slate-600 ${
                       sortBy === 'views'
-                        ? 'bg-blue-600 text-white'
-                        : 'bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700'
+                        ? 'bg-gradient-to-r from-blue-500 to-sky-400 text-white'
+                        : 'bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-gradient-to-r hover:from-blue-50 hover:to-sky-50 dark:hover:from-blue-900/20 dark:hover:to-sky-900/20'
                     }`}
                   >
                     조회
                   </button>
                   <button
                     onClick={() => setSortBy('latest')}
-                    className={`px-4 py-2 text-sm font-medium transition-colors duration-200 border-l border-slate-200 dark:border-slate-600 ${
+                    className={`px-4 py-2 text-sm font-medium transition-all duration-200 border-l border-slate-200 dark:border-slate-600 ${
                       sortBy === 'latest'
-                        ? 'bg-blue-600 text-white'
-                        : 'bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700'
+                        ? 'bg-gradient-to-r from-blue-500 to-sky-400 text-white'
+                        : 'bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-gradient-to-r hover:from-blue-50 hover:to-sky-50 dark:hover:from-blue-900/20 dark:hover:to-sky-900/20'
                     }`}
                   >
                     최신
@@ -300,14 +300,14 @@ export default function ClientHomePage() {
           {/* 사이드바 */}
           <div className="w-80 space-y-6">
             {/* 인기 게시판 */}
-            <div className="bg-white dark:bg-slate-800 rounded-lg p-6 shadow-sm border border-slate-200 dark:border-slate-700">
+            <div className="section-bg rounded-lg p-6 shadow-sm border border-slate-200 dark:border-slate-700">
               <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-100 mb-4">인기 게시판</h2>
               <div className="space-y-3">
                 {popularBoards.slice(0, 10).map((board, index) => (
                   <Link
                     key={board.id}
                     href={`/boards/${board.id}`}
-                    className="flex items-center space-x-3 p-2 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors"
+                    className="card-bg flex items-center space-x-3 p-2 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors"
                   >
                     <span className="text-sm font-medium text-slate-500 dark:text-slate-400 w-6">
                       {index + 1}
@@ -344,16 +344,16 @@ export default function ClientHomePage() {
               </div>
             </div>
 
-            {/* AI 면접 복기 섹션 */}
-            <div className="bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20 rounded-lg p-6 border border-blue-200 dark:border-blue-700">
+            {/* AI Feedback 섹션 */}
+            <div className="section-bg rounded-lg p-6 border-2 border-gradient-to-r from-blue-500 to-sky-400 bg-gradient-to-br from-blue-50 to-sky-50 dark:from-blue-900/20 dark:to-sky-900/20 shadow-lg hover:shadow-xl transition-all duration-300">
               <div className="flex items-center space-x-3 mb-4">
-                <div className="w-12 h-12 bg-blue-600 rounded-full flex items-center justify-center">
+                <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-sky-400 dark:from-blue-500 dark:to-sky-400 rounded-full flex items-center justify-center shadow-lg">
                   <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
                   </svg>
                 </div>
                 <div>
-                  <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100">AI 면접 복기</h3>
+                  <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100">AI Feedback</h3>
                 </div>
               </div>
               <p className="text-sm text-slate-600 dark:text-slate-400 mb-4">
@@ -361,9 +361,12 @@ export default function ClientHomePage() {
               </p>
               <Link
                 href="/interview"
-                className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-4 rounded-lg transition-colors duration-200 flex items-center justify-center space-x-2"
+                className="w-full bg-gradient-to-r from-blue-500 to-sky-400 hover:from-blue-600 hover:to-sky-500 dark:from-blue-500 dark:to-sky-400 dark:hover:from-blue-600 dark:hover:to-sky-500 text-white font-semibold py-4 px-6 rounded-xl transition-all duration-300 transform hover:scale-105 hover:shadow-xl flex items-center justify-center space-x-2 shadow-lg"
               >
-                <span>AI 코치 체험</span>
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                </svg>
+                <span>AI 피드백 받기</span>
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                 </svg>
@@ -376,7 +379,7 @@ export default function ClientHomePage() {
       {/* Quick Navigation */}
       <div className="fixed bottom-6 right-6 z-50 flex flex-col gap-3">
         <Link href="/boards" className="group">
-          <div className="bg-blue-600 hover:bg-blue-700 text-white p-3 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-110">
+          <div className="bg-blue-600 hover:bg-blue-700 dark:bg-blue-600 dark:hover:bg-blue-700 text-white p-3 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-110">
             <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
             </svg>
@@ -387,13 +390,13 @@ export default function ClientHomePage() {
         </Link>
         
         <Link href="/interview" className="group">
-          <div className="bg-green-600 hover:bg-green-700 text-white p-3 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-110">
+          <div className="bg-sky-600 hover:bg-sky-700 dark:bg-sky-600 dark:hover:bg-sky-700 text-white p-3 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-110">
             <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
             </svg>
           </div>
           <div className="absolute bottom-full right-0 mb-2 px-3 py-1 bg-slate-900 text-white text-sm rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300 whitespace-nowrap">
-            면접 복기
+            AI Feedback
           </div>
         </Link>
       </div>

@@ -1,21 +1,11 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import Link from "next/link";
 import Image from "next/image";
 import { createClient } from '@/lib/supabase/server';
 import { logout } from './login/actions';
 import { AuthProvider } from '@/contexts/AuthContext';
-
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
+import Footer from "./components/Footer";
 
 export const metadata: Metadata = {
   title: "백수의 왕 - 취업 커뮤니티",
@@ -33,15 +23,12 @@ export default async function RootLayout({
   return (
     <html lang="ko">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen bg-slate-50 dark:bg-slate-950`}
+        className="antialiased min-h-screen bg-gradient-to-b from-sky-50 to-white dark:from-slate-900 dark:to-slate-950"
       >
         <header className="sticky top-0 z-50 w-full border-b border-slate-200 bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/60 dark:border-slate-700 dark:bg-slate-900/95 dark:supports-[backdrop-filter]:bg-slate-900/60">
           <div className="container flex h-16 items-center">
             {/* 로고 */}
             <Link href="/" className="flex items-center space-x-2 mr-8">
-              <div className="h-10 w-10 flex items-center justify-center">
-                <span className="text-2xl font-bold">🦁</span>
-              </div>
               <span className="font-bold text-xl text-slate-900 dark:text-slate-100">백수의 왕</span>
             </Link>
             
@@ -54,7 +41,7 @@ export default async function RootLayout({
                 면접 후기
               </Link>
               <Link href="/interview" className="text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-slate-100 transition-colors">
-                AI 면접복기
+                AI Feedback
               </Link>
             </div>
             
@@ -92,11 +79,7 @@ export default async function RootLayout({
           </AuthProvider>
         </main>
         
-        <footer className="border-t border-slate-200 dark:border-slate-700 py-8">
-          <div className="container text-center text-sm text-slate-600 dark:text-slate-400">
-            © 2024 백수의 왕. All rights reserved.
-          </div>
-        </footer>
+        <Footer />
       </body>
     </html>
   );

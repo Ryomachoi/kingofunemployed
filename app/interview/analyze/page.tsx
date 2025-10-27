@@ -237,7 +237,7 @@ export default function InterviewAnalyzePage() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-900">
+    <div className="min-h-screen bg-transparent">
       {/* Header */}
       <div className="bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700">
         <div className="max-w-4xl mx-auto px-4 py-4">
@@ -269,8 +269,8 @@ export default function InterviewAnalyzePage() {
             <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 overflow-hidden">
               <div className="px-6 py-4 border-b border-slate-200 dark:border-slate-700">
                 <h3 className="text-base font-medium text-slate-900 dark:text-slate-100 flex items-center gap-2">
-                  <div className="w-5 h-5 bg-blue-500 rounded-lg flex items-center justify-center">
-                    <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <div className="w-8 h-8 bg-blue-100 dark:bg-blue-900/20 rounded-lg flex items-center justify-center">
+                    <svg className="w-4 h-4 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
                     </svg>
                   </div>
@@ -286,7 +286,7 @@ export default function InterviewAnalyzePage() {
                       value={company}
                       onChange={(e) => setCompany(e.target.value)}
                       required
-                      className="w-full p-3 border border-slate-200 dark:border-slate-600 rounded-lg bg-slate-50 dark:bg-slate-700 text-slate-900 dark:text-slate-100 placeholder-slate-500 dark:placeholder-slate-400 focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
+                      className="w-full p-3 border border-slate-200 dark:border-slate-600 rounded-lg bg-slate-50 dark:bg-slate-700 text-slate-900 dark:text-slate-100 placeholder-slate-500 dark:placeholder-slate-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
                       placeholder="회사명을 입력하세요"
                     />
                   </div>
@@ -297,7 +297,7 @@ export default function InterviewAnalyzePage() {
                       value={position}
                       onChange={(e) => setPosition(e.target.value)}
                       required
-                      className="w-full p-3 border border-slate-200 dark:border-slate-600 rounded-lg bg-slate-50 dark:bg-slate-700 text-slate-900 dark:text-slate-100 placeholder-slate-500 dark:placeholder-slate-400 focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
+                      className="w-full p-3 border border-slate-200 dark:border-slate-600 rounded-lg bg-slate-50 dark:bg-slate-700 text-slate-900 dark:text-slate-100 placeholder-slate-500 dark:placeholder-slate-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
                       placeholder="지원 직무를 입력하세요"
                     />
                   </div>
@@ -307,7 +307,7 @@ export default function InterviewAnalyzePage() {
                       type="date"
                       value={interviewDate}
                       onChange={(e) => setInterviewDate(e.target.value)}
-                      className="w-full p-3 border border-slate-200 dark:border-slate-600 rounded-lg bg-slate-50 dark:bg-slate-700 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
+                      className="w-full p-3 border border-slate-200 dark:border-slate-600 rounded-lg bg-slate-50 dark:bg-slate-700 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
                     />
                   </div>
                   <div>
@@ -315,7 +315,7 @@ export default function InterviewAnalyzePage() {
                     <select
                       value={interviewType}
                       onChange={(e) => setInterviewType(e.target.value)}
-                      className="w-full p-3 border border-slate-200 dark:border-slate-600 rounded-lg bg-slate-50 dark:bg-slate-700 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
+                      className="w-full p-3 border border-slate-200 dark:border-slate-600 rounded-lg bg-slate-50 dark:bg-slate-700 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
                     >
                       <option value="">선택하세요</option>
                       <option value="화상면접">화상면접</option>
@@ -332,8 +332,8 @@ export default function InterviewAnalyzePage() {
             <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 overflow-hidden">
               <div className="px-6 py-4 border-b border-slate-200 dark:border-slate-700">
                 <h3 className="text-base font-medium text-slate-900 dark:text-slate-100 flex items-center gap-2">
-                  <div className="w-5 h-5 bg-green-500 rounded-lg flex items-center justify-center">
-                    <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <div className="w-8 h-8 bg-blue-100 dark:bg-blue-900/20 rounded-lg flex items-center justify-center">
+                    <svg className="w-4 h-4 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
                   </div>
@@ -347,7 +347,7 @@ export default function InterviewAnalyzePage() {
                     <select
                       value={difficulty}
                       onChange={(e) => setDifficulty(e.target.value)}
-                      className="w-full p-3 border border-slate-200 dark:border-slate-600 rounded-lg bg-slate-50 dark:bg-slate-700 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
+                      className="w-full p-3 border border-slate-200 dark:border-slate-600 rounded-lg bg-slate-50 dark:bg-slate-700 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
                     >
                       <option value="">선택하세요</option>
                       <option value="easy">쉬움</option>
@@ -360,7 +360,7 @@ export default function InterviewAnalyzePage() {
                     <select
                       value={interviewResult}
                       onChange={(e) => setInterviewResult(e.target.value)}
-                      className="w-full p-3 border border-slate-200 dark:border-slate-600 rounded-lg bg-slate-50 dark:bg-slate-700 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
+                      className="w-full p-3 border border-slate-200 dark:border-slate-600 rounded-lg bg-slate-50 dark:bg-slate-700 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
                     >
                       <option value="">선택하세요</option>
                       <option value="pass">합격</option>
@@ -374,7 +374,7 @@ export default function InterviewAnalyzePage() {
                     <select
                       value={overallRating}
                       onChange={(e) => setOverallRating(e.target.value)}
-                      className="w-full p-3 border border-slate-200 dark:border-slate-600 rounded-lg bg-slate-50 dark:bg-slate-700 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
+                      className="w-full p-3 border border-slate-200 dark:border-slate-600 rounded-lg bg-slate-50 dark:bg-slate-700 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
                     >
                       <option value="">선택하세요</option>
                       <option value="1">⭐ 1점 - 매우 나쁨</option>
@@ -393,8 +393,8 @@ export default function InterviewAnalyzePage() {
             <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 overflow-hidden">
               <div className="px-6 py-4 border-b border-slate-200 dark:border-slate-700">
                 <h3 className="text-base font-medium text-slate-900 dark:text-slate-100 flex items-center gap-2">
-                  <div className="w-5 h-5 bg-blue-500 rounded-lg flex items-center justify-center">
-                    <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <div className="w-8 h-8 bg-blue-100 dark:bg-blue-900/20 rounded-lg flex items-center justify-center">
+                    <svg className="w-4 h-4 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
                     </svg>
                   </div>
@@ -411,7 +411,7 @@ export default function InterviewAnalyzePage() {
                       value="personal"
                       checked={shareOption === "personal"}
                       onChange={(e) => setShareOption(e.target.value)}
-                      className="mt-1 h-4 w-4 text-purple-600 focus:ring-purple-500 border-slate-300 dark:border-slate-600"
+                      className="mt-1 h-4 w-4 text-blue-600 focus:ring-blue-500 border-slate-300 dark:border-slate-600"
                     />
                     <div className="flex-1">
                       <label htmlFor="personal" className="block text-sm font-medium text-slate-900 dark:text-slate-100 cursor-pointer">
@@ -431,7 +431,7 @@ export default function InterviewAnalyzePage() {
                       value="community"
                       checked={shareOption === "community"}
                       onChange={(e) => setShareOption(e.target.value)}
-                      className="mt-1 h-4 w-4 text-purple-600 focus:ring-purple-500 border-slate-300 dark:border-slate-600"
+                      className="mt-1 h-4 w-4 text-blue-600 focus:ring-blue-500 border-slate-300 dark:border-slate-600"
                     />
                     <div className="flex-1">
                       <label htmlFor="community" className="block text-sm font-medium text-slate-900 dark:text-slate-100 cursor-pointer">
@@ -482,7 +482,7 @@ export default function InterviewAnalyzePage() {
                         value={pair.question}
                         onChange={(e) => updateQnAPair(index, 'question', e.target.value)}
                         placeholder="예: 자기소개해주세요"
-                        className="w-full p-3 border border-slate-200 dark:border-slate-600 rounded-lg bg-slate-50 dark:bg-slate-700 text-slate-900 dark:text-slate-100 placeholder-slate-500 dark:placeholder-slate-400 focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
+                        className="w-full p-3 border border-slate-200 dark:border-slate-600 rounded-lg bg-slate-50 dark:bg-slate-700 text-slate-900 dark:text-slate-100 placeholder-slate-500 dark:placeholder-slate-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
                       />
                       
                       <div>
@@ -493,7 +493,7 @@ export default function InterviewAnalyzePage() {
                           value={pair.answer}
                           onChange={(e) => updateQnAPair(index, 'answer', e.target.value)}
                           placeholder="답변을 입력해주세요..."
-                          className="w-full h-32 p-3 border border-slate-200 dark:border-slate-600 rounded-lg bg-slate-50 dark:bg-slate-700 text-slate-900 dark:text-slate-100 placeholder-slate-500 dark:placeholder-slate-400 resize-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
+                          className="w-full h-32 p-3 border border-slate-200 dark:border-slate-600 rounded-lg bg-slate-50 dark:bg-slate-700 text-slate-900 dark:text-slate-100 placeholder-slate-500 dark:placeholder-slate-400 resize-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
                         />
                       </div>
                     </div>
@@ -501,7 +501,7 @@ export default function InterviewAnalyzePage() {
                   
                   <button
                     onClick={addQnAPair}
-                    className="w-full py-3 border-2 border-dashed border-slate-300 dark:border-slate-600 rounded-lg text-slate-500 dark:text-slate-400 hover:border-purple-400 hover:text-purple-600 dark:hover:text-purple-400 transition-colors"
+                    className="w-full py-3 border-2 border-dashed border-slate-300 dark:border-slate-600 rounded-lg text-slate-500 dark:text-slate-400 hover:border-blue-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
                   >
                     + 질문-답변 추가
                   </button>
@@ -514,8 +514,8 @@ export default function InterviewAnalyzePage() {
             {/* AI 분석 시작 버튼 */}
             <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 p-6">
               <div className="flex items-center gap-3 mb-4">
-                <div className="w-8 h-8 bg-purple-100 dark:bg-purple-900/20 rounded-lg flex items-center justify-center">
-                  <svg className="w-4 h-4 text-purple-600 dark:text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div className="w-8 h-8 bg-blue-100 dark:bg-blue-900/20 rounded-lg flex items-center justify-center">
+                  <svg className="w-4 h-4 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
                   </svg>
                 </div>
@@ -539,7 +539,7 @@ export default function InterviewAnalyzePage() {
               <button
                 onClick={handleAnalyze}
                 disabled={isAnalyzing || !company.trim() || !position.trim() || !qnaPairs.some(pair => pair.question.trim() || pair.answer.trim())}
-                className="w-full bg-gradient-to-r from-purple-500 to-purple-600 hover:from-purple-600 hover:to-purple-700 disabled:from-slate-300 disabled:to-slate-400 text-white font-medium py-4 px-6 rounded-xl transition-all duration-200 transform hover:scale-[1.02] disabled:scale-100 disabled:cursor-not-allowed"
+                className="w-full bg-gradient-to-r from-blue-500 to-sky-400 hover:from-blue-600 hover:to-sky-500 disabled:from-slate-300 disabled:to-slate-400 text-white font-medium py-4 px-6 rounded-xl transition-all duration-200 transform hover:scale-[1.02] disabled:scale-100 disabled:cursor-not-allowed"
               >
                 {isAnalyzing ? (
                   <div className="flex items-center justify-center gap-2">
@@ -780,7 +780,7 @@ export default function InterviewAnalyzePage() {
               {interviewId && (
                 <Link
                   href={`/interview/${interviewId}`}
-                  className="flex-1 bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white font-medium py-3 px-6 rounded-xl transition-all duration-200 transform hover:scale-[1.02] text-center"
+                  className="flex-1 bg-gradient-to-r from-blue-500 to-sky-400 hover:from-blue-600 hover:to-sky-500 text-white font-medium py-3 px-6 rounded-xl transition-all duration-200 transform hover:scale-[1.02] text-center"
                 >
                   상세 면접 후기 보기
                 </Link>
