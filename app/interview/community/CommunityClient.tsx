@@ -83,8 +83,8 @@ export default function CommunityClient({ interviews: initialInterviews, current
               <p className="text-slate-600 dark:text-slate-400 mt-2">시간순으로 정리된 면접 경험들</p>
             </div>
             
-            {/* 검색창 */}
-            <div className="flex-1 max-w-md mx-8">
+            {/* 검색창 - 오른쪽 정렬 */}
+            <div className="flex justify-end">
               <InterviewSearchBar searchQuery={searchQuery} onSearch={handleSearch} />
             </div>
           </div>
@@ -164,10 +164,11 @@ export default function CommunityClient({ interviews: initialInterviews, current
                                   </div>
                                 </div>
 
-                                {/* 카드 메타 정보 */}
-                                <div className="flex items-center gap-4 mb-4 text-sm">
-                                  {/* 면접 유형 */}
-                                  <div className="flex items-center gap-2">
+                                {/* 카드 메타 정보 - 면접 유형, 난이도, 면접 날짜 */}
+                                <div className="flex items-center justify-between mb-4 text-sm">
+                                  <div className="flex items-center gap-4">
+                                    {/* 면접 유형 */}
+                                    <div className="flex items-center gap-2">
                                     {interview.interview_type === '화상면접' || interview.interview_type === 'video' ? (
                                       <>
                                         <div className="w-5 h-5 bg-blue-100 dark:bg-blue-900/20 rounded-full flex items-center justify-center flex-shrink-0">
@@ -207,28 +208,31 @@ export default function CommunityClient({ interviews: initialInterviews, current
                                     )}
                                   </div>
 
-                                  {/* 난이도 */}
-                                  <div className="flex items-center gap-2">
-                                    <span className="text-slate-500 dark:text-slate-400">난이도:</span>
-                                    <span>
-                                      {interview.difficulty_level === 'easy' ? '🟢 쉬움' :
-                                       interview.difficulty_level === 'medium' ? '🟡 보통' :
-                                       interview.difficulty_level === 'hard' ? '🔴 어려움' : '⚪ 미정'}
-                                    </span>
+                                    {/* 난이도 */}
+                                    <div className="flex items-center gap-2">
+                                      <span className="text-slate-500 dark:text-slate-400">난이도:</span>
+                                      <span>
+                                        {interview.difficulty_level === 'easy' ? '🟢 쉬움' :
+                                         interview.difficulty_level === 'medium' ? '🟡 보통' :
+                                         interview.difficulty_level === 'hard' ? '🔴 어려움' : '⚪ 미정'}
+                                      </span>
+                                    </div>
                                   </div>
-
-                                  {/* 시간 */}
-                                  <div className="flex items-center gap-2 text-slate-500 dark:text-slate-400">
-                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                    </svg>
-                                    <span>
-                                      {new Date(interview.created_at).toLocaleTimeString('ko-KR', {
-                                        hour: '2-digit',
-                                        minute: '2-digit'
-                                      })}
-                                    </span>
-                                  </div>
+                                  
+                                  {/* 면접 날짜 - 오른쪽 끝에 위치 */}
+                                  {interview.interview_date && (
+                                    <div className="flex items-center gap-2 text-slate-600 dark:text-slate-400">
+                                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                      </svg>
+                                      <span>
+                                        {new Date(interview.interview_date).toLocaleDateString('ko-KR', {
+                                          month: 'short',
+                                          day: 'numeric'
+                                        })}
+                                      </span>
+                                    </div>
+                                  )}
                                 </div>
 
                                 {/* 카드 콘텐츠 */}
@@ -278,7 +282,17 @@ export default function CommunityClient({ interviews: initialInterviews, current
                                 <div className="mt-4 pt-4 border-t border-slate-200/50 dark:border-slate-700/50">
                                   <div className="flex items-center justify-between text-xs text-slate-500 dark:text-slate-400">
                                     <span>자세히 보기 →</span>
-                                    <span>면접 후기 #{interview.id.slice(-6)}</span>
+                                    <div className="flex items-center gap-1">
+                                      <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                      </svg>
+                                      <span>
+                                        {new Date(interview.created_at).toLocaleTimeString('ko-KR', {
+                                          hour: '2-digit',
+                                          minute: '2-digit'
+                                        })}
+                                      </span>
+                                    </div>
                                   </div>
                                 </div>
                               </div>
