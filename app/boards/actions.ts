@@ -738,7 +738,8 @@ export async function getPostsByBoardId(
   page: number = 1,
   searchQuery: string = '',
   searchType: 'title' | 'content' | 'tags' = 'title',
-  limit: number = 20
+  limit: number = 20,
+  sortBy: 'latest' | 'views' | 'likes' = 'latest'
 ) {
   const supabase = await createClient()
 
@@ -748,7 +749,7 @@ export async function getPostsByBoardId(
       .select('*')
       .eq('board_id', boardId)
       .eq('is_deleted', false)
-      .order('created_at', { ascending: false })
+      
 
     // 검색 조건 적용
     if (searchQuery.trim()) {
@@ -763,6 +764,20 @@ export async function getPostsByBoardId(
           query = query.contains('tags', [searchQuery])
           break
       }
+    }
+
+    // 정렬 조건 적용
+    switch (sortBy) {
+      case 'views':
+        query = query.order('view_count', { ascending: false })
+        break
+      case 'likes':
+        query = query.order('like_count', { ascending: false })
+        break
+      case 'latest':
+      default:
+        query = query.order('created_at', { ascending: false })
+        break
     }
 
     // 페이지네이션

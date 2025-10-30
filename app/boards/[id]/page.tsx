@@ -14,6 +14,7 @@ interface Post {
   created_at: string
   view_count: number
   comment_count: number
+  like_count?: number
   tags?: string[]
   user_profiles?: {
     nickname?: string
@@ -43,7 +44,7 @@ export default function BoardPage() {
   const [loading, setLoading] = useState(true)
   const [searchQuery, setSearchQuery] = useState('')
   const [searchType, setSearchType] = useState<'title' | 'content' | 'tags'>('title')
-  const [sortBy, setSortBy] = useState<'latest'>('latest')
+  const [sortBy, setSortBy] = useState<'latest' | 'views' | 'likes'>('latest')
   const [currentPage, setCurrentPage] = useState(1)
   const [totalPages, setTotalPages] = useState(1)
   const [resolvedParams, setResolvedParams] = useState<{ id: string } | null>(null)
@@ -83,7 +84,9 @@ export default function BoardPage() {
         resolvedParams.id,
         currentPage,
         searchQuery,
-        searchType
+        searchType,
+        20,
+        sortBy
       )
       setPosts(postsData)
       setTotalPages(total)
@@ -121,9 +124,17 @@ export default function BoardPage() {
       })
     }
     
-    // 정렬 (최신순만)
+    // 정렬
     const sorted = [...filtered].sort((a, b) => {
-      return new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+      switch (sortBy) {
+        case 'views':
+          return (b.view_count || 0) - (a.view_count || 0)
+        case 'likes':
+          return (b.like_count || 0) - (a.like_count || 0)
+        case 'latest':
+        default:
+          return new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+      }
     })
     
     return sorted
@@ -221,9 +232,42 @@ export default function BoardPage() {
               {/* 검색 및 정렬 기능 */}
               <div className="p-6 border-b border-slate-200 dark:border-slate-700">
                 <div className="flex justify-between items-center gap-4">
-
-                  
-                  {/* 검색 기능 - 중앙 */}
+                  {/* 정렬 - 맨 왼쪽 */}
+                  <div className="flex items-center gap-3">
+                    <div className="flex rounded-lg border border-slate-200 dark:border-slate-600 overflow-hidden">
+                      <button
+                        onClick={() => { setSortBy('likes'); setCurrentPage(1); }}
+                        className={`px-4 py-2 text-sm font-medium transition-all duration-200 border-l border-slate-200 dark:border-slate-600 ${
+                          sortBy === 'likes'
+                            ? 'bg-gradient-to-r from-blue-500 to-sky-400 text-white'
+                            : 'bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-gradient-to-r hover:from-blue-50 hover:to-sky-50 dark:hover:from-blue-900/20 dark:hover:to-sky-900/20'
+                        }`}
+                      >
+                        추천
+                      </button>
+                      <button
+                        onClick={() => { setSortBy('views'); setCurrentPage(1); }}
+                        className={`px-4 py-2 text-sm font-medium transition-all duration-200 border-l border-slate-200 dark:border-slate-600 ${
+                          sortBy === 'views'
+                            ? 'bg-gradient-to-r from-blue-500 to-sky-400 text-white'
+                            : 'bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-gradient-to-r hover:from-blue-50 hover:to-sky-50 dark:hover:from-blue-900/20 dark:hover:to-sky-900/20'
+                        }`}
+                      >
+                        조회
+                      </button>
+                      <button
+                        onClick={() => { setSortBy('latest'); setCurrentPage(1); }}
+                        className={`px-4 py-2 text-sm font-medium transition-all duration-200 border-l border-slate-200 dark:border-slate-600 ${
+                          sortBy === 'latest'
+                            ? 'bg-gradient-to-r from-blue-500 to-sky-400 text-white'
+                            : 'bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-gradient-to-r hover:from-blue-50 hover:to-sky-50 dark:hover:from-blue-900/20 dark:hover:to-sky-900/20'
+                        }`}
+                      >
+                        최신
+                      </button>
+                    </div>
+                  </div>
+                  {/* 검색 기능 */}
                   <form onSubmit={handleSearch} className="flex gap-4 items-center flex-1">
                     <select
                       value={searchType}
@@ -252,12 +296,11 @@ export default function BoardPage() {
                       </button>
                     </div>
                   </form>
-                  
-                  {/* 글쓰기 버튼 - 오른쪽 */}
+                  {/* 글쓰기 - 오른쪽 */}
                   {user && (
                     <Link
                       href={`/boards/${resolvedParams.id}/posts/new`}
-                      className="inline-flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors duration-200"
+                      className="inline-flex items-center px-4 py-2 bg-gradient-to-r from-blue-500 to-sky-400 text-white font-medium rounded-lg transition-colors duration-200 hover:opacity-90"
                     >
                       <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
@@ -283,16 +326,23 @@ export default function BoardPage() {
                       className="block hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors duration-200"
                     >
                       <div className="p-6">
-                        <div className="flex items-start justify-between">
-                          <div className="flex items-start space-x-4">
-                            <div className="flex-1 min-w-0">
+                        <div className="flex items-center justify-between">
+                          {/* 왼쪽 추천수 표시 - 맨 왼쪽, 세로 중앙 */}
+                          <div className="flex-shrink-0 w-9 flex items-center justify-center">
+                            <div className="flex items-center bg-pink-50 dark:bg-pink-900/20 px-1.5 py-0.5 rounded-full">
+                              <svg className="w-4 h-4 mr-0.5 text-pink-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 016.364 0L12 7.636l1.318-1.318a4.5 4.5 0 116.364 6.364L12 20.364l-7.682-7.682a4.5 4.5 0 010-6.364z" />
+                              </svg>
+                              <span className="font-medium text-pink-600 dark:text-pink-400">{post.like_count || 0}</span>
+                            </div>
+                          </div>
+
+                          {/* 가운데 콘텐츠 */}
+                          <div className="flex-1 min-w-0 ml-4">
                               <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100 mb-2 truncate">
                                 {post.title}
                               </h3>
-                              <p className="text-slate-600 dark:text-slate-400 text-sm line-clamp-2 mb-3">
-                                {post.content.replace(/\n/g, ' ').substring(0, 150)}
-                                {post.content.length > 150 && '...'}
-                              </p>
+                              {/* 본문 프리뷰 제거 */}
                               
                               {/* 태그 표시 */}
                               {post.tags && post.tags.length > 0 && (
@@ -312,9 +362,8 @@ export default function BoardPage() {
                                   )}
                                 </div>
                               )}
-                            </div>
                           </div>
-                          
+
                           {/* 오른쪽 정보 영역 */}
                           <div className="flex flex-col items-end justify-between h-full ml-4 min-h-[120px]">
                             {/* 작성자와 시간 - 오른쪽 상단 */}
