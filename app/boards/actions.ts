@@ -856,7 +856,7 @@ export async function getPostsByBoardId(
 
 // 전체 게시판의 게시글 목록 조회 (메인화면용)
 export async function getAllPosts(
-  sortBy: 'latest' | 'views' = 'latest',
+  sortBy: 'latest' | 'views' | 'likes' = 'latest',
   limit: number = 20
 ) {
   const supabase = await createClient()
@@ -870,6 +870,7 @@ export async function getAllPosts(
         content,
         comment_count,
         view_count,
+        like_count,
         created_at,
         updated_at,
         author_id,
@@ -889,6 +890,9 @@ export async function getAllPosts(
     switch (sortBy) {
       case 'views':
         query = query.order('view_count', { ascending: false })
+        break
+      case 'likes':
+        query = query.order('like_count', { ascending: false })
         break
       case 'latest':
       default:
