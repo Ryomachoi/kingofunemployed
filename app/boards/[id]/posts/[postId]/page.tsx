@@ -4,6 +4,8 @@ import { notFound } from 'next/navigation'
 import CommentSection from './CommentSection'
 import DeleteButton from './DeleteButton'
 import ViewCounter from './ViewCounter'
+import dynamic from 'next/dynamic'
+const LikeButton = dynamic(() => import('./LikeButton'))
 import type { PostWithProfile, CommentWithProfile } from '@/types/database'
 
 interface PostDetailPageProps {
@@ -26,6 +28,7 @@ export default async function PostDetailPage({ params }: PostDetailPageProps) {
       content,
       tags,
       comment_count,
+      like_count,
       view_count,
       created_at,
       updated_at,
@@ -190,6 +193,8 @@ export default async function PostDetailPage({ params }: PostDetailPageProps) {
                 </div>
               </div>
               
+
+
               {user && user.id === postWithProfile.author_id && (
                 <div className="flex items-center space-x-2">
                   <Link
@@ -231,6 +236,15 @@ export default async function PostDetailPage({ params }: PostDetailPageProps) {
           )}
 
         </article>
+
+        {/* 추천 버튼 - 게시물 하단 중앙 */}
+        <div className="mt-2 mb-8 flex justify-center">
+          <LikeButton 
+            postId={postWithProfile.id} 
+            initialLikeCount={postWithProfile.like_count || 0}
+            currentUser={user}
+          />
+        </div>
 
         {/* 댓글 섹션 */}
         <CommentSection 

@@ -12,7 +12,7 @@ interface PostWithDetails extends Post {
 }
 
 interface PostListProps {
-  sortBy: 'latest' | 'views'
+  sortBy: 'latest' | 'views' | 'likes'
   searchQuery?: string
 }
 
@@ -125,8 +125,8 @@ function PostList({ sortBy, searchQuery }: PostListProps) {
           className="block card-bg rounded-lg p-4 shadow-sm hover:shadow-md transition-shadow border border-slate-200 dark:border-slate-700"
         >
           <div className="flex items-start space-x-3">
-            {/* 게시판 로고 */}
-            <div className="flex-shrink-0">
+            {/* 게시판 로고 + 추천수 */}
+            <div className="flex-shrink-0 flex flex-col items-center">
               {post.boards?.logo_image_url ? (
                 <img
                   src={post.boards.logo_image_url}
@@ -144,6 +144,12 @@ function PostList({ sortBy, searchQuery }: PostListProps) {
                   </svg>
                 </div>
               )}
+              <div className="mt-5 mb-2 flex items-center bg-pink-50 dark:bg-pink-900/20 px-1.5 py-0.5 rounded-full">
+                <svg className="w-4 h-4 mr-0.5 text-pink-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 016.364 0L12 7.636l1.318-1.318a4.5 4.5 0 116.364 6.364L12 20.364l-7.682-7.682a4.5 4.5 0 010-6.364z" />
+                </svg>
+                <span className="text-xs font-medium text-pink-600 dark:text-pink-400">{post.like_count || 0}</span>
+              </div>
             </div>
 
             {/* 게시물 내용 */}
@@ -169,16 +175,7 @@ function PostList({ sortBy, searchQuery }: PostListProps) {
                 {post.title}
               </h3>
 
-              {/* 내용 미리보기 */}
-              <div className="text-slate-600 dark:text-slate-400 text-sm mb-2 line-clamp-2 leading-relaxed">
-                {(() => {
-                  const cleanContent = post.content.replace(/[#*`]/g, '').trim();
-                  const lines = cleanContent.split('\n').filter(line => line.trim());
-                  const displayLines = lines.slice(0, 2);
-                  const hasMore = lines.length > 2 || cleanContent.length > 150;
-                  return displayLines.join(' ') + (hasMore ? '...' : '');
-                })()}
-              </div>
+              {/* 내용 미리보기 제거: 인기 게시물에서는 본문 프리뷰를 표시하지 않음 */}
 
               {/* 태그 */}
               {post.tags && post.tags.length > 0 && (
@@ -229,7 +226,7 @@ function PostList({ sortBy, searchQuery }: PostListProps) {
 }
 
 export default function ClientHomePage() {
-  const [sortBy, setSortBy] = useState<'latest' | 'views'>('latest')
+  const [sortBy, setSortBy] = useState<'latest' | 'views' | 'likes'>('likes')
   const [popularBoards, setPopularBoards] = useState<Board[]>([])
   const [searchQuery, setSearchQuery] = useState<string>('')
 
@@ -270,6 +267,16 @@ export default function ClientHomePage() {
                 </div>
                 
                 <div className="flex rounded-lg border border-slate-200 dark:border-slate-600 overflow-hidden">
+                  <button
+                    onClick={() => setSortBy('likes')}
+                    className={`px-4 py-2 text-sm font-medium transition-all duration-200 border-l border-slate-200 dark:border-slate-600 ${
+                      sortBy === 'likes'
+                        ? 'bg-gradient-to-r from-blue-500 to-sky-400 text-white'
+                        : 'bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-gradient-to-r hover:from-blue-50 hover:to-sky-50 dark:hover:from-blue-900/20 dark:hover:to-sky-900/20'
+                    }`}
+                  >
+                    추천
+                  </button>
                   <button
                     onClick={() => setSortBy('views')}
                     className={`px-4 py-2 text-sm font-medium transition-all duration-200 border-l border-slate-200 dark:border-slate-600 ${

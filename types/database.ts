@@ -14,6 +14,7 @@ export interface Post {
   content: string
   comment_count: number
   view_count: number
+  like_count?: number
   created_at: string
   updated_at: string
   author_id: string

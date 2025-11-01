@@ -738,7 +738,8 @@ export async function getPostsByBoardId(
   page: number = 1,
   searchQuery: string = '',
   searchType: 'title' | 'content' | 'tags' = 'title',
-  limit: number = 20
+  limit: number = 20,
+  sortBy: 'latest' | 'views' | 'likes' = 'latest'
 ) {
   const supabase = await createClient()
 
@@ -748,7 +749,7 @@ export async function getPostsByBoardId(
       .select('*')
       .eq('board_id', boardId)
       .eq('is_deleted', false)
-      .order('created_at', { ascending: false })
+      
 
     // 검색 조건 적용
     if (searchQuery.trim()) {
@@ -763,6 +764,20 @@ export async function getPostsByBoardId(
           query = query.contains('tags', [searchQuery])
           break
       }
+    }
+
+    // 정렬 조건 적용
+    switch (sortBy) {
+      case 'views':
+        query = query.order('view_count', { ascending: false })
+        break
+      case 'likes':
+        query = query.order('like_count', { ascending: false })
+        break
+      case 'latest':
+      default:
+        query = query.order('created_at', { ascending: false })
+        break
     }
 
     // 페이지네이션
@@ -841,7 +856,7 @@ export async function getPostsByBoardId(
 
 // 전체 게시판의 게시글 목록 조회 (메인화면용)
 export async function getAllPosts(
-  sortBy: 'latest' | 'views' = 'latest',
+  sortBy: 'latest' | 'views' | 'likes' = 'latest',
   limit: number = 20
 ) {
   const supabase = await createClient()
@@ -855,6 +870,7 @@ export async function getAllPosts(
         content,
         comment_count,
         view_count,
+        like_count,
         created_at,
         updated_at,
         author_id,
@@ -874,6 +890,9 @@ export async function getAllPosts(
     switch (sortBy) {
       case 'views':
         query = query.order('view_count', { ascending: false })
+        break
+      case 'likes':
+        query = query.order('like_count', { ascending: false })
         break
       case 'latest':
       default:
