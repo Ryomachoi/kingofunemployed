@@ -13,9 +13,10 @@ interface MyPageProps {
   posts: any[]
   comments: any[]
   interviews: any[]
+  likedPosts: any[]
 }
 
-export default function MyPageClient({ user, profile, posts, comments, interviews }: MyPageProps) {
+export default function MyPageClient({ user, profile, posts, comments, interviews, likedPosts }: MyPageProps) {
   const [activeTab, setActiveTab] = useState('profile')
 
   const stats = {
@@ -82,6 +83,24 @@ export default function MyPageClient({ user, profile, posts, comments, interview
                     프로필
                   </button>
                 </li>
+                {/* 면접 후기: 프로필 바로 아래로 이동 */}
+                <li>
+                  <button
+                    onClick={() => setActiveTab('interviews')}
+                    className={`w-full flex items-center px-4 py-3 text-left rounded-lg transition-colors ${
+                      activeTab === 'interviews'
+                        ? 'bg-blue-50 text-blue-700 dark:bg-blue-900/20 dark:text-blue-400'
+                        : 'text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700'
+                    }`}
+                  >
+                    <div className="w-5 h-5 mr-3 flex items-center justify-center">
+                      <svg className="w-5 h-5 text-orange-600 dark:text-orange-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2-2v2m8 0V6a2 2 0 012 2v6a2 2 0 01-2 2H6a2 2 0 01-2-2V8a2 2 0 012-2V6" />
+                      </svg>
+                    </div>
+                    면접 후기
+                  </button>
+                </li>
                 <li>
                   <button
                     onClick={() => setActiveTab('posts')}
@@ -116,39 +135,22 @@ export default function MyPageClient({ user, profile, posts, comments, interview
                     작성한 댓글
                   </button>
                 </li>
-                <li>
-                  <button
-                    onClick={() => setActiveTab('interviews')}
-                    className={`w-full flex items-center px-4 py-3 text-left rounded-lg transition-colors ${
-                      activeTab === 'interviews'
-                        ? 'bg-blue-50 text-blue-700 dark:bg-blue-900/20 dark:text-blue-400'
-                        : 'text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700'
-                    }`}
-                  >
-                    <div className="w-5 h-5 mr-3 flex items-center justify-center">
-                      <svg className="w-5 h-5 text-orange-600 dark:text-orange-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2-2v2m8 0V6a2 2 0 012 2v6a2 2 0 01-2 2H6a2 2 0 01-2-2V8a2 2 0 012-2V6" />
-                      </svg>
-                    </div>
-                    면접 후기
-                  </button>
-                </li>
                 {/* 추가 메뉴 */}
                 <li>
                   <button
-                    onClick={() => setActiveTab('activity')}
+                    onClick={() => setActiveTab('liked')}
                     className={`w-full flex items-center px-4 py-3 text-left rounded-lg transition-colors ${
-                      activeTab === 'activity'
+                      activeTab === 'liked'
                         ? 'bg-blue-50 text-blue-700 dark:bg-blue-900/20 dark:text-blue-400'
                         : 'text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700'
                     }`}
                   >
                     <div className="w-5 h-5 mr-3 flex items-center justify-center">
-                      <svg className="w-5 h-5 text-indigo-600 dark:text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                      <svg className="w-5 h-5 text-rose-600 dark:text-rose-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 016.364 0L12 7.636l1.318-1.318a4.5 4.5 0 116.364 6.364L12 20.364l-7.682-7.682a4.5 4.5 0 010-6.364z" />
                       </svg>
                     </div>
-                    활동 내역
+                    추천한 게시물
                   </button>
                 </li>
                 <li>
@@ -278,13 +280,13 @@ export default function MyPageClient({ user, profile, posts, comments, interview
                           <div className="flex items-start justify-between mb-4">
                             <div className="flex-1 pr-4">
                               <div className="flex items-center gap-3 mb-3">
-                                <h3 className="text-xl font-bold text-gray-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
-                                  {post.title}
-                                </h3>
-                                <span className="text-gray-400 dark:text-gray-500">•</span>
                                 <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">
                                   {(post.boards as any)?.name ?? '게시판'}
                                 </span>
+                                <span className="text-gray-400 dark:text-gray-500">•</span>
+                                <h3 className="text-xl font-bold text-gray-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
+                                  {post.title}
+                                </h3>
                               </div>
                               {/* 게시물 내용 표시 */}
                               {post.content && (
@@ -295,31 +297,40 @@ export default function MyPageClient({ user, profile, posts, comments, interview
                                 </div>
                               )}
                             </div>
-                            <div className="absolute top-6 right-6">
-                              <div className="flex items-center gap-1 text-sm text-gray-600 dark:text-gray-400">
-                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                                </svg>
-                                <span>{new Date(post.created_at).toLocaleString('ko-KR')}</span>
-                              </div>
-                            </div>
+                            {/* 상단 오른쪽 날짜 표시 제거 (아래 메타 영역으로 이동) */}
                           </div>
-                          {/* 조회수와 댓글을 오른쪽 하단 구석으로 이동 */}
-                          <div className="absolute bottom-6 right-6">
-                            <div className="flex items-center gap-4 text-sm text-gray-600 dark:text-gray-400">
-                              <div className="flex items-center gap-1">
-                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          {/* 메타 정보: 추천수, 조회수, 댓글, 작성시간 */}
+                          <div className="mt-4 flex items-center justify-between text-sm text-slate-600 dark:text-slate-400">
+                            <div className="flex items-center gap-6">
+                              {/* 추천수 */}
+                              <span className="inline-flex items-center gap-1">
+                                <svg className="w-4 h-4 text-rose-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 016.364 0L12 7.636l1.318-1.318a4.5 4.5 0 116.364 6.364L12 20.364l-7.682-7.682a4.5 4.5 0 010-6.364z" />
+                                </svg>
+                                <span>{post.like_count || 0}</span>
+                              </span>
+                              {/* 조회수 */}
+                              <span className="inline-flex items-center gap-1">
+                                <svg className="w-4 h-4 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                                 </svg>
                                 <span>{post.view_count || 0}</span>
-                              </div>
-                              <div className="flex items-center gap-1">
-                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              </span>
+                              {/* 댓글 */}
+                              <span className="inline-flex items-center gap-1">
+                                <svg className="w-4 h-4 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
                                 </svg>
-                                <span>{post.comment_count}</span>
-                              </div>
+                                <span>{post.comment_count || 0}</span>
+                              </span>
+                            </div>
+                            {/* 작성 시간 */}
+                            <div className="flex items-center gap-1 text-slate-500 dark:text-slate-400">
+                              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                              </svg>
+                              <span>{new Date(post.created_at).toLocaleDateString('ko-KR', { year: 'numeric', month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit' })}</span>
                             </div>
                           </div>
                         </div>
@@ -502,6 +513,78 @@ export default function MyPageClient({ user, profile, posts, comments, interview
                     >
                       면접 후기 작성하기
                     </Link>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {activeTab === 'liked' && (
+              <div className="max-w-4xl">
+                <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-8">추천한 게시물</h1>
+                {likedPosts && likedPosts.length > 0 ? (
+                  <div className="grid gap-6">
+                    {likedPosts.map((post: any) => (
+                      <Link key={post.id} href={`/boards/${post.board_id}/posts/${post.id}`}>
+                        <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-700 p-6 hover:shadow-lg hover:border-blue-300 dark:hover:border-blue-600 transition-all duration-200 cursor-pointer group relative">
+                          <div className="flex items-start justify-between mb-4">
+                            <div className="flex-1 pr-4">
+                              <div className="flex items-center gap-3 mb-3">
+                                <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">
+                                  {(post.boards as any)?.name ?? '게시판'}
+                                </span>
+                                <span className="text-gray-400 dark:text-gray-500">•</span>
+                                <h3 className="text-xl font-bold text-gray-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
+                                  {post.title}
+                                </h3>
+                              </div>
+                              {post.content && (
+                                <div className="mt-3 mb-4">
+                                  <p className="text-gray-700 dark:text-gray-300 text-sm leading-relaxed line-clamp-3">
+                                    {post.content.length > 200 ? `${post.content.substring(0, 200)}...` : post.content}
+                                  </p>
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                          <div className="mt-4 flex items-center justify-between text-sm text-slate-600 dark:text-slate-400">
+                            <div className="flex items-center gap-6">
+                              <span className="inline-flex items-center gap-1">
+                                <svg className="w-4 h-4 text-rose-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 016.364 0L12 7.636l1.318-1.318a4.5 4.5 0 116.364 6.364L12 20.364l-7.682-7.682a4.5 4.5 0 010-6.364z" />
+                                </svg>
+                                <span>{post.like_count || 0}</span>
+                              </span>
+                              <span className="inline-flex items-center gap-1">
+                                <svg className="w-4 h-4 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                </svg>
+                                <span>{post.view_count || 0}</span>
+                              </span>
+                              <span className="inline-flex items-center gap-1">
+                                <svg className="w-4 h-4 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8h2a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V10a2 2 0 012-2h2" />
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 12v9m-7-6h14" />
+                                </svg>
+                                <span>{post.comment_count || 0}</span>
+                              </span>
+                            </div>
+                            <div className="flex items-center gap-2 text-gray-500 dark:text-gray-400">
+                              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3M5 11h14M5 19h14M5 7h14" />
+                              </svg>
+                              <span>{new Date(post.created_at).toLocaleDateString()}</span>
+                            </div>
+                          </div>
+                        </div>
+                      </Link>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-12 text-center">
+                    <div className="text-6xl mb-4">💗</div>
+                    <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">아직 추천한 게시물이 없습니다</h3>
+                    <p className="text-gray-500 dark:text-gray-400">관심있는 게시물에 추천을 눌러보세요.</p>
                   </div>
                 )}
               </div>
