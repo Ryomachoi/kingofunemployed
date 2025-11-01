@@ -46,4 +46,5 @@ Changelog 버전 기록
 2025-10-28 board/feature07 추천 기능 정상화
 
 2025-11-01 feedback/fix01 AI feedback 페이지 비로그인 접근 문제 해결
-
+           mypage/feature02 마이페이지 기능 수정
+           
