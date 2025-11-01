@@ -48,16 +48,12 @@ export default function ProfileEditor({ userId, initialNickname, initialDisplayN
 
   return (
     <div>
-      <div className="mb-4">
-        <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
-          닉네임
-        </label>
-        
+      <div className="mb-4">        
         {!isEditing ? (
           <div className="flex items-center justify-between">
             <div>
               <p className="text-slate-800 dark:text-slate-200 font-medium">
-                닉네임: {nickname || '설정되지 않음'}
+                {nickname || '설정되지 않음'}
               </p>
             </div>
             <button

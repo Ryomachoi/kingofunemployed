@@ -33,20 +33,12 @@ export default function MyPageClient({ user, profile, posts, comments, interview
             {/* 프로필 카드 */}
             <div className="p-6 border-b border-gray-200 dark:border-gray-700">
               <div className="flex flex-col items-center">
-                <div className="w-20 h-20 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center mb-4">
-                  <span className="text-white text-2xl font-bold">
-                    {(profile?.display_name || user.user_metadata?.nickname || user.email.charAt(0)).toUpperCase()}
-                  </span>
-                </div>
                 <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-1">
                   {profile?.display_name || user.user_metadata?.nickname || user.email.split('@')[0]}
                 </h2>
                 <p className="text-gray-500 dark:text-gray-400 text-sm mb-4">
                   {user.user_metadata?.original_naver_email || user.email}
                 </p>
-                <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">
-                  VIP 멤버
-                </span>
               </div>
               
               {/* 통계 */}
@@ -82,7 +74,11 @@ export default function MyPageClient({ user, profile, posts, comments, interview
                         : 'text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700'
                     }`}
                   >
-                    <span className="mr-3">👤</span>
+                    <div className="w-5 h-5 mr-3 flex items-center justify-center">
+                      <svg className="w-5 h-5 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                      </svg>
+                    </div>
                     프로필
                   </button>
                 </li>
@@ -95,7 +91,11 @@ export default function MyPageClient({ user, profile, posts, comments, interview
                         : 'text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700'
                     }`}
                   >
-                    <span className="mr-3">🏢</span>
+                    <div className="w-5 h-5 mr-3 flex items-center justify-center">
+                      <svg className="w-5 h-5 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                      </svg>
+                    </div>
                     작성한 게시물
                   </button>
                 </li>
@@ -108,7 +108,11 @@ export default function MyPageClient({ user, profile, posts, comments, interview
                         : 'text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700'
                     }`}
                   >
-                    <span className="mr-3">📝</span>
+                    <div className="w-5 h-5 mr-3 flex items-center justify-center">
+                      <svg className="w-5 h-5 text-purple-600 dark:text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                      </svg>
+                    </div>
                     작성한 댓글
                   </button>
                 </li>
@@ -121,7 +125,11 @@ export default function MyPageClient({ user, profile, posts, comments, interview
                         : 'text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700'
                     }`}
                   >
-                    <span className="mr-3">💼</span>
+                    <div className="w-5 h-5 mr-3 flex items-center justify-center">
+                      <svg className="w-5 h-5 text-orange-600 dark:text-orange-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2-2v2m8 0V6a2 2 0 012 2v6a2 2 0 01-2 2H6a2 2 0 01-2-2V8a2 2 0 012-2V6" />
+                      </svg>
+                    </div>
                     면접 후기
                   </button>
                 </li>
@@ -135,7 +143,11 @@ export default function MyPageClient({ user, profile, posts, comments, interview
                         : 'text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700'
                     }`}
                   >
-                    <span className="mr-3">📊</span>
+                    <div className="w-5 h-5 mr-3 flex items-center justify-center">
+                      <svg className="w-5 h-5 text-indigo-600 dark:text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                      </svg>
+                    </div>
                     활동 내역
                   </button>
                 </li>
@@ -148,7 +160,12 @@ export default function MyPageClient({ user, profile, posts, comments, interview
                         : 'text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700'
                     }`}
                   >
-                    <span className="mr-3">⚙️</span>
+                    <div className="w-5 h-5 mr-3 flex items-center justify-center">
+                      <svg className="w-5 h-5 text-gray-600 dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                      </svg>
+                    </div>
                     설정
                   </button>
                 </li>
@@ -163,42 +180,87 @@ export default function MyPageClient({ user, profile, posts, comments, interview
                 <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-8">프로필 정보</h1>
                 
                 <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-8">
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    <div className="text-center">
-                      <label className="block text-sm font-medium text-gray-500 dark:text-gray-400 mb-2">
-                        이름
-                      </label>
-                      <p className="text-xl text-gray-900 dark:text-white font-semibold">
-                        {profile?.display_name || user.user_metadata?.nickname || user.email.split('@')[0]}
-                      </p>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <div className="space-y-6">
+                      <div className="flex items-center space-x-4 p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                        <div className="flex-shrink-0">
+                          <div className="w-10 h-10 bg-blue-100 dark:bg-blue-900 rounded-full flex items-center justify-center">
+                            <svg className="w-5 h-5 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                            </svg>
+                          </div>
+                        </div>
+                        <div className="flex-1">
+                          <label className="block text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">
+                            이름
+                          </label>
+                          <p className="text-lg text-gray-900 dark:text-white font-medium">
+                            {profile?.display_name || user.user_metadata?.nickname || user.email.split('@')[0]}
+                          </p>
+                        </div>
+                      </div>
+                      
+                      <div className="flex items-center space-x-4 p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                        <div className="flex-shrink-0">
+                          <div className="w-10 h-10 bg-green-100 dark:bg-green-900 rounded-full flex items-center justify-center">
+                            <svg className="w-5 h-5 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                            </svg>
+                          </div>
+                        </div>
+                        <div className="flex-1">
+                          <label className="block text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">
+                            이메일
+                          </label>
+                          <p className="text-lg text-gray-900 dark:text-white font-medium">
+                            {user.user_metadata?.original_naver_email || user.email}
+                          </p>
+                        </div>
+                      </div>
                     </div>
                     
-                    <div className="text-center">
-                      <label className="block text-sm font-medium text-gray-500 dark:text-gray-400 mb-2">
-                        이메일
-                      </label>
-                      <p className="text-xl text-gray-900 dark:text-white font-semibold">
-                        {user.user_metadata?.original_naver_email || user.email}
-                      </p>
+                    <div className="space-y-6">
+                      <div className="flex items-center space-x-4 p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                        <div className="flex-shrink-0">
+                          <div className="w-10 h-10 bg-purple-100 dark:bg-purple-900 rounded-full flex items-center justify-center">
+                            <svg className="w-5 h-5 text-purple-600 dark:text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                            </svg>
+                          </div>
+                        </div>
+                        <div className="flex-1">
+                          <label className="block text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">
+                            가입일
+                          </label>
+                          <p className="text-lg text-gray-900 dark:text-white font-medium">
+                            {new Date(user.created_at || '2024-01-15').toLocaleDateString('ko-KR')}
+                          </p>
+                        </div>
+                      </div>
+                      
+                      <div className="flex items-center space-x-4 p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                        <div className="flex-shrink-0">
+                          <div className="w-10 h-10 bg-orange-100 dark:bg-orange-900 rounded-full flex items-center justify-center">
+                            <svg className="w-5 h-5 text-orange-600 dark:text-orange-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
+                            </svg>
+                          </div>
+                        </div>
+                        <div className="flex-1">
+                          <label className="block text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">
+                            닉네임
+                          </label>
+                          <div className="text-lg text-gray-900 dark:text-white font-medium">
+                            <ProfileEditor 
+                              userId={user.id}
+                              initialNickname={profile?.nickname || ''}
+                              initialDisplayName={profile?.display_name || user.id.substring(0, 8)}
+                              onUpdateProfile={updateProfile}
+                            />
+                          </div>
+                        </div>
+                      </div>
                     </div>
-                    
-                    <div className="text-center">
-                      <label className="block text-sm font-medium text-gray-500 dark:text-gray-400 mb-2">
-                        가입일
-                      </label>
-                      <p className="text-xl text-gray-900 dark:text-white font-semibold">
-                        {new Date(user.created_at || '2024-01-15').toLocaleDateString('ko-KR')}
-                      </p>
-                    </div>
-                  </div>
-                  
-                  <div className="mt-8 pt-8 border-t border-gray-200 dark:border-gray-700">
-                    <ProfileEditor 
-                      userId={user.id}
-                      initialNickname={profile?.nickname || ''}
-                      initialDisplayName={profile?.display_name || user.id.substring(0, 8)}
-                      onUpdateProfile={updateProfile}
-                    />
                   </div>
                 </div>
               </div>
