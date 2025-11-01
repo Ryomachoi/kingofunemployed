@@ -64,11 +64,19 @@ export default async function InterviewPage() {
               </div>
             </div>
             
-            <Link href="/interview/analyze">
-              <button className="w-full bg-gradient-to-r from-blue-500 to-sky-400 text-white font-semibold py-4 px-6 rounded-xl hover:from-blue-600 hover:to-sky-500 transition-all duration-200 transform hover:scale-105 shadow-lg">
-                AI 피드백 받기
-              </button>
-            </Link>
+            {user ? (
+              <Link href="/interview/analyze">
+                <button className="w-full bg-gradient-to-r from-blue-500 to-sky-400 text-white font-semibold py-4 px-6 rounded-xl hover:from-blue-600 hover:to-sky-500 transition-all duration-200 transform hover:scale-105 shadow-lg">
+                  AI 피드백 받기
+                </button>
+              </Link>
+            ) : (
+              <Link href="/login">
+                <button className="w-full bg-gradient-to-r from-blue-500 to-sky-400 text-white font-semibold py-4 px-6 rounded-xl hover:from-blue-600 hover:to-sky-500 transition-all duration-200 transform hover:scale-105 shadow-lg">
+                  AI 피드백 받기
+                </button>
+              </Link>
+            )}
           </div>
         </div>
 
