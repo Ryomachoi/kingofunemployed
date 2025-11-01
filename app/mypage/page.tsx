@@ -66,6 +66,35 @@ export default async function MyPage() {
     .order('created_at', { ascending: false })
     .limit(10)
 
+  // 내가 추천한 게시물 가져오기
+  const { data: likedRows } = await supabase
+    .from('post_likes')
+    .select(`
+      posts!inner(
+        id,
+        title,
+        content,
+        author_id,
+        created_at,
+        view_count,
+        comment_count,
+        like_count,
+        board_id,
+        boards(name)
+      )
+    `)
+    .eq('user_id', user.id)
+    .order('created_at', { ascending: false })
+    .limit(20)
+
+  const likedPosts = (likedRows || []).map((row: any) => {
+    const p = (row as any).posts
+    return {
+      ...p,
+      boards: p?.boards
+    }
+  })
+
   // 면접 후기 가져오기 (새로운 스키마: 질문 개수 포함)
   const { data: interviews } = await supabase
     .from('interviews')
@@ -99,6 +128,7 @@ export default async function MyPage() {
       posts={postsWithCommentCount || []}
       comments={comments || []}
       interviews={interviewsWithQuestionCount || []}
+      likedPosts={likedPosts || []}
     />
   )
 }
