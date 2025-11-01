@@ -351,36 +351,59 @@ export default function MyPageClient({ user, profile, posts, comments, interview
               <div className="max-w-4xl">
                 <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-8">작성한 댓글</h1>
                 
-                <div className="space-y-4">
-                  {comments && comments.length > 0 ? (
-                    comments.map((comment: any) => (
-                      <div key={comment.id} className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
-                        <div className="flex justify-between items-start mb-4">
-                          <div className="flex-1">
-                            <div className="flex items-center gap-2 mb-2">
-                              <span className="text-sm text-gray-500 dark:text-gray-400">
-                                {new Date(comment.created_at).toLocaleDateString()}
-                              </span>
-                              <span className="text-gray-300 dark:text-gray-600">•</span>
-                              <Link href={`/boards/${comment.posts?.board_id}/posts/${comment.post_id}`} className="text-sm text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300">
-                                {comment.posts?.title || '게시물 보기'}
-                              </Link>
+                {comments && comments.length > 0 ? (
+                  <div className="grid gap-6">
+                    {comments.map((comment: any) => (
+                      <Link key={comment.id} href={`/boards/${comment.posts?.board_id}/posts/${comment.post_id}`}>
+                        <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-700 p-6 hover:shadow-lg hover:border-blue-300 dark:hover:border-blue-600 transition-all duration-200 cursor-pointer group relative">
+                          <div className="flex items-start justify-between mb-4">
+                            <div className="flex-1 pr-4">
+                              <div className="flex items-center gap-3 mb-3">
+                                <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">
+                                  {comment.posts?.boards?.name ?? '게시판'}
+                                </span>
+                                <span className="text-gray-400 dark:text-gray-500">•</span>
+                                <h3 className="text-lg font-semibold text-gray-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
+                                  {comment.posts?.title || '게시물 보기'}
+                                </h3>
+                              </div>
+                              {comment.content && (
+                                <div className="mt-3 mb-4">
+                                  <p className="text-gray-700 dark:text-gray-300 text-sm leading-relaxed line-clamp-3">
+                                    {comment.content}
+                                  </p>
+                                </div>
+                              )}
                             </div>
-                            <p className="text-gray-900 dark:text-white">
-                              {comment.content}
-                            </p>
+                          </div>
+                          {/* 메타 정보: 댓글 표시, 작성시간 */}
+                          <div className="mt-4 flex items-center justify-between text-sm text-slate-600 dark:text-slate-400">
+                            <div className="flex items-center gap-3">
+                              <span className="inline-flex items-center gap-1">
+                                <svg className="w-4 h-4 text-purple-600 dark:text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                                </svg>
+                                <span>내 댓글</span>
+                              </span>
+                            </div>
+                            <div className="flex items-center gap-2 text-gray-500 dark:text-gray-400">
+                              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                              </svg>
+                              <span>{new Date(comment.created_at).toLocaleDateString('ko-KR', { year: 'numeric', month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit' })}</span>
+                            </div>
                           </div>
                         </div>
-                      </div>
-                    ))
-                  ) : (
-                    <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-12 text-center">
-                      <div className="text-6xl mb-4">💬</div>
-                      <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">작성한 댓글이 없습니다</h3>
-                      <p className="text-gray-500 dark:text-gray-400">아직 작성한 댓글이 없습니다.</p>
-                    </div>
-                  )}
-                </div>
+                      </Link>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-700 p-12 text-center">
+                    <div className="text-6xl mb-4">💬</div>
+                    <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">작성한 댓글이 없습니다</h3>
+                    <p className="text-gray-500 dark:text-gray-400">아직 작성한 댓글이 없습니다.</p>
+                  </div>
+                )}
               </div>
             )}
 
