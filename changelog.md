@@ -44,3 +44,6 @@ Changelog 버전 기록
 2025-10-18 interviewlist/design01 면접 후기 게시판 디자인 시안 02
 
 2025-10-28 board/feature07 추천 기능 정상화
+
+2025-11-01 feedback/fix01 AI feedback 페이지 비로그인 접근 문제 해결
+
