@@ -128,4 +128,8 @@ jobs:
           curl -H "Content-Type: application/json" \
                -X POST \
                -d "$JSON" \
+<<<<<<< HEAD
                "${{ secrets.DISCORD_WEBHOOK }}"
+=======
+               "${{ secrets.DISCORD_WEBHOOK }}"
+>>>>>>> abebf0c5be435f0dea3d4032061d35826eb63a61

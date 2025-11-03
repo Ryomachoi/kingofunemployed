@@ -1,107 +1,142 @@
-import { createClient } from '@/lib/supabase/server'
 import Link from 'next/link'
+import { createClient } from '@/lib/supabase/server'
 
 export default async function InterviewPage() {
   const supabase = await createClient()
-  const { data: interviews } = await supabase.from('interviews').select('*').order('created_at', { ascending: false })
-
+  const { data: { user } } = await supabase.auth.getUser()
+  
   return (
-    <div className="container py-8">
-      <div className="flex items-center justify-between mb-8">
-        <div>
-          <h1 className="text-3xl font-bold text-slate-900 dark:text-slate-100">
-            면접 복기
+    <div className="min-h-screen bg-transparent">
+       <div className="container mx-auto px-4 py-16">
+        {/* Header Section */}
+        {/* <div className="text-center mb-16">
+          {/* Camera Icon 
+          <div className="inline-flex items-center justify-center w-24 h-24 bg-gradient-to-br from-blue-500 to-sky-400 rounded-full mb-8">
+            <svg className="w-12 h-12 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
+            </svg>
+          </div>
+          
+          <h1 className="text-4xl font-bold text-slate-900 dark:text-slate-100 mb-4">
+            AI 면접복기
           </h1>
-          <p className="mt-2 text-slate-600 dark:text-slate-400">
-            면접 경험을 공유하고 AI 피드백을 받아보세요
+          <p className="text-lg text-slate-600 dark:text-slate-400 max-w-2xl mx-auto mb-12">
+            AI 기반 면접 분석으로 개선점을 찾고, 면접 스킬을 향상시켜보세요.
           </p>
-        </div>
-        <Link 
-          href="/interview/new"
-          className="btn btn-primary"
-        >
-          면접 복기 작성
-        </Link>
-      </div>
-      
-      <div className="space-y-4">
-        {interviews && interviews.length > 0 ? (
-          interviews.map((interview) => (
-            <Link key={interview.id} href={`/interview/${interview.id}`} className="block">
-              <div className="card p-6 hover:shadow-md transition-shadow">
-                <div className="flex items-start justify-between mb-4">
-                  <div className="flex-1">
-                    <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100 mb-2">
-                      {interview.company_name} - {interview.position}
-                    </h3>
-                    <div className="flex items-center space-x-4 text-sm text-slate-600 dark:text-slate-400">
-                      <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                        interview.interview_type === 'technical' 
-                          ? 'bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-300'
-                          : interview.interview_type === 'behavioral'
-                          ? 'bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-300'
-                          : 'bg-purple-100 text-purple-800 dark:bg-purple-900/20 dark:text-purple-300'
-                      }`}>
-                        {interview.interview_type === 'technical' ? '기술면접' : 
-                         interview.interview_type === 'behavioral' ? '인성면접' : '기타'}
-                      </span>
-                      <span>{interview.interview_date}</span>
-                      <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                        interview.result === 'pass' 
-                          ? 'bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-300'
-                          : interview.result === 'fail'
-                          ? 'bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-300'
-                          : 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/20 dark:text-yellow-300'
-                      }`}>
-                        {interview.result === 'pass' ? '합격' : 
-                         interview.result === 'fail' ? '불합격' : '대기중'}
-                      </span>
-                    </div>
-                  </div>
-                  {interview.ai_feedback && (
-                    <div className="ml-4">
-                      <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-300">
-                        <svg className="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
-                          <path fillRule="evenodd" d="M11.3 1.046A1 1 0 0112 2v5h4a1 1 0 01.82 1.573l-7 10A1 1 0 018 18v-5H4a1 1 0 01-.82-1.573l7-10a1 1 0 011.12-.38z" clipRule="evenodd" />
-                        </svg>
-                        AI 분석 완료
-                      </span>
-                    </div>
-                  )}
-                </div>
-                
-                <p className="text-slate-600 dark:text-slate-400 text-sm line-clamp-3 mb-4">
-                  {interview.questions_and_answers}
-                </p>
-                
-                <div className="flex items-center justify-between text-sm text-slate-500 dark:text-slate-400">
-                  <span>작성자: {interview.user_id}</span>
-                  <span>{interview.created_at ? new Date(interview.created_at).toLocaleDateString('ko-KR') : '-'}</span>
-                </div>
-              </div>
-            </Link>
-          ))
-        ) : (
-          <div className="card p-12 text-center">
-            <div className="mx-auto h-12 w-12 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center mb-4">
-              <svg className="h-6 w-6 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        </div> */}
+
+        {/* AI 피드백 받기 Section */}
+        <div className="max-w-2xl mx-auto mb-16">
+          <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-lg border border-slate-200 dark:border-slate-700 p-8">
+            <div className="flex items-center justify-center w-16 h-16 bg-gradient-to-br from-blue-500 to-sky-400 rounded-xl mb-6 mx-auto">
+              <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
               </svg>
             </div>
-            <h3 className="text-lg font-medium text-slate-900 dark:text-slate-100 mb-2">
-              아직 면접 복기가 없습니다
-            </h3>
-            <p className="text-slate-600 dark:text-slate-400 mb-4">
-              첫 번째 면접 경험을 공유해보세요!
+            
+            <h2 className="text-2xl font-bold text-slate-900 dark:text-slate-100 mb-4 text-center">
+              AI Feedback
+            </h2>
+            <p className="text-slate-600 dark:text-slate-400 mb-8 text-center">
+              면접 내용을 입력하면 AI가 답변의 품질, 논리성, 표현력을 분석하고<br />입력된 사용자의 내용에 맞춰 개선점을 제안해드립니다.
             </p>
-            <Link 
-              href="/interview/new"
-              className="btn btn-primary"
-            >
-              면접 복기 작성
-            </Link>
+
+            {/* Features List */}
+            <div className="space-y-3 mb-8">
+              <div className="flex items-center text-sm text-slate-600 dark:text-slate-400">
+                <svg className="w-4 h-4 text-green-500 mr-3 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                </svg>
+                실시간 답변 분석
+              </div>
+              <div className="flex items-center text-sm text-slate-600 dark:text-slate-400">
+                <svg className="w-4 h-4 text-green-500 mr-3 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                </svg>
+                개인화된 개선 제안
+              </div>
+              <div className="flex items-center text-sm text-slate-600 dark:text-slate-400">
+                <svg className="w-4 h-4 text-green-500 mr-3 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                </svg>
+                구조화된 피드백
+              </div>
+            </div>
+            
+            {user ? (
+              <Link href="/interview/analyze">
+                <button className="w-full bg-gradient-to-r from-blue-500 to-sky-400 text-white font-semibold py-4 px-6 rounded-xl hover:from-blue-600 hover:to-sky-500 transition-all duration-200 transform hover:scale-105 shadow-lg">
+                  AI 피드백 받기
+                </button>
+              </Link>
+            ) : (
+              <Link href="/login">
+                <button className="w-full bg-gradient-to-r from-blue-500 to-sky-400 text-white font-semibold py-4 px-6 rounded-xl hover:from-blue-600 hover:to-sky-500 transition-all duration-200 transform hover:scale-105 shadow-lg">
+                  AI 피드백 받기
+                </button>
+              </Link>
+            )}
           </div>
-        )}
+        </div>
+
+        {/* AI 면접복기 특징 Section */}
+        <div className="max-w-4xl mx-auto">
+         {/* <h2 className="text-2xl font-bold text-slate-900 dark:text-slate-100 mb-8 text-center">
+            AI 면접복기 특징
+          </h2> */}
+          
+          <div className="grid md:grid-cols-3 gap-6">
+            {/* 실시간 분석 */}
+            <div className="text-center p-6">
+              <div className="inline-flex items-center justify-center w-16 h-16 bg-blue-100 dark:bg-blue-900/20 rounded-full mb-4">
+                <svg className="w-8 h-8 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                </svg>
+              </div>
+              <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100 mb-2">
+                실시간 분석
+              </h3>
+              <p className="text-xs-plus text-slate-600 dark:text-slate-400" style={{lineHeight: '1.625'}}>
+                실시간으로 답변을 분석하여<br />
+                즉시 피드백 제공
+              </p>
+            </div>
+
+            {/* 개인 제안 */}
+            <div className="text-center p-6">
+              <div className="inline-flex items-center justify-center w-16 h-16 bg-sky-100 dark:bg-sky-800/30 rounded-full mb-4">
+                <svg className="w-8 h-8 text-sky-600 dark:text-sky-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                </svg>
+              </div>
+              <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100 mb-2">
+                개인 제안
+              </h3>
+              <p className="text-xs-plus text-slate-600 dark:text-slate-400" style={{lineHeight: '1.625'}}>
+                개인화된 가치관과 구체적인<br />
+                실행 방안을 통한 맞춤형 개선 제안
+              </p>
+            </div>
+
+            {/* 합격 예측 */}
+            <div className="text-center p-6">
+              <div className="inline-flex items-center justify-center w-16 h-16 bg-blue-200 dark:bg-blue-800/30 rounded-full mb-4">
+                <svg className="w-8 h-8 text-blue-700 dark:text-blue-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                </svg>
+              </div>
+              <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100 mb-2">
+                합격 예측
+              </h3>
+              <p className="text-xs-plus text-slate-600 dark:text-slate-400" style={{lineHeight: '1.625'}}>
+                AI 분석을 통한 합격 확률 예측과<br />
+                개선 방향 제시
+              </p>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   )

@@ -1,21 +1,134 @@
-export default function MyPage() {
+import { createClient } from '@/lib/supabase/server'
+import { redirect } from 'next/navigation'
+import type { UserProfile } from '@/types/database'
+import MyPageClient from './MyPageClient'
+
+export default async function MyPage() {
+  const supabase = await createClient()
+  
+  const { data: { user } } = await supabase.auth.getUser()
+  
+  // 사용자 인증 확인
+  if (!user) {
+    redirect('/login')
+  }
+
+  // 프로필 정보 가져오기
+  const { data: profile } = await supabase
+    .from('user_profiles')
+    .select('id, nickname, display_name, created_at, updated_at')
+    .eq('id', user.id)
+    .single()
+
+  // 최근 게시글 가져오기 (게시판에서만)
+  const { data: posts } = await supabase
+    .from('posts')
+    .select(`
+      *,
+      boards(name)
+    `)
+    .eq('author_id', user.id)
+    .not('board_id', 'is', null)
+    .order('created_at', { ascending: false })
+    .limit(10)
+
+  // 각 게시글에 대한 댓글 개수 조회
+  let postsWithCommentCount = []
+  if (posts) {
+    postsWithCommentCount = await Promise.all(
+      posts.map(async (post) => {
+        const { count } = await supabase
+          .from('comments')
+          .select('*', { count: 'exact', head: true })
+          .eq('post_id', post.id)
+
+        return {
+          ...post,
+          comment_count: count || 0
+        }
+      })
+    )
+  }
+
+  // 최근 댓글 가져오기 (게시판에서만)
+  const { data: comments } = await supabase
+    .from('comments')
+    .select(`
+      *,
+      posts!inner(
+        title,
+        board_id,
+        boards(name)
+      )
+    `)
+    .eq('author_id', user.id)
+    .not('posts.board_id', 'is', null)
+    .order('created_at', { ascending: false })
+    .limit(10)
+
+  // 내가 추천한 게시물 가져오기
+  const { data: likedRows } = await supabase
+    .from('post_likes')
+    .select(`
+      posts!inner(
+        id,
+        title,
+        content,
+        author_id,
+        created_at,
+        view_count,
+        comment_count,
+        like_count,
+        board_id,
+        boards(name)
+      )
+    `)
+    .eq('user_id', user.id)
+    .order('created_at', { ascending: false })
+    .limit(20)
+
+  const likedPosts = (likedRows || []).map((row: any) => {
+    const p = (row as any).posts
+    return {
+      ...p,
+      boards: p?.boards
+    }
+  })
+
+  // 면접 후기 가져오기 (새로운 스키마: 질문 개수 포함)
+  const { data: interviews } = await supabase
+    .from('interviews')
+    .select('*')
+    .eq('user_id', user.id)
+    .order('created_at', { ascending: false })
+    .limit(20)
+
+  // 각 면접에 대한 질문 개수 조회
+  let interviewsWithQuestionCount = []
+  if (interviews) {
+    interviewsWithQuestionCount = await Promise.all(
+      interviews.map(async (interview) => {
+        const { count } = await supabase
+          .from('interview_questions')
+          .select('*', { count: 'exact', head: true })
+          .eq('interview_id', interview.id)
+
+        return {
+          ...interview,
+          question_count: count || 0
+        }
+      })
+    )
+  }
+
   return (
-    <div className="max-w-2xl mx-auto py-12 px-4">
-      <h1 className="text-2xl font-bold text-slate-800 dark:text-slate-100 mb-8">마이페이지</h1>
-      <section className="mb-10">
-        <h2 className="text-lg font-semibold mb-2">내 게시글 관리</h2>
-        <div className="rounded border p-4 bg-white dark:bg-slate-900">
-          <p className="text-slate-500">작성한 게시글이 여기에 표시됩니다.</p>
-          {/* 실제 게시글 리스트가 여기에 들어갑니다. */}
-        </div>
-      </section>
-      <section>
-        <h2 className="text-lg font-semibold mb-2">내 댓글 관리</h2>
-        <div className="rounded border p-4 bg-white dark:bg-slate-900">
-          <p className="text-slate-500">작성한 댓글이 여기에 표시됩니다.</p>
-          {/* 실제 댓글 리스트가 여기에 들어갑니다. */}
-        </div>
-      </section>
-    </div>
-  );
+    <MyPageClient 
+      user={user}
+      profile={profile}
+      posts={postsWithCommentCount || []}
+      comments={comments || []}
+      interviews={interviewsWithQuestionCount || []}
+      likedPosts={likedPosts || []}
+    />
+  )
 }

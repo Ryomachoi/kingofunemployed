@@ -11,9 +11,14 @@
   "dependencies": {
     "@supabase/ssr": "^0.6.1",
     "@supabase/supabase-js": "^2.50.1",
+    "@types/uuid": "^10.0.0",
+    "axios": "^1.11.0",
+    "dotenv": "^17.2.1",
     "next": "15.3.4",
+    "openai": "^5.12.2",
     "react": "^19.0.0",
-    "react-dom": "^19.0.0"
+    "react-dom": "^19.0.0",
+    "uuid": "^11.1.0"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",
