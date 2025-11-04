@@ -111,3 +111,16 @@ body {
   font-size: 0.5rem; /* 8px */
   line-height: 0.75rem; /* 12px */
 }
+
+/* 홈 화면 AI 피드백 섹션 테두리 그라데이션 */
+.ai-feedback-border {
+  border: 3px solid transparent;
+  border-image: linear-gradient(to bottom, #D6EAFF, #8FBFFF) 1;
+  box-shadow: 0 0 0 1px rgba(153, 194, 255, 0.45), 0 6px 18px rgba(15, 23, 42, 0.08);
+  transition: border-image 200ms ease-in-out, box-shadow 200ms ease-in-out;
+}
+
+.ai-feedback-border:hover {
+  border-image: linear-gradient(to bottom, #B3D9FF, #99C2FF) 1;
+  box-shadow: 0 0 0 2px rgba(153, 194, 255, 0.6), 0 10px 22px rgba(15, 23, 42, 0.12);
+}
