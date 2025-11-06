@@ -6,6 +6,7 @@ import ProfileEditor from './ProfileEditor'
 import { updateProfile, deleteAccount } from './actions'
 import type { UserProfile } from '@/types/database'
 import DeleteAccountButton from './DeleteAccountButton'
+// ThemeToggle 비활성화: 마이페이지 설정에서 숨김 처리
 
 interface MyPageProps {
   user: any
@@ -24,6 +25,17 @@ export default function MyPageClient({ user, profile, posts, comments, interview
     comments: comments?.length || 0,
     interviews: interviews?.length || 0
   }
+
+  // 하이드레이션 불일치 방지를 위한 안정적인 날짜 포맷 (ISO 기반)
+  const createdDateText = (() => {
+    try {
+      const d = new Date(user?.created_at || '2024-01-15')
+      // YYYY-MM-DD 형태로 고정 포맷
+      return d.toISOString().slice(0, 10)
+    } catch {
+      return '2024-01-15'
+    }
+  })()
 
   return (
     <div className="min-h-screen bg-transparent">
@@ -57,10 +69,6 @@ export default function MyPageClient({ user, profile, posts, comments, interview
                   <div className="text-sm text-gray-500 dark:text-gray-400">면접후기</div>
                 </div>
               </div>
-              
-              <button className="w-full mt-6 bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg transition-colors">
-                프로필 수정
-              </button>
             </div>
 
             {/* 네비게이션 */}
@@ -95,7 +103,8 @@ export default function MyPageClient({ user, profile, posts, comments, interview
                   >
                     <div className="w-5 h-5 mr-3 flex items-center justify-center">
                       <svg className="w-5 h-5 text-orange-600 dark:text-orange-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2-2v2m8 0V6a2 2 0 012 2v6a2 2 0 01-2 2H6a2 2 0 01-2-2V8a2 2 0 012-2V6" />
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 3h6a2 2 0 012 2v14a2 2 0 01-2 2H9a2 2 0 01-2-2V5a2 2 0 012-2z" />
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 7h6M9 11h6M9 15h6M7 11h.01M7 15h.01" />
                       </svg>
                     </div>
                     면접 후기
@@ -235,7 +244,7 @@ export default function MyPageClient({ user, profile, posts, comments, interview
                             가입일
                           </label>
                           <p className="text-lg text-gray-900 dark:text-white font-medium">
-                            {new Date(user.created_at || '2024-01-15').toLocaleDateString('ko-KR')}
+                            {createdDateText}
                           </p>
                         </div>
                       </div>
@@ -618,34 +627,7 @@ export default function MyPageClient({ user, profile, posts, comments, interview
                 <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-8">설정</h1>
                 
                 <div className="space-y-6">
-                  {/* 알림 설정 */}
-                  <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
-                    <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">알림 설정</h2>
-                    
-                    <div className="space-y-4">
-                      <div className="flex items-center justify-between">
-                        <div>
-                          <h3 className="font-medium text-gray-900 dark:text-white">댓글 알림</h3>
-                          <p className="text-sm text-gray-500 dark:text-gray-400">내 게시물에 댓글이 달릴 때</p>
-                        </div>
-                        <label className="relative inline-flex items-center cursor-pointer">
-                          <input type="checkbox" className="sr-only peer" defaultChecked />
-                          <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"></div>
-                        </label>
-                      </div>
-                      
-                      <div className="flex items-center justify-between">
-                        <div>
-                          <h3 className="font-medium text-gray-900 dark:text-white">좋아요 알림</h3>
-                          <p className="text-sm text-gray-500 dark:text-gray-400">내 게시물이나 댓글에 좋아요를 받을 때</p>
-                        </div>
-                        <label className="relative inline-flex items-center cursor-pointer">
-                          <input type="checkbox" className="sr-only peer" />
-                          <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"></div>
-                        </label>
-                      </div>
-                    </div>
-                  </div>
+                  {/* 다크모드 설정 비활성화: UI에서 숨김 */}
 
                   {/* 계정 관리 */}
                   <div className="bg-red-50 dark:bg-red-950 rounded-xl border border-red-200 dark:border-red-800 p-6">

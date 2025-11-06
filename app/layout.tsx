@@ -6,6 +6,7 @@ import { createClient } from '@/lib/supabase/server';
 import { logout } from './login/actions';
 import { AuthProvider } from '@/contexts/AuthContext';
 import Footer from "./components/Footer";
+import { cookies } from 'next/headers'
 
 export const metadata: Metadata = {
   title: "백수의 왕 - 취업 커뮤니티",
@@ -19,12 +20,16 @@ export default async function RootLayout({
 }>) {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
+  const cookieStore = await cookies();
+  const themeCookie = cookieStore.get('theme')?.value
+  const isDark = themeCookie === 'dark'
 
   return (
-    <html lang="ko">
+    <html lang="ko" className={isDark ? 'dark' : undefined} data-theme={isDark ? 'dark' : undefined} suppressHydrationWarning>
       <body
         className="antialiased min-h-screen bg-gradient-to-b from-sky-50 to-white dark:from-slate-900 dark:to-slate-950"
       >
+        {/* SSR과 동기화된 초기 테마: 쿠키 기반 */}
         <header className="sticky top-0 z-50 w-full border-b border-slate-200 bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/60 dark:border-slate-700 dark:bg-slate-900/95 dark:supports-[backdrop-filter]:bg-slate-900/60">
           <div className="container flex h-16 items-center">
             {/* 로고 */}
