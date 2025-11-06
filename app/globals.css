@@ -18,6 +18,10 @@
   /* 배경색 관리를 위한 CSS 변수 */
   --section-bg: transparent;
   --card-bg: #ffffff;
+
+  /* 페이지 그라데이션 배경 변수 (라이트) */
+  --page-bg-from: #f0f9ff; /* sky-50 */
+  --page-bg-to: #ffffff;   /* white */
 }
 
 @theme inline {
@@ -49,20 +53,51 @@
   }
 }
 
+/* 다크모드 토글(.dark 클래스)과 연동되는 변수 오버라이드 */
+html.dark {
+  --background: #0f172a;
+  --foreground: #f1f5f9;
+  --card: #1e293b;
+  --card-foreground: #f1f5f9;
+  --primary: #3b82f6;
+  --primary-foreground: #ffffff;
+  --secondary: #1e293b;
+  --secondary-foreground: #cbd5e1;
+  --muted: #1e293b;
+  --muted-foreground: #94a3b8;
+  --border: #334155;
+  --input: #1e293b;
+  --ring: #3b82f6;
+
+  /* 다크모드 배경색 변수 */
+  --section-bg: transparent;
+  --card-bg: #1e293b;
+
+  /* 페이지 그라데이션 배경 변수 (다크) */
+  --page-bg-from: #0f172a; /* slate-900 */
+  --page-bg-to: #0b1220;   /* slate-950-ish */
+}
+
 body {
   color: var(--foreground);
   font-family: var(--font-sans), system-ui, sans-serif;
   line-height: 1.6;
 }
 
+/* 페이지 전체 그라데이션을 변수 기반으로 강제 적용 */
+body.bg-gradient-to-b {
+  background-image: linear-gradient(to bottom, var(--page-bg-from), var(--page-bg-to)) !important;
+  background-color: var(--page-bg-from) !important;
+}
+
 /* 배경색 관리를 위한 커스텀 클래스 */
 .section-bg {
-  background: rgba(255, 255, 255, 0.7);
+  background: var(--section-bg);
   backdrop-filter: blur(10px);
 }
 
 .card-bg {
-  background: rgba(255, 255, 255, 0.8);
+  background: var(--card-bg);
   backdrop-filter: blur(10px);
 }
 

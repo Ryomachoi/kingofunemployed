@@ -6,6 +6,7 @@ import ProfileEditor from './ProfileEditor'
 import { updateProfile, deleteAccount } from './actions'
 import type { UserProfile } from '@/types/database'
 import DeleteAccountButton from './DeleteAccountButton'
+import ThemeToggle from './ThemeToggle'
 
 interface MyPageProps {
   user: any
@@ -24,6 +25,17 @@ export default function MyPageClient({ user, profile, posts, comments, interview
     comments: comments?.length || 0,
     interviews: interviews?.length || 0
   }
+
+  // 하이드레이션 불일치 방지를 위한 안정적인 날짜 포맷 (ISO 기반)
+  const createdDateText = (() => {
+    try {
+      const d = new Date(user?.created_at || '2024-01-15')
+      // YYYY-MM-DD 형태로 고정 포맷
+      return d.toISOString().slice(0, 10)
+    } catch {
+      return '2024-01-15'
+    }
+  })()
 
   return (
     <div className="min-h-screen bg-transparent">
@@ -232,7 +244,7 @@ export default function MyPageClient({ user, profile, posts, comments, interview
                             가입일
                           </label>
                           <p className="text-lg text-gray-900 dark:text-white font-medium">
-                            {new Date(user.created_at || '2024-01-15').toLocaleDateString('ko-KR')}
+                            {createdDateText}
                           </p>
                         </div>
                       </div>
@@ -615,7 +627,8 @@ export default function MyPageClient({ user, profile, posts, comments, interview
                 <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-8">설정</h1>
                 
                 <div className="space-y-6">
-                  {/* 알림 설정 섹션 비활성화: 표시하지 않음 */}
+                  {/* 다크모드 설정 */}
+                  <ThemeToggle />
 
                   {/* 계정 관리 */}
                   <div className="bg-red-50 dark:bg-red-950 rounded-xl border border-red-200 dark:border-red-800 p-6">
