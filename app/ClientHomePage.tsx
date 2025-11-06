@@ -352,7 +352,7 @@ export default function ClientHomePage() {
             </div>
 
             {/* AI Feedback 섹션 */}
-            <div className="section-bg rounded-lg p-6 border-2 border-gradient-to-r from-blue-500 to-sky-400 bg-gradient-to-br from-blue-50 to-sky-50 dark:from-blue-900/20 dark:to-sky-900/20 shadow-lg hover:shadow-xl transition-all duration-300">
+            <div className="section-bg rounded-lg p-6 bg-gradient-to-br from-blue-50 to-sky-50 dark:from-blue-900/20 dark:to-sky-900/20 shadow-md hover:shadow-lg transition-all duration-300 ai-feedback-border">
               <div className="flex items-center space-x-3 mb-4">
                 <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-sky-400 dark:from-blue-500 dark:to-sky-400 rounded-full flex items-center justify-center shadow-lg">
                   <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">

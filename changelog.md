@@ -49,3 +49,6 @@ Changelog 버전 기록
            mypage/feature02 마이페이지 기능 수정
            
 2025-11-04 interview/board03 면접 후기 버그 수정
+           front/design04 전체적인 프론트 디자인 수정
+           front/design04 AI 피드백 섹션 디자인 추가
+           
