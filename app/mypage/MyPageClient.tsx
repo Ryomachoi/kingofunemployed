@@ -6,7 +6,7 @@ import ProfileEditor from './ProfileEditor'
 import { updateProfile, deleteAccount } from './actions'
 import type { UserProfile } from '@/types/database'
 import DeleteAccountButton from './DeleteAccountButton'
-import ThemeToggle from './ThemeToggle'
+// ThemeToggle 비활성화: 마이페이지 설정에서 숨김 처리
 
 interface MyPageProps {
   user: any
@@ -627,8 +627,7 @@ export default function MyPageClient({ user, profile, posts, comments, interview
                 <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-8">설정</h1>
                 
                 <div className="space-y-6">
-                  {/* 다크모드 설정 */}
-                  <ThemeToggle />
+                  {/* 다크모드 설정 비활성화: UI에서 숨김 */}
 
                   {/* 계정 관리 */}
                   <div className="bg-red-50 dark:bg-red-950 rounded-xl border border-red-200 dark:border-red-800 p-6">
