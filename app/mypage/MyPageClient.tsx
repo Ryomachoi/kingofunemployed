@@ -57,10 +57,6 @@ export default function MyPageClient({ user, profile, posts, comments, interview
                   <div className="text-sm text-gray-500 dark:text-gray-400">면접후기</div>
                 </div>
               </div>
-              
-              <button className="w-full mt-6 bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg transition-colors">
-                프로필 수정
-              </button>
             </div>
 
             {/* 네비게이션 */}
@@ -618,34 +614,7 @@ export default function MyPageClient({ user, profile, posts, comments, interview
                 <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-8">설정</h1>
                 
                 <div className="space-y-6">
-                  {/* 알림 설정 */}
-                  <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
-                    <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">알림 설정</h2>
-                    
-                    <div className="space-y-4">
-                      <div className="flex items-center justify-between">
-                        <div>
-                          <h3 className="font-medium text-gray-900 dark:text-white">댓글 알림</h3>
-                          <p className="text-sm text-gray-500 dark:text-gray-400">내 게시물에 댓글이 달릴 때</p>
-                        </div>
-                        <label className="relative inline-flex items-center cursor-pointer">
-                          <input type="checkbox" className="sr-only peer" defaultChecked />
-                          <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"></div>
-                        </label>
-                      </div>
-                      
-                      <div className="flex items-center justify-between">
-                        <div>
-                          <h3 className="font-medium text-gray-900 dark:text-white">좋아요 알림</h3>
-                          <p className="text-sm text-gray-500 dark:text-gray-400">내 게시물이나 댓글에 좋아요를 받을 때</p>
-                        </div>
-                        <label className="relative inline-flex items-center cursor-pointer">
-                          <input type="checkbox" className="sr-only peer" />
-                          <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"></div>
-                        </label>
-                      </div>
-                    </div>
-                  </div>
+                  {/* 알림 설정 섹션 비활성화: 표시하지 않음 */}
 
                   {/* 계정 관리 */}
                   <div className="bg-red-50 dark:bg-red-950 rounded-xl border border-red-200 dark:border-red-800 p-6">
