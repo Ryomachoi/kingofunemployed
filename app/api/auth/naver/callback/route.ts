@@ -82,71 +82,60 @@ export async function GET(request: NextRequest) {
     }
     
     // Supabase에서 사용자 생성 또는 로그인
-    const email = naverUser.email || `naver_${naverUser.id}@temp.com`
+    // 네이버 ID 기반의 안정적인 내부 이메일을 항상 사용해 동일 계정으로 연결
+    const stableEmail = `naver_${naverUser.id}@naver.local`
     const tempPassword = `naver_temp_${process.env.NEXT_PUBLIC_NAVER_CLIENT_SECRET}`
-    
+
     let user: any
-    
-    // 먼저 로그인 시도 (기존 사용자인지 확인)
+
+    // 1) 기존 사용자 로그인 시도 (항상 동일한 stableEmail 사용)
     const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
-      email: email,
+      email: stableEmail,
       password: tempPassword
     })
-    
-    if (signInData.user && !signInError) {
-      // 기존 사용자 로그인 성공
+
+    if (signInData?.user && !signInError) {
       user = signInData.user
       console.log('네이버 기존 사용자 로그인 성공:', user.email)
     } else {
-      // 로그인 실패 시 사용자 존재 여부 확인
-      console.log('네이버 로그인 실패, 사용자 존재 여부 확인 중...')
-      
-      // 사용자 존재 여부 확인을 위해 signUp 시도
+      console.log('네이버 로그인 실패, 신규 사용자 생성 시도...')
+
+      // 2) 신규 사용자 생성 (stableEmail로만 회원가입)
       const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
-        email: email,
+        email: stableEmail,
         password: tempPassword,
         options: {
-          data: payload.user_metadata
+          data: {
+            ...payload.user_metadata,
+            // 네이버가 제공한 실제 이메일은 메타데이터로만 보관 (표시 용도)
+            original_naver_email: naverUser.email || null,
+            naver_id: naverUser.id
+          }
         }
       })
-      
-      if (signUpError && signUpError.message.includes('User already registered')) {
-         // 사용자가 이미 존재하는 경우, 다른 이메일로 시도
-         console.log('사용자가 이미 존재함, 대체 이메일로 시도...')
-         
-         // 타임스탬프를 추가한 대체 이메일 생성
-         const timestamp = Date.now()
-         const alternativeEmail = `naver_${naverUser.id}_${timestamp}@temp.com`
-         
-         console.log('대체 이메일로 회원가입 시도:', alternativeEmail)
-         
-         // 대체 이메일로 회원가입 시도
-         const { data: altSignUpData, error: altSignUpError } = await supabase.auth.signUp({
-           email: alternativeEmail,
-           password: tempPassword,
-           options: {
-             data: {
-               ...payload.user_metadata,
-               original_naver_email: email, // 원본 네이버 이메일 저장
-               naver_id: naverUser.id
-             }
-           }
-         })
-         
-         if (altSignUpError) {
-           console.error('대체 이메일로 회원가입 실패:', altSignUpError)
-           return redirect('/login?error=alt_signup_failed')
-         } else {
-           user = altSignUpData.user
-           console.log('대체 이메일로 회원가입 성공:', user.email)
-         }
-      } else if (signUpError) {
+
+      if (signUpError) {
         console.error('네이버 신규 사용자 생성 실패:', signUpError)
         return redirect('/login?error=signup_failed')
-      } else {
-        // 신규 사용자 생성 성공
-        user = signUpData.user
-        console.log('네이버 신규 사용자 생성 성공:', user.email)
+      }
+
+      user = signUpData.user
+      console.log('네이버 신규 사용자 생성 성공:', user?.email || stableEmail)
+
+      // 3) 일부 프로젝트에서 이메일 확인 설정에 따라 세션이 즉시 생성되지 않을 수 있음
+      //    세션이 없다면 동일 자격으로 재로그인하여 세션 확보
+      const { data: postSignupSession } = await supabase.auth.getSession()
+      if (!postSignupSession?.session) {
+        const { data: secondSignIn, error: secondSignInError } = await supabase.auth.signInWithPassword({
+          email: stableEmail,
+          password: tempPassword
+        })
+        if (secondSignInError) {
+          console.error('네이버 회원가입 후 재로그인 실패:', secondSignInError)
+          return redirect('/login?error=session_failed')
+        }
+        user = secondSignIn.user
+        console.log('네이버 회원가입 후 재로그인 성공:', user?.email || stableEmail)
       }
     }
     
