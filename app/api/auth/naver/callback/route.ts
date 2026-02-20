@@ -37,7 +37,7 @@ export async function GET(request: NextRequest) {
       body: new URLSearchParams({
         grant_type: 'authorization_code',
         client_id: process.env.NEXT_PUBLIC_NAVER_CLIENT_ID!,
-        client_secret: process.env.NEXT_PUBLIC_NAVER_CLIENT_SECRET!,
+        client_secret: process.env.NAVER_CLIENT_SECRET!,
         code,
         state,
       }),
@@ -84,7 +84,7 @@ export async function GET(request: NextRequest) {
     // Supabase에서 사용자 생성 또는 로그인
     // 네이버 ID 기반의 안정적인 내부 이메일을 항상 사용해 동일 계정으로 연결
     const stableEmail = `naver_${naverUser.id}@naver.local`
-    const tempPassword = `naver_temp_${process.env.NEXT_PUBLIC_NAVER_CLIENT_SECRET}`
+    const tempPassword = `naver_temp_${process.env.NAVER_CLIENT_SECRET}`
 
     let user: any
 
